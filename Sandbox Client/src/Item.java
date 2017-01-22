@@ -7,7 +7,7 @@ public class Item {
 	
 	public float MiningPower;
 	public String Name;
-	public Image icon;
+	public int icon;
 	
 	public int ID;
 	
@@ -15,21 +15,12 @@ public class Item {
 	
 	public Block block;
 	
-	public Item(int id, String name, String icon, float miningPower, Block block) {
+	public Item(int id, String name, int icon, float miningPower, Block block) {
 		Name = name;
 		MiningPower = miningPower;
 		ID = id;
 		
-		try{
-			this.icon = ImageIO.read(new File(icon)).getScaledInstance(IconSize, IconSize, 1);      
-		} catch (Exception e){
-			System.out.println("Item texture not found: " + name);
-			try{
-				this.icon = ImageIO.read(new File("resources/default.png")).getScaledInstance(IconSize, IconSize, 1);
-			} catch(Exception e1){
-				this.icon = null;
-			}
-		}
+		this.icon = icon;
 		
 		this.block = block;
 	}

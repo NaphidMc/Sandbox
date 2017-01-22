@@ -1,42 +1,25 @@
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.MouseInfo;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
-import java.util.TimerTask;
 import java.util.concurrent.ThreadLocalRandom;
 
-import javax.swing.Timer;
+import org.newdawn.slick.AppGameContainer;
+import org.newdawn.slick.BasicGame;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.SpriteSheet;
+import org.newdawn.slick.geom.Rectangle;
 
-public class Game extends Canvas implements ActionListener {
-	
-	private static final long serialVersionUID = -7148828155226649547L;
-	
-	private Timer repaintTimer;
-	private Timer inputTimer;
+public class Game extends BasicGame {
 	
 	public static int mapWidth;
 	public static int mapHeight;
-	public static int cameraOffsetX, cameraOffsetY;
+	public static float cameraOffsetX, cameraOffsetY;
 	
 	public static Tile[] map;
 	public static Player myPlayer;
 	
-	//Drawing objects
-	public Canvas canvas;
-	public BufferStrategy strategy = null;
-	private Graphics2D graphics;
-	private Graphics2D backgroundGraphics;
-	private BufferedImage background;
-	
-	public static int hotbarPositionX = 100, hotbarPositionY = 10;
+	public static int hotbarPositionX = 25, hotbarPositionY = 10;
 	public static int inventoryPositionX = 100, inventoryPositionY = 250;
 	public static int craftingUIPositionX, craftingUIPositionY;
 	
@@ -47,82 +30,23 @@ public class Game extends Canvas implements ActionListener {
 	public static int mapBottonCoordinate;
 	
 	// Key booleans
-	public boolean KEY_A_DOWN, KEY_D_DOWN, MOUSE_BUTTON1_DOWN;
+	public static boolean KEY_A_DOWN;
+	public static boolean KEY_D_DOWN;
+	public boolean MOUSE_BUTTON1_DOWN;
 	
 	int mouseX, mouseY;
-
-	//public static GraphicsConfiguration config = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
 	
-	public Game(GraphicsConfiguration config) {
-		super(config);
-		
-		myPlayer = new Player(2500, 20);
-		
-		mapWidth = 100;
-		mapHeight = 32;
-		
-		mapEndCoordinate = Tile.tileSize*mapWidth;
-		mapBottonCoordinate = Tile.tileSize*mapHeight;
-		
-		craftingUIPositionX = (int)(GameInit.frame.getWidth()/2);
-		craftingUIPositionY = 250;
-		
-		map = new Tile[mapWidth*mapHeight];
-		generateMap(7, 13, 2, 5, 2, 4, 12, 1, 13, .5f);
-		fixGrassBlocks();
-		generateTrees(2f);
-		growTrees();
-		
-		cameraOffsetX = -GameInit.frame.getWidth()/2 + myPlayer.x;
-		cameraOffsetY = -GameInit.frame.getHeight()/2 + 100;
-		
-		setSize(GameInit.frame.getWidth(), GameInit.frame.getHeight());
-		
-		background = config.createCompatibleImage(GameInit.frame.getWidth(), GameInit.frame.getHeight());
-		backgroundGraphics = (Graphics2D)background.getGraphics();
-		
-		GameInit.frame.add(this);
-		createBufferStrategy(2);
-		setFocusable(false);
-		
-		do{
-			strategy = getBufferStrategy();
-		} while (strategy == null);
-		
-		//Sets up the myPlayer.Hotbar
-		for(int i = 0; i < Player.numberOfHotbarSlots; i++){
-			myPlayer.hotbar.add(new InventorySlot());
-		}
-		myPlayer.hotbar.get(0).itemStack = new ItemStack(Database.ITEM_PICKAXE, 1);
-		myPlayer.hotbar.get(1).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
-		myPlayer.selectedItem = myPlayer.hotbar.get(0).itemStack.item;
-		
-		//Sets up player inventory
-		for(int i = 0; i <= myPlayer.inventoryRows*myPlayer.inventoryColumns; i++){
-			myPlayer.inventory.add(new InventorySlot());
-		}
-		myPlayer.inventory.get(0).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
-		
-		repaintTimer = new Timer(0, (ActionListener) this);
-		repaintTimer.setRepeats(true);
-		repaintTimer.setActionCommand("repaint");
-		repaintTimer.start();
-		
-		inputTimer = new Timer(15, (ActionListener)this);
-		inputTimer.setRepeats(true);
-		inputTimer.setActionCommand("input");
-		inputTimer.start();
-		
-		TimerTask frameTicker = new TimerTask(){
-			public void run(){
-				FramesPerSecond = Frames;
-				Frames = 0;
-			}
-		};
-		
-		//Timer t = new Timer();
-		java.util.Timer t = new java.util.Timer();
-		t.scheduleAtFixedRate(frameTicker, 1000, 1000);
+	public static AppGameContainer appgc;
+	public static Input input;
+	
+	public SpriteSheet sprites;
+	public static int SPRITESHEET_WIDTH;
+	
+	public static Game current;
+	
+	public Game(String name) {
+		super(name);
+		current = this;
 	}
 	
 	public void generateMap(int groundLevel, int hills, int minHillHeight, int maxHillHeight, int minHillWidth, int maxHillWidth, int stoneDepth, int stoneTransition, int ironDepth, float ironFrequencyMultiplier){
@@ -142,8 +66,8 @@ public class Game extends Canvas implements ActionListener {
 		
 		A: for(int i = 0; i < mapWidth*mapHeight; i++){
 			
-			int currentX = Tile.tileSize*width - cameraOffsetX;
-			int currentY = Tile.tileSize*height - cameraOffsetY;
+			int currentX = Tile.tileSize*width - (int)cameraOffsetX;
+			int currentY = Tile.tileSize*height - (int)cameraOffsetY;
 			
 			//System.out.println("Current X: " + currentX);
 			//System.out.println(Tile.TileSize + "*" + width + "-" + CameraOffsetX);
@@ -326,244 +250,6 @@ public class Game extends Canvas implements ActionListener {
 		}
 	}
 	
-	private Graphics2D getBuffer(){
-		if(graphics == null){
-			try{
-				graphics = (Graphics2D) strategy.getDrawGraphics();
-			} catch (Exception e) { return null; }
-		}
-		
-		return graphics;
-	}
-	
-	public void renderGraphics(Graphics2D g2d){
-		
-		Frames++;
-		
-		//If any of the large ui menus is open, then it just draws those
-		if(myPlayer.inventoryOpen){
-			g2d.setColor(Color.gray);
-			g2d.fillRect(0, 0, GameInit.frame.getWidth(), GameInit.frame.getHeight());
-			
-			drawUI(g2d);
-			return;
-		}
-		
-		g2d.setColor(new Color(100, 149, 237));
-		g2d.fillRect(0, 0, GameInit.frame.getWidth(), GameInit.frame.getHeight());
-		
-		// Draws tiles
-		int mapIndex = 0;
-		for (int i = 0; i < mapHeight; i++) {
-			for (int j = 0; j < mapWidth; j++) {
-				try {
-					map[mapIndex].x = 0 + Tile.tileSize * j - cameraOffsetX;
-					map[mapIndex].y = 0 + Tile.tileSize * i - cameraOffsetY;
-					
-					//System.out.println("Real coordinate: " + Map[mapIndex].x);
-					if (map[mapIndex].block == Database.BLOCK_AIR) {
-						mapIndex++;
-						continue;
-					
-					} else {
-						if (new Rectangle(0, 0, GameInit.frame.getWidth() + cameraOffsetX + Tile.tileSize, GameInit.frame.getHeight() + cameraOffsetY + Tile.tileSize).contains(new Rectangle(
-								0 + Tile.tileSize * j, 0 + Tile.tileSize * i, Tile.tileSize, Tile.tileSize))) {
-							
-							g2d.drawImage(map[mapIndex].texture, 0 + Tile.tileSize * j - cameraOffsetX, 0 + Tile.tileSize * i - cameraOffsetY, null);
-							
-							if(map[mapIndex].health < map[mapIndex].block.health){
-								g2d.setColor(Color.WHITE);
-								Font healthFont = new Font("serif", Font.PLAIN, 48);
-								g2d.setFont(healthFont);
-								
-								g2d.drawString(map[mapIndex].health + "", 0 + Tile.tileSize * j - cameraOffsetX, 0 + Tile.tileSize * i - cameraOffsetY + Tile.tileSize/2);
-							}
-						}
-					}
-					mapIndex++;
-				} catch (Exception e) { }
-				
-			}
-		}
-
-		// Draws the player
-		Player p = myPlayer;
-		//g2d.drawRect(p.CollisionRect.x, p.CollisionRect.y, p.CollisionRect.width, p.CollisionRect.height);
-		g2d.drawImage(p.getPlayerSprite().getScaledInstance(Tile.tileSize, Tile.tileSize, 1), p.x - cameraOffsetX, p.y - cameraOffsetY, null);
-		
-		drawUI(g2d);
-	}
-	
-	public void drawUI(Graphics2D g2d){
-	
-		//**Draws UI:
-		
-		//myPlayer.Hotbar:
-		for(int i = 0; i < myPlayer.hotbar.size(); i++){
-			myPlayer.hotbar.get(i).x = hotbarPositionX + InventorySlot.inventorySlotSize * i;
-			myPlayer.hotbar.get(i).y = hotbarPositionY;
-			
-			if(i == myPlayer.selectedHotbarSlot){
-				g2d.drawImage(InventorySlot.selectedTexture, hotbarPositionX + InventorySlot.inventorySlotSize * i, hotbarPositionY, null);
-			}
-			else{
-				g2d.drawImage(InventorySlot.texture, hotbarPositionX + InventorySlot.inventorySlotSize * i, hotbarPositionY, null);
-			}
-			
-			if(myPlayer.hotbar.get(i).itemStack.item != null){
-				g2d.drawImage(myPlayer.hotbar.get(i).itemStack.item.icon, hotbarPositionX + InventorySlot.inventorySlotSize * i + (int)(.15f*Item.IconSize), hotbarPositionY + (int)(.15f*Item.IconSize), null);
-				
-				Font f = new Font("serif", Font.PLAIN, 26);
-				g2d.setFont(f);
-				g2d.setColor(Color.WHITE);
-				g2d.drawString("" + myPlayer.hotbar.get(i).itemStack.quantity, hotbarPositionX + InventorySlot.inventorySlotSize * i + (int)(.95f*Item.IconSize), hotbarPositionY + (int)(1.15f*Item.IconSize));
-			}
-		}
-		
-		//String to show currently selected item
-		Font f = new Font("serif", Font.PLAIN, 54);
-		g2d.setFont(f);
-		g2d.setColor(Color.WHITE);
-		String tempItemName = "none";
-		if(myPlayer.selectedItem != null)
-			tempItemName = myPlayer.selectedItem.Name;
-		g2d.drawString("Selected item: " + tempItemName, 25, (int)(GameInit.frame.getHeight()/1.12));
-		
-		Font f1 = new Font("serif", Font.PLAIN, 36);
-		g2d.setFont(f1);
-		g2d.drawString("fps: " + FramesPerSecond, 10, 150);
-		
-		if(!myPlayer.inventoryOpen){
-			myPlayer.pickedUpItem = null;
-		}
-		
-		//Draws the inventory of the player
-		if(myPlayer.inventoryOpen){
-			
-			//inventory
-			int currentInventorySlot = 0;
-			for(int i = 0; i < myPlayer.inventoryRows; i++){
-				for(int k = 0; k < myPlayer.inventoryColumns; k++){
-					g2d.drawImage(InventorySlot.texture, inventoryPositionX + InventorySlot.inventorySlotSize * k, inventoryPositionY + InventorySlot.inventorySlotSize * i, null);
-					
-					myPlayer.inventory.get(currentInventorySlot).x = inventoryPositionX + InventorySlot.inventorySlotSize * k;
-					myPlayer.inventory.get(currentInventorySlot).y = inventoryPositionY + InventorySlot.inventorySlotSize * i;
-					
-					if(myPlayer.inventory.get(currentInventorySlot).itemStack.item != null){
-						//displays the item's icon in the inventory
-						g2d.drawImage(myPlayer.inventory.get(currentInventorySlot).itemStack.item.icon, inventoryPositionX + InventorySlot.inventorySlotSize * k + (int)(.15*InventorySlot.inventorySlotSize), inventoryPositionY + InventorySlot.inventorySlotSize * i + (int)(.15*InventorySlot.inventorySlotSize), null);     
-						
-						//displays the item's quantity in the inventory
-						Font f2 = new Font("serif", Font.PLAIN, 26);
-						g2d.setFont(f2);
-						g2d.setColor(Color.WHITE);
-						g2d.drawString("" + myPlayer.inventory.get(currentInventorySlot).itemStack.quantity, inventoryPositionX + InventorySlot.inventorySlotSize * k + (int)(.95f*Item.IconSize), inventoryPositionY + InventorySlot.inventorySlotSize * i + (int)(1.15f*Item.IconSize));
-					}
-					currentInventorySlot++;
-				}
-			}
-			
-			//Crafting table
-			int currentCraftingTableIndex = 0;
-			int x = 0, y = 0;
-			for(int i = 0; i < 9; i++){
-					
-					myPlayer.craftingTable.get(currentCraftingTableIndex).x = craftingUIPositionX + x * InventorySlot.inventorySlotSize;
-					myPlayer.craftingTable.get(currentCraftingTableIndex).y = craftingUIPositionY + y * InventorySlot.inventorySlotSize;
-					
-					g2d.drawImage(InventorySlot.texture, myPlayer.craftingTable.get(currentCraftingTableIndex).x, myPlayer.craftingTable.get(currentCraftingTableIndex).y, null);
-					
-					if(myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.item != null){
-						g2d.drawImage(myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.item.icon, myPlayer.craftingTable.get(currentCraftingTableIndex).x + (int)(.15*InventorySlot.inventorySlotSize), myPlayer.craftingTable.get(currentCraftingTableIndex).y + (int)(.15*InventorySlot.inventorySlotSize), null); 
-					
-						g2d.drawString("" + myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.quantity, myPlayer.craftingTable.get(currentCraftingTableIndex).x + (int)(.95f*Item.IconSize), myPlayer.craftingTable.get(currentCraftingTableIndex).y + (int)(1.15f*Item.IconSize));
-					}
-					
-					currentCraftingTableIndex++;
-					
-					x++;
-					if(x % 3 == 0){
-						y++;
-						x = 0;
-					}
-			}
-			
-			//Draws the output square
-			myPlayer.craftingTableOutput.x = craftingUIPositionX + 4 * InventorySlot.inventorySlotSize;
-			myPlayer.craftingTableOutput.y = craftingUIPositionY + InventorySlot.inventorySlotSize;
-			
-			g2d.drawImage(InventorySlot.texture, craftingUIPositionX + 4 * InventorySlot.inventorySlotSize, craftingUIPositionY + InventorySlot.inventorySlotSize, null);
-			
-			if(myPlayer.craftingTableOutput.itemStack.item != null){
-				g2d.drawImage(myPlayer.craftingTableOutput.itemStack.item.icon, craftingUIPositionX + 4 * InventorySlot.inventorySlotSize + (int)(.15*InventorySlot.inventorySlotSize), craftingUIPositionY + InventorySlot.inventorySlotSize + (int)(.15f*Item.IconSize), null);
-			
-				g2d.drawString("" + myPlayer.craftingTableOutput.itemStack.quantity, craftingUIPositionX + 4 * InventorySlot.inventorySlotSize  + (int)(.95f*Item.IconSize), craftingUIPositionY + InventorySlot.inventorySlotSize + (int)(1.15f*Item.IconSize));
-			}
-			
-			if(myPlayer.pickedUpItem != null){
-				g2d.drawImage(myPlayer.pickedUpItem.item.icon, mouseX, mouseY, null);
-				g2d.drawString("" + myPlayer.pickedUpItem.quantity, mouseX + (int)(.95 * Item.IconSize), mouseY + (int)(1.15 * Item.IconSize));
-			}
-			
-		}
-	}
-
-	public void actionPerformed(ActionEvent e) {
-		
-		if (e.getActionCommand().equals("repaint")) {
-			
-			Graphics2D bg = getBuffer();
-			
-			renderGraphics(backgroundGraphics);
-			
-			bg.drawImage(background, 0, 0, null);
-			
-			bg.dispose();
-			
-			strategy.show();
-			Toolkit.getDefaultToolkit().sync();
-			
-			
-			graphics.dispose();
-			graphics = null;
-			
-		} else if(e.getActionCommand().equals("input")){
-			
-			mouseX = MouseInfo.getPointerInfo().getLocation().x;
-			mouseY = MouseInfo.getPointerInfo().getLocation().y;
-			
-			//This way, you cannot move while the inventory screen is open
-			if(myPlayer.inventoryOpen)
-				return;
-			
-			if (KEY_A_DOWN) {
-				myPlayer.MoveLeft();
-			} else if (KEY_D_DOWN) {
-				myPlayer.MoveRight();
-			}
-			
-			//Mouse
-			//Left click
-			if(MOUSE_BUTTON1_DOWN){
-				if(myPlayer.selectedItem != null){
-					if(myPlayer.selectedItem.block != null){ //If the player is holding a block
-						placeBlockAtCoordinates(mouseX, mouseY);
-					}
-					//if the player is holding something to break blocks
-					else if(myPlayer.selectedItem.MiningPower > 0) {      
-						removeTileAtCoordinates(mouseX, mouseY);
-					}
-					//Special cases
-					else{
-						specialTileInteraction(mouseX, mouseY);
-					}
-				}
-			}
-			
-			myPlayer.Update();
-		}
-	}
-	
 	//Called when the player clicks on a block with something other than a mining tool or block
 	public void specialTileInteraction(int x, int y){
 		Tile tile = getTileAtCoordinates(x, y);
@@ -628,7 +314,7 @@ public class Game extends Canvas implements ActionListener {
 	
 	public Tile getTileAtCoordinates(int x, int y){
 		for(int i = 0; i < map.length; i++){
-			Rectangle tileRect = new Rectangle(map[i].x, map[i].y, Tile.tileSize, Tile.tileSize);
+			java.awt.Rectangle tileRect = new java.awt.Rectangle(map[i].x, map[i].y, Tile.tileSize, Tile.tileSize);
 			
 			if(tileRect.contains(x, y)){
 				return map[i];
@@ -636,5 +322,255 @@ public class Game extends Canvas implements ActionListener {
 		}
 		
 		return null;
+	}
+
+	@Override
+	public void render(GameContainer gc, Graphics g) throws SlickException {
+		//If any of the large ui menus is open, then it just draws those
+		if(myPlayer.inventoryOpen){
+			g.setColor(Color.gray);
+			
+			g.fillRect(0, 0, appgc.getWidth(), appgc.getHeight());
+			
+			//drawUI(g);
+			return;
+		}
+		
+		g.setColor(new Color(100, 149, 237));
+		g.fillRect(0, 0, appgc.getWidth(), appgc.getHeight());
+		
+		//g.setColor(Color.black);
+		//g.fillRect(myPlayer.collisionRect.x, myPlayer.collisionRect.y, myPlayer.collisionRect.width, myPlayer.collisionRect.height);
+		
+		sprites.startUse();
+		// Draws tiles
+		int mapIndex = 0;
+		for (int i = 0; i < mapHeight; i++) {
+			for (int j = 0; j < mapWidth; j++) {
+				try {
+					map[mapIndex].x = 0 + Tile.tileSize * j - (int)cameraOffsetX;
+					map[mapIndex].y = 0 + Tile.tileSize * i - (int)cameraOffsetY;
+					
+					//System.out.println("Real coordinate: " + Map[mapIndex].x);
+					if (map[mapIndex].block == Database.BLOCK_AIR) {
+						mapIndex++;
+						continue;
+					
+					} else {			
+						if(Tile.tileSize * j + (int)cameraOffsetX > -Tile.tileSize + 0 && Tile.tileSize * j + (int)cameraOffsetX < 800 && Tile.tileSize * i - (int)cameraOffsetY > 0 -Tile.tileSize && Tile.tileSize * i - (int)cameraOffsetY < 600){
+							sprites.renderInUse(0 + Tile.tileSize * j + (int)cameraOffsetX, 0 + Tile.tileSize * i - (int)cameraOffsetY, map[mapIndex].texture%4, map[mapIndex].texture/4);
+							
+							if(map[mapIndex].health < map[mapIndex].block.health){
+								g.setColor(Color.white);
+								
+								g.drawString(map[mapIndex].health + "", 0 + Tile.tileSize * j - cameraOffsetX, 0 + Tile.tileSize * i - cameraOffsetY + Tile.tileSize/2);
+							}
+						}
+					}
+					mapIndex++;
+				} catch (Exception e) { }
+				
+			}
+		}
+
+		// Draws the player
+		Player p = myPlayer;
+		sprites.renderInUse((int)p.x + (int)cameraOffsetX, (int)p.y - (int)cameraOffsetY, 1, 2);
+		sprites.endUse();
+		drawUI(g);
+	}
+	
+	public void drawUI(Graphics g){
+		
+		sprites.startUse();
+		//**Draws UI:
+		
+		//myPlayer.Hotbar:
+		for(int i = 0; i < myPlayer.hotbar.size(); i++){
+			myPlayer.hotbar.get(i).x = hotbarPositionX + InventorySlot.inventorySlotSize * i;
+			myPlayer.hotbar.get(i).y = hotbarPositionY;
+			
+			if(i == myPlayer.selectedHotbarSlot){
+				sprites.renderInUse(hotbarPositionX + InventorySlot.inventorySlotSize * i, hotbarPositionY, 1, 1);
+			}
+			else{
+				sprites.renderInUse(hotbarPositionX + InventorySlot.inventorySlotSize * i, hotbarPositionY, 3, 3);
+			}
+			
+			if(myPlayer.hotbar.get(i).itemStack.item != null){
+				sprites.renderInUse(hotbarPositionX + InventorySlot.inventorySlotSize * i + (int)(.15f*Item.IconSize), hotbarPositionY + (int)(.15f*Item.IconSize), myPlayer.hotbar.get(i).itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.hotbar.get(i).itemStack.item.icon/SPRITESHEET_WIDTH);
+				
+				g.setColor(Color.white);
+				g.drawString("" + myPlayer.hotbar.get(i).itemStack.quantity, hotbarPositionX + InventorySlot.inventorySlotSize * i + (int)(.95f*Item.IconSize), hotbarPositionY + (int)(1.15f*Item.IconSize));
+			}
+		}
+		
+		//String to show currently selected item
+		g.setColor(Color.white);
+		String tempItemName = "none";
+		if(myPlayer.selectedItem != null)
+			tempItemName = myPlayer.selectedItem.Name;
+		g.drawString("Selected item: " + tempItemName, 25, (int)(appgc.getHeight()/1.12));
+		
+		g.drawString("fps: " + FramesPerSecond, 10, 150);
+		
+		if(!myPlayer.inventoryOpen){
+			myPlayer.pickedUpItem = null;
+		}
+		
+		//Draws the inventory of the player
+		if(myPlayer.inventoryOpen){
+			
+			//inventory
+			int currentInventorySlot = 0;
+			for(int i = 0; i < myPlayer.inventoryRows; i++){
+				for(int k = 0; k < myPlayer.inventoryColumns; k++){
+					sprites.renderInUse(inventoryPositionX + InventorySlot.inventorySlotSize * k, inventoryPositionY + InventorySlot.inventorySlotSize * i, 3, 3);
+					
+					myPlayer.inventory.get(currentInventorySlot).x = inventoryPositionX + InventorySlot.inventorySlotSize * k;
+					myPlayer.inventory.get(currentInventorySlot).y = inventoryPositionY + InventorySlot.inventorySlotSize * i;
+					
+					if(myPlayer.inventory.get(currentInventorySlot).itemStack.item != null){
+						//displays the item's icon in the inventory
+						sprites.renderInUse(inventoryPositionX + InventorySlot.inventorySlotSize * k + (int)(.15*InventorySlot.inventorySlotSize), inventoryPositionY + InventorySlot.inventorySlotSize * i + (int)(.15*InventorySlot.inventorySlotSize), myPlayer.inventory.get(currentInventorySlot).itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.inventory.get(currentInventorySlot).itemStack.item.icon/SPRITESHEET_WIDTH);     
+						
+						//displays the item's quantity in the inventory
+						g.setColor(Color.white);
+						g.drawString("" + myPlayer.inventory.get(currentInventorySlot).itemStack.quantity, inventoryPositionX + InventorySlot.inventorySlotSize * k + (int)(.95f*Item.IconSize), inventoryPositionY + InventorySlot.inventorySlotSize * i + (int)(1.15f*Item.IconSize));
+					}
+					currentInventorySlot++;
+				}
+			}
+			
+			//Crafting table
+			int currentCraftingTableIndex = 0;
+			int x = 0, y = 0;
+			for(int i = 0; i < 9; i++){
+					
+					myPlayer.craftingTable.get(currentCraftingTableIndex).x = craftingUIPositionX + x * InventorySlot.inventorySlotSize;
+					myPlayer.craftingTable.get(currentCraftingTableIndex).y = craftingUIPositionY + y * InventorySlot.inventorySlotSize;
+					
+					sprites.renderInUse(myPlayer.craftingTable.get(currentCraftingTableIndex).x, myPlayer.craftingTable.get(currentCraftingTableIndex).y, 3, 3);
+					
+					if(myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.item != null){
+						sprites.renderInUse(myPlayer.craftingTable.get(currentCraftingTableIndex).x + (int)(.15*InventorySlot.inventorySlotSize), myPlayer.craftingTable.get(currentCraftingTableIndex).y + (int)(.15*InventorySlot.inventorySlotSize), myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.item.icon/SPRITESHEET_WIDTH); 
+					
+						g.drawString("" + myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.quantity, myPlayer.craftingTable.get(currentCraftingTableIndex).x + (int)(.95f*Item.IconSize), myPlayer.craftingTable.get(currentCraftingTableIndex).y + (int)(1.15f*Item.IconSize));
+					}
+					
+					currentCraftingTableIndex++;
+					
+					x++;
+					if(x % 3 == 0){
+						y++;
+						x = 0;
+					}
+			}
+			
+			//Draws the output square
+			myPlayer.craftingTableOutput.x = craftingUIPositionX + 4 * InventorySlot.inventorySlotSize;
+			myPlayer.craftingTableOutput.y = craftingUIPositionY + InventorySlot.inventorySlotSize;
+			
+			sprites.renderInUse(craftingUIPositionX + 4 * InventorySlot.inventorySlotSize, craftingUIPositionY + InventorySlot.inventorySlotSize, 3, 3);
+			
+			if(myPlayer.craftingTableOutput.itemStack.item != null){
+				sprites.renderInUse(craftingUIPositionX + 4 * InventorySlot.inventorySlotSize + (int)(.15*InventorySlot.inventorySlotSize), craftingUIPositionY + InventorySlot.inventorySlotSize + (int)(.15f*Item.IconSize), myPlayer.craftingTableOutput.itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.craftingTableOutput.itemStack.item.icon/SPRITESHEET_WIDTH);
+			
+				g.drawString("" + myPlayer.craftingTableOutput.itemStack.quantity, craftingUIPositionX + 4 * InventorySlot.inventorySlotSize  + (int)(.95f*Item.IconSize), craftingUIPositionY + InventorySlot.inventorySlotSize + (int)(1.15f*Item.IconSize));
+			}
+			
+			if(myPlayer.pickedUpItem != null){
+				//sprites.renderInUse(myPlayer.pickedUpItem.item.icon, mouseX, mouseY, null);
+				g.drawString("" + myPlayer.pickedUpItem.quantity, mouseX + (int)(.95 * Item.IconSize), mouseY + (int)(1.15 * Item.IconSize));
+			}
+			
+		}
+		
+		sprites.endUse();
+	}
+
+	@Override
+	public void init(GameContainer container) throws SlickException {
+		
+		input = new Input();
+		
+		Tile.tileSize = 800/12;
+		
+		try{
+			Image src = new Image("resources/spritesheet.png");
+			SPRITESHEET_WIDTH = src.getWidth()/128;
+			sprites = new SpriteSheet(src.getScaledCopy(Tile.tileSize * src.getWidth()/128, Tile.tileSize * src.getHeight()/128), Tile.tileSize, Tile.tileSize);
+
+		} catch (SlickException e) {
+			System.err.println("FAILED TO LOAD SPRITES");
+			System.exit(0);
+		}
+		sprites.setFilter(Image.FILTER_NEAREST);
+		
+		myPlayer = new Player(0, 0);
+		
+		mapWidth = 100;
+		mapHeight = 32;
+		
+		mapEndCoordinate = Tile.tileSize * mapWidth;
+		mapBottonCoordinate = Tile.tileSize*mapHeight + (int)(9.25 * Tile.tileSize);
+		
+		craftingUIPositionX = 400;
+		craftingUIPositionY = 250;
+		
+		map = new Tile[mapWidth*mapHeight];
+		generateMap(7, 13, 2, 5, 2, 4, 12, 1, 13, .5f);
+		fixGrassBlocks();
+		generateTrees(2f);
+		growTrees();
+		
+		cameraOffsetX = myPlayer.x;
+		cameraOffsetY = -appgc.getHeight()/8;
+		
+		//Sets up the myPlayer.Hotbar
+		for(int i = 0; i < Player.numberOfHotbarSlots; i++){
+			myPlayer.hotbar.add(new InventorySlot());
+		}
+		myPlayer.hotbar.get(0).itemStack = new ItemStack(Database.ITEM_PICKAXE, 1);
+		myPlayer.hotbar.get(1).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
+		myPlayer.selectedItem = myPlayer.hotbar.get(0).itemStack.item;
+		
+		//Sets up player inventory
+		for(int i = 0; i <= myPlayer.inventoryRows*myPlayer.inventoryColumns; i++){
+			myPlayer.inventory.add(new InventorySlot());
+		}
+		myPlayer.inventory.get(0).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
+	}
+
+	@Override
+	public void update(GameContainer container, int delta) throws SlickException {
+		myPlayer.Update(delta);
+		
+		if(KEY_A_DOWN){
+			myPlayer.MoveLeft(delta);
+		} else if(KEY_D_DOWN){
+			myPlayer.MoveRight(delta);
+		}
+	}
+	
+
+	@Override 
+	public void keyPressed(int key, char c){
+		input.keyPressed(key, c);
+	}
+	
+	@Override 
+	public void keyReleased(int key, char c){
+		input.keyReleased(key, c);
+	}
+	
+	@Override
+	public void mouseClicked(int button, int x, int y, int clickCount){
+		input.mouseClicked(button, x, y, clickCount);
+	}
+	
+	@Override
+	public void mousePressed(int button, int x, int y){
+		input.mousePressed(button, x, y);
 	}
 }

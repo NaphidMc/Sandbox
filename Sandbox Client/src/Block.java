@@ -5,25 +5,15 @@ import javax.imageio.ImageIO;
 
 public class Block {
 	
-	public Image texture;
+	public int texture;
 	public String Name;
 	public int[][] itemDropIDs; //Format: { <ItemID>, <ItemID> }, {<Chance to drop item 1>, <Chance to drop item 2>
-	public String imagePath;
 	public boolean solid;
 	public float health;
 	
-	public Block(String name, String imagePath, int[][] itemDropIDs, boolean solid, float health) {
-		try{
-			texture = ImageIO.read(new File(imagePath)).getScaledInstance(Tile.tileSize, Tile.tileSize, 1);
-		}
-		catch (Exception e){
-			System.out.println("Failed to load block texture!");
-			try{
-				texture = ImageIO.read(new File("resources/default.png")).getScaledInstance(Tile.tileSize, Tile.tileSize, 1);;
-			} catch (Exception e1) { texture = null; }
-		}
-		
-		this.imagePath = imagePath;
+	public Block(String name, int texture, int[][] itemDropIDs, boolean solid, float health) {
+
+		this.texture = texture;
 		Name = name;
 		
 		if(itemDropIDs[0].length != itemDropIDs[1].length){

@@ -1,26 +1,15 @@
-import java.awt.Image;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
-import javax.swing.Timer;
-
-public class Player implements ActionListener {
+public class Player {
 	
 	int ID = -1;
-	public int x, y, velocityX, velocityY, moveSpeed = 10;
-	private int collisionRectOffsetX = 0, collisionRectOffsetY = 10;
-	public int width = 100, height = 200;
+	public float x, y, velocityX, velocityY, moveSpeed = 500f, jumpVelocity = 4.5f;
+	private int collisionRectOffsetX = Tile.tileSize * 0, collisionRectOffsetY = 10;
+	public int width, height;
 	public int miningDistance = 4 * Tile.tileSize;
 	
 	public Rectangle collisionRect;
-	
-	Image[] animationStages = new Image[1]; //unused for now
-	Timer animationTimer;
-	int animationFrame;
 	
 	public ArrayList<InventorySlot> hotbar = new ArrayList<InventorySlot>();
 	public int selectedHotbarSlot = 0;
@@ -45,31 +34,9 @@ public class Player implements ActionListener {
 		y = startPositionY;
 		
 		width = Tile.tileSize;
-		height = Tile.tileSize*2;
+		height = Tile.tileSize * 2;
 		
-		collisionRect = new Rectangle(x + collisionRectOffsetX - Game.cameraOffsetX, y + collisionRectOffsetY - Game.cameraOffsetY, width, height);
-		
-		animationTimer = new Timer(250, (ActionListener)this);
-		animationTimer.setActionCommand("Animation Tick");
-		animationTimer.setRepeats(true);
-		animationTimer.start();
-		
-		try{
-			animationStages[0] = ImageIO.read(new File("resources/player_1.png"));
-		}
-		catch (Exception e){
-			System.out.println("Could not find animation files...using default textures");
-			
-			try{
-				for(int i = 0; i < animationStages.length; i++){
-					animationStages[i] = ImageIO.read(new File("resources/default.png"));
-				}
-			}
-			catch (Exception e1){
-				System.out.println("Default textures could not be found :(");
-				//Animation stages are now null
-			}
-		}
+		collisionRect = new Rectangle((int)x + collisionRectOffsetX + (int)Game.cameraOffsetX, (int)y + collisionRectOffsetY - (int)Game.cameraOffsetY, width, height);
 		
 		//Sets up crafting table
 		for(int i = 0; i < 9; i++){
@@ -77,46 +44,31 @@ public class Player implements ActionListener {
 		}
 		craftingTableOutput.isNotCraftingTableOutput = false;
 	}
-		
-	public void actionPerformed(ActionEvent e) {
-		if(e.getActionCommand().equals("Animation Tick")){
-			animationFrame++;
-			
-			if(animationFrame >= animationStages.length){
-				animationFrame = 0;
-			}
-		}
-	}
-	
-	
-	public Image getPlayerSprite(){
-		return animationStages[animationFrame];
-	}
 	
 	public void setSelectedHotbarSlot(int slot){
 		selectedHotbarSlot = slot;
 		selectedItem = hotbar.get(slot).itemStack.item;
 	}
 	
-	public void MoveRight() {
-		if(x + moveSpeed < Game.mapEndCoordinate - Tile.tileSize){
+	public void MoveRight(int delta) {
+		if(x + moveSpeed * delta/1000f < Game.mapEndCoordinate - Tile.tileSize){
 			if(!tileRightToPlayer()){
-				x += moveSpeed;
+				x += moveSpeed * delta/1000f;
 				
-				if(Game.cameraOffsetX + GameInit.frame.getWidth() < Game.mapEndCoordinate && x >= GameInit.frame.getWidth()/2) {
-					Game.cameraOffsetX += moveSpeed;
+				if(-Game.cameraOffsetX + 800 < Game.mapEndCoordinate && x >= 400) {
+					Game.cameraOffsetX -= moveSpeed * delta/1000f;
 				}
 			}
 		}
 	}
 	
-	public void MoveLeft(){
-		if(x - moveSpeed > 0){
+	public void MoveLeft(int delta){
+		if(x - moveSpeed * delta/1000f > 0){
 			if(!tileLeftToPlayer()){
-				x -= moveSpeed;
+				x -= moveSpeed * delta/1000f;
 				
-				if(Game.cameraOffsetX > 0 && Game.mapEndCoordinate - x >= GameInit.frame.getWidth()/2){
-					Game.cameraOffsetX -= moveSpeed;
+				if(-Game.cameraOffsetX > 0 && Game.mapEndCoordinate - x >= 400){
+					Game.cameraOffsetX += moveSpeed * delta/1000f;
 				}
 			}
 		}
@@ -124,7 +76,7 @@ public class Player implements ActionListener {
 	
 	public void Jump(){
 		if(tileUnderPlayer()){
-			velocityY = 30;
+			velocityY += jumpVelocity;
 		}
 	}
 	
@@ -284,14 +236,15 @@ public class Player implements ActionListener {
 		}
 	}
 	
-	public void Update() {
+	public void Update(int delta) {
 		
 		if(!tileUnderPlayer()){
-			velocityY -= 2;
+			velocityY -= 10 * delta/1000f;
 		}
 		else{
-			if(velocityY < 0)
+			if(velocityY < 0){
 				velocityY = 0;
+			}
 		}
 		
 		if(velocityY > 0 && tileAbovePlayer()){
@@ -302,14 +255,14 @@ public class Player implements ActionListener {
 			x -= velocityX;
 			y -= velocityY;
 			
-			if(Game.cameraOffsetY + GameInit.frame.getHeight() < Game.mapBottonCoordinate + 1.4*Tile.tileSize && velocityY < 0){
+			if(Game.cameraOffsetY + Game.appgc.getHeight() < Game.mapBottonCoordinate + 1.4*Tile.tileSize && velocityY < 0){
 				Game.cameraOffsetY -= velocityY;
 			}
-			else if(Game.mapBottonCoordinate - y > GameInit.frame.getHeight()/2 - 100 && velocityY > 0){
+			else if(Game.mapBottonCoordinate - y > Game.appgc.getHeight()/2 - 100 && velocityY > 0){
 				Game.cameraOffsetY -= velocityY;
 			}
 		}
 		
-		collisionRect = new Rectangle(x + collisionRectOffsetX - Game.cameraOffsetX, y + collisionRectOffsetY - Game.cameraOffsetY, width, height);
+		collisionRect = new Rectangle((int)x + collisionRectOffsetX - (int)Game.cameraOffsetX, (int)y + collisionRectOffsetY - (int)Game.cameraOffsetY, width, height);
 	}
 }

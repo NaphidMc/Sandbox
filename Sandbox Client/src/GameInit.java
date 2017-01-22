@@ -1,70 +1,46 @@
 
-import java.awt.DisplayMode;
 import java.awt.EventQueue;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
-import javax.swing.JFrame;
+import org.newdawn.slick.AppGameContainer;
+import org.newdawn.slick.ScalableGame;
+import org.newdawn.slick.SlickException;
 
-public class GameInit extends JFrame implements MouseListener, KeyListener{
+public class GameInit extends ScalableGame {
 	
-	private static final long serialVersionUID = -2037286001336096123L;
-
+	public GameInit(org.newdawn.slick.Game held, int normalWidth, int normalHeight, boolean maintainAspect) {
+		super(held, normalWidth, normalHeight, maintainAspect);
+	}
+	
 	public static Game g;
-	public static JFrame frame;
 	
 	public static void main(String[] args){
 		EventQueue.invokeLater(new Runnable(){
 			public void run() {
 				
-				frame = new GameInit();
 				Database.Populate();
 				
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				
-				frame.setUndecorated(true);
-				
-				GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-				GraphicsDevice device = env.getScreenDevices()[0];
-				DisplayMode newMode = new DisplayMode(800, 600, device.getDisplayMode().getBitDepth(), device.getDisplayMode().getRefreshRate());
-				
-				device.setFullScreenWindow(frame);
-				device.setDisplayMode(newMode);
-				
-				frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-				frame.setTitle("Client");
-				frame.setVisible(true);
-				
-				g = new Game(frame.getGraphicsConfiguration());
-				
-				frame.setFocusable(true);
-				
-				frame.addMouseListener((MouseListener) frame);
-				frame.addKeyListener((KeyListener) frame);
-				g.addMouseListener((MouseListener)frame);
-				//frame.setFocusable(true);
+				AppGameContainer appgc = null;
+				g = new Game("Sandbox");
 
+				try {
+					GameInit gi = new GameInit(g, 800, 600, true);
+					appgc = new AppGameContainer(gi);
+					appgc.setDisplayMode(appgc.getScreenWidth(), appgc.getScreenHeight(), true);
+					appgc.setFullscreen(true);
+					Game.appgc = appgc;
+					appgc.start();
+					
+				} catch (SlickException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}
 	
-	@Override
+	/*@Override
 	public void keyPressed(KeyEvent e) {
 		
-		// TODO Auto-generated method stub
-		if (e.getKeyCode() == KeyEvent.VK_D) {
-			g.KEY_D_DOWN = true;
-		} else if (e.getKeyCode() == KeyEvent.VK_A) {
-			g.KEY_A_DOWN = true;
-		} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-			Game.myPlayer.Jump();
-		} else if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
-			System.exit(0);
-		} else if(e.getKeyCode() == KeyEvent.VK_I && Game.myPlayer.pickedUpItem == null){
+		else if(e.getKeyCode() == KeyEvent.VK_I && Game.myPlayer.pickedUpItem == null){
 			Game.myPlayer.inventoryOpen = !Game.myPlayer.inventoryOpen;
 			
 			if(Game.myPlayer.pickedUpItem != null && Game.myPlayer.pickedUpItemOriginSlot != null){
@@ -73,7 +49,6 @@ public class GameInit extends JFrame implements MouseListener, KeyListener{
 		}
 	}
 
-	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
 		if (e.getKeyCode() == KeyEvent.VK_D) {
@@ -103,29 +78,11 @@ public class GameInit extends JFrame implements MouseListener, KeyListener{
 		}
 	}
 
-	@Override
 	public void keyTyped(KeyEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-
-	}
-
-	@Override
+	
 	public void mousePressed(MouseEvent e) {
 		
 		if(e.getButton() == MouseEvent.BUTTON1){
@@ -245,11 +202,10 @@ public class GameInit extends JFrame implements MouseListener, KeyListener{
 		}
 		
 	}
-
-	@Override
+	
 	public void mouseReleased(MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1){
 			g.MOUSE_BUTTON1_DOWN = false;
 		}
-	}
+	}*/
 }
