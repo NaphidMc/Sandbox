@@ -312,6 +312,12 @@ public class Game extends BasicGame {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param x
+	 * @param y
+	 * @return The tile at the coordinates, returns null if it does not exist
+	 */
 	public Tile getTileAtCoordinates(int x, int y){
 		for(int i = 0; i < map.length; i++){
 			java.awt.Rectangle tileRect = new java.awt.Rectangle(map[i].x, map[i].y, Tile.tileSize, Tile.tileSize);
@@ -325,37 +331,39 @@ public class Game extends BasicGame {
 	}
 
 	/**
-	 * 
+	 * Renders tiles and entities
 	 * @param gc - The GameContainer object
 	 * @param g - The current Graphics object
 	 */
 	@Override
 	public void render(GameContainer gc, Graphics g) throws SlickException {
 		
+		//Draws the blue background
 		g.setColor(new Color(100, 149, 237));
 		g.fillRect(0, 0, appgc.getWidth(), appgc.getHeight());
 		
+		//Loops through all the tiles and draws them
 		sprites.startUse();
-		// Draws tiles
 		int mapIndex = 0;
 		for (int i = 0; i < mapHeight; i++) {
 			for (int j = 0; j < mapWidth; j++) {
 				try {
+					//Updates tile coordinates
 					map[mapIndex].x = Tile.tileSize * j;
 					map[mapIndex].y = Tile.tileSize * i;
-					//System.out.println("Real coordinate: " + Map[mapIndex].x);
+					
+					//If the tile is 'air' it simply isn't drawn
 					if (map[mapIndex].block == Database.BLOCK_AIR) {
 						mapIndex++;
 						continue;
 					
-					} else {			
+					} else {	
+						//Before drawing a tile, it checks if it is visible
 						if(Tile.tileSize * j + (int)cameraOffsetX > -Tile.tileSize + 0 && Tile.tileSize * j + (int)cameraOffsetX < 800 && Tile.tileSize * i - (int)cameraOffsetY > 0 -Tile.tileSize && Tile.tileSize * i - (int)cameraOffsetY < 600){
+
+							//Finally, this draws the tile
 							sprites.renderInUse(0 + Tile.tileSize * j + (int)cameraOffsetX, 0 + Tile.tileSize * i - (int)cameraOffsetY, map[mapIndex].texture%4, map[mapIndex].texture/4);
 							
-							if(map[mapIndex].health < map[mapIndex].block.health){
-								g.setColor(Color.white);
-								
-							}
 						}
 					}
 					mapIndex++;
@@ -367,10 +375,8 @@ public class Game extends BasicGame {
 		// Draws the player
 		sprites.renderInUse((int)myPlayer.x + (int)cameraOffsetX, (int)myPlayer.y - (int)cameraOffsetY, 1, 2);
 		sprites.endUse();
-		drawUI(g);
 		
-		g.setColor(Color.black);
-		g.fillRect(gc.getInput().getMouseX() + (int)cameraOffsetX, gc.getInput().getMouseY(), Tile.tileSize, Tile.tileSize);
+		drawUI(g);
 		
 		TextureImpl.bindNone();
 	}
@@ -506,6 +512,9 @@ public class Game extends BasicGame {
 		}
 	}
 
+	/**
+	 * Called when the program launches. Sets up the map, places the player, loads the textures, etc...
+	 */
 	@Override
 	public void init(GameContainer container) throws SlickException {
 		
@@ -524,7 +533,7 @@ public class Game extends BasicGame {
 		}
 		sprites.setFilter(Image.FILTER_NEAREST);
 		
-		myPlayer = new Player(400, 300);
+		myPlayer = new Player(400, 0);
 		
 		mapWidth = 100;
 		mapHeight = 32;
@@ -542,7 +551,7 @@ public class Game extends BasicGame {
 		growTrees();
 		
 		cameraOffsetX = 0;
-		cameraOffsetY = 0;
+		cameraOffsetY = -300;
 		
 		//Sets up the myPlayer.Hotbar
 		for(int i = 0; i < Player.numberOfHotbarSlots; i++){
@@ -558,7 +567,7 @@ public class Game extends BasicGame {
 		}
 		myPlayer.inventory.get(0).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
 	}
-
+	
 	@Override
 	public void update(GameContainer container, int delta) throws SlickException {
 		myPlayer.Update(delta);
@@ -570,14 +579,7 @@ public class Game extends BasicGame {
 		}
 		
 		if(MOUSE_BUTTON1_DOWN){
-			Tile t = null;
-			System.err.println(cameraOffsetY);
-			if(((t = getTileAtCoordinates(container.getInput().getMouseX() - (int)cameraOffsetX, container.getInput().getMouseY() + (int)cameraOffsetY)) != null)){
-					t.health -= myPlayer.selectedItem.MiningPower;
-					if(t.health <= 0){
-						t.setBlock(Database.BLOCK_AIR);
-					}
-			}
+			input.mouseButtonHeld(0, container.getInput().getMouseX(), container.getInput().getMouseY());
 		}
 	}
 	

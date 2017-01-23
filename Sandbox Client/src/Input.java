@@ -71,11 +71,15 @@ public class Input {
 	}
 	
 	public void mousePressed(int button, int x, int y){
-		
 		if(button == 0){
 			Game.MOUSE_BUTTON1_DOWN = true;
 			
-			//Inventory management logic involving the mouse
+			//Checks if the player has a block selected in the hotbar
+			if(Game.myPlayer.selectedItem.block != null && Game.current.getTileAtCoordinates(x, y) != null){
+				Game.current.getTileAtCoordinates(x + (int)Game.cameraOffsetX, y - (int)Game.cameraOffsetY).setBlock(Game.myPlayer.selectedItem.block);
+			}
+			
+			// ** Inventory management logic involving the mouse **
 			if(Game.myPlayer.inventoryOpen){ //first checks if the inventory is open
 				
 				//Gets the inventory slot the mouse is over
@@ -189,5 +193,19 @@ public class Input {
 			}
 		}
 		
+	}
+	
+	public void mouseButtonHeld(int button, int x, int y){
+		
+		//Left click
+		if(button == 0){
+			Tile t = null;
+			if(((t = Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null)){
+					t.health -= Game.myPlayer.selectedItem.MiningPower;
+					if(t.health <= 0){
+						t.setBlock(Database.BLOCK_AIR);
+					}
+			}
+		}
 	}
 }
