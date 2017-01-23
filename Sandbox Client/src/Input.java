@@ -3,15 +3,59 @@ public class Input {
 	
 	public void keyPressed(int key, char c){
 		
-		if(c == 'a'){
-			Game.KEY_A_DOWN = true;
-		} else if(c == 'd'){
-			Game.KEY_D_DOWN = true;
-		} else if(c == ' '){
-			Game.myPlayer.Jump();
-		} else if(key == 1){ //Esc
+		switch(c){
+			case 'a':
+				Game.KEY_A_DOWN = true;
+				break;
+			case 'd':
+				Game.KEY_D_DOWN = true;
+				break;
+			case ' ':
+				Game.myPlayer.Jump();
+				break;
+			case '1':
+				Game.myPlayer.setSelectedHotbarSlot(0);
+				break;
+			case '2':
+				Game.myPlayer.setSelectedHotbarSlot(1);
+				break;
+			case '3':
+				Game.myPlayer.setSelectedHotbarSlot(2);				
+				break;
+			case '4':
+				Game.myPlayer.setSelectedHotbarSlot(3);				
+				break;
+			case '5':
+				Game.myPlayer.setSelectedHotbarSlot(4);				
+				break;
+			case '6':
+				Game.myPlayer.setSelectedHotbarSlot(5);				
+				break;
+			case '7':
+				Game.myPlayer.setSelectedHotbarSlot(6);				
+				break;
+			case '8':
+				Game.myPlayer.setSelectedHotbarSlot(7);				
+				break;			
+			case '9':
+				Game.myPlayer.setSelectedHotbarSlot(8);				
+				break;
+			case 'i':
+			case 'I':
+				if(Game.myPlayer.pickedUpItem == null){
+					Game.myPlayer.inventoryOpen = !Game.myPlayer.inventoryOpen;
+					
+					if(Game.myPlayer.pickedUpItem != null && Game.myPlayer.pickedUpItemOriginSlot != null){
+						Game.myPlayer.pickedUpItemOriginSlot.itemStack = Game.myPlayer.pickedUpItem;
+					}
+				}
+				break;
+		} 
+		
+		if(key == 1){ //Esc
 			System.exit(0);
 		}
+		
 	}
 	
 	public void keyReleased(int key, char c){
@@ -27,6 +71,123 @@ public class Input {
 	}
 	
 	public void mousePressed(int button, int x, int y){
+		
+		if(button == 0){
+			Game.MOUSE_BUTTON1_DOWN = true;
+			
+			//Inventory management logic involving the mouse
+			if(Game.myPlayer.inventoryOpen){ //first checks if the inventory is open
+				
+				//Gets the inventory slot the mouse is over
+				InventorySlot slot = InventorySlot.getInventorySlotAtPosition(x, y);
+				
+				//Makes sure the slot actually exists
+				if(slot != null && slot.itemStack != null){
+					
+					//If you dont have an item picked up, the current slot's itemstack is now picked up
+					if(Game.myPlayer.pickedUpItem == null && slot.itemStack.item != null){
+						Game.myPlayer.pickedUpItem = new ItemStack(slot.itemStack.item, slot.itemStack.quantity);
+						slot.itemStack = new ItemStack(null, 0);
+						
+						//If you picked something up from the crafting table output slot, the recipe ingredients are taken
+						if(slot.isNotCraftingTableOutput == false){
+							for(int i = 0; i < Game.myPlayer.craftingTable.size(); i++){
+								if(Game.myPlayer.craftingTable.get(i).itemStack.item != null){
+									Game.myPlayer.craftingTable.get(i).itemStack.quantity--;
+									
+									if(Game.myPlayer.craftingTable.get(i).itemStack.quantity <= 0){
+										Game.myPlayer.craftingTable.get(i).itemStack = new ItemStack(null, 0);
+									}
+								}
+							}
+						}
+					}
+					else if(Game.myPlayer.pickedUpItem != null && slot.isNotCraftingTableOutput){ //If you click on a slot with an item already picked up
+						
+						//If you click on a slot with the same item, the quantities are just added
+						if(slot.itemStack.item == Game.myPlayer.pickedUpItem.item){
+							slot.itemStack.quantity += Game.myPlayer.pickedUpItem.quantity;
+							Game.myPlayer.pickedUpItem = null;
+						} 
+						
+						//If you click on an empty slot, the itemstack picked up goes there
+						else if(slot.itemStack.item == null){ 
+							slot.itemStack = new ItemStack(Game.myPlayer.pickedUpItem.item, Game.myPlayer.pickedUpItem.quantity);
+							Game.myPlayer.pickedUpItem = null;
+						}
+						
+						//if you click on a slot with a different item, the stack you're holding is swapped with the one your mouse is over
+						else if(slot.itemStack.item != null && slot.itemStack.item != Game.myPlayer.pickedUpItem.item){
+							ItemStack tempItemStack = new ItemStack(Game.myPlayer.pickedUpItem.item, Game.myPlayer.pickedUpItem.quantity);
+							Game.myPlayer.pickedUpItem = slot.itemStack;
+							slot.itemStack = tempItemStack;
+						}
+						
+					} else if(Game.myPlayer.pickedUpItem != null && slot.isNotCraftingTableOutput == false){
+						if(Game.myPlayer.pickedUpItem.item == slot.itemStack.item){
+							Game.myPlayer.pickedUpItem.quantity += slot.itemStack.quantity;
+							
+							//If you picked something up from the crafting table output slot, the recipe ingredients are taken
+							if(slot.isNotCraftingTableOutput == false){
+								for(int i = 0; i < Game.myPlayer.craftingTable.size(); i++){
+									if(Game.myPlayer.craftingTable.get(i).itemStack.item != null){
+										Game.myPlayer.craftingTable.get(i).itemStack.quantity--;
+										
+										if(Game.myPlayer.craftingTable.get(i).itemStack.quantity <= 0){
+											Game.myPlayer.craftingTable.get(i).itemStack = new ItemStack(null, 0);
+										}
+									}
+								}
+							}
+						}
+					}
+					
+					Game.myPlayer.craftingTableOutput.itemStack = CraftingRecipe.checkCraftingTable();
+				}
+			}
+		}
+		
+		if(button == 1){
+			
+			//Inventory logic - For right clicking; basically, right clicking on a slot with an item selected
+			//adds one to the slots count if it's empty or is the same item
+			if(Game.myPlayer.inventoryOpen){
+				//Gets the inventory slot the mouse is over
+				InventorySlot slot = InventorySlot.getInventorySlotAtPosition(x, y);
+				
+				if(slot != null && slot.itemStack != null && slot.isNotCraftingTableOutput){
+					
+					//If you are holding an item
+					if(Game.myPlayer.pickedUpItem != null){
+						
+						//If there is an item in the slot your over, if its the same item the quantity is increased by 1
+						if(slot.itemStack.item != null){
+							if(slot.itemStack.item == Game.myPlayer.pickedUpItem.item){
+								slot.itemStack.quantity++;
+								Game.myPlayer.pickedUpItem.quantity--;
+								
+								if(Game.myPlayer.pickedUpItem.quantity <= 0){
+									Game.myPlayer.pickedUpItem = null;
+								}
+								
+							}
+						}
+						//If you right click over an empty slot, it adds one to the slot of your held item
+						else if(slot.itemStack.item == null){
+							slot.itemStack = new ItemStack(Game.myPlayer.pickedUpItem.item, 1);
+							Game.myPlayer.pickedUpItem.quantity--;
+							
+							if(Game.myPlayer.pickedUpItem.quantity <= 0){
+								Game.myPlayer.pickedUpItem = null;
+							}
+						}
+						
+						//Checks if you have entered a valid crafting recipe
+						Game.myPlayer.craftingTableOutput.itemStack = CraftingRecipe.checkCraftingTable();
+					} 
+				}
+			}
+		}
 		
 	}
 }

@@ -13,7 +13,7 @@ public class Player {
 	
 	public ArrayList<InventorySlot> hotbar = new ArrayList<InventorySlot>();
 	public int selectedHotbarSlot = 0;
-	public static int numberOfHotbarSlots = 10;
+	public static int numberOfHotbarSlots = 9;
 	public Item selectedItem;
 	
 	public ArrayList<InventorySlot> inventory = new ArrayList<InventorySlot>();
@@ -36,7 +36,7 @@ public class Player {
 		width = Tile.tileSize;
 		height = Tile.tileSize * 2;
 		
-		collisionRect = new Rectangle((int)x + collisionRectOffsetX + (int)Game.cameraOffsetX, (int)y + collisionRectOffsetY - (int)Game.cameraOffsetY, width, height);
+		collisionRect = new Rectangle((int)x + collisionRectOffsetX, (int)y + collisionRectOffsetY, width, height);
 		
 		//Sets up crafting table
 		for(int i = 0; i < 9; i++){
@@ -263,6 +263,6 @@ public class Player {
 			}
 		}
 		
-		collisionRect = new Rectangle((int)x + collisionRectOffsetX - (int)Game.cameraOffsetX, (int)y + collisionRectOffsetY - (int)Game.cameraOffsetY, width, height);
+		collisionRect = new Rectangle((int)x + collisionRectOffsetX, (int)y + collisionRectOffsetY, width, height);
 	}
 }

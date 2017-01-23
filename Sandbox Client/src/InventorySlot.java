@@ -7,7 +7,7 @@ public class InventorySlot {
 	
 	public static ArrayList<InventorySlot> inventorySlots = new ArrayList<InventorySlot>();
 	public boolean isNotCraftingTableOutput = true;
-	public static int inventorySlotSize = 75;
+	public static int inventorySlotSize = 68;
 	public int x, y;
 	public ItemStack itemStack;
 	

@@ -12,7 +12,7 @@ public class Block {
 	public float health;
 	
 	public Block(String name, int texture, int[][] itemDropIDs, boolean solid, float health) {
-
+		
 		this.texture = texture;
 		Name = name;
 		
