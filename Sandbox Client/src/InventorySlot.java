@@ -1,8 +1,6 @@
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
-
 public class InventorySlot {
 	
 	public static ArrayList<InventorySlot> inventorySlots = new ArrayList<InventorySlot>();

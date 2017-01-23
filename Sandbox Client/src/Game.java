@@ -511,10 +511,15 @@ public class Game extends BasicGame {
 			}
 		}
 	}
-
+	
 	/**
 	 * Called when the program launches. Sets up the map, places the player, loads the textures, etc...
 	 */
+	
+	public void poop(){
+		
+	}
+	
 	@Override
 	public void init(GameContainer container) throws SlickException {
 		
