@@ -520,7 +520,7 @@ public class Game extends BasicGame {
 		
 	}
 	public void fantabulous(){
-		
+		//this method is called fantabulous
 	}
 	
 	@Override
