@@ -519,6 +519,9 @@ public class Game extends BasicGame {
 	public void poop(){
 		
 	}
+	public void fantabulous(){
+		
+	}
 	
 	@Override
 	public void init(GameContainer container) throws SlickException {
