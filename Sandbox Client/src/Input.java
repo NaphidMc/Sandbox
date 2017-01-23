@@ -75,8 +75,8 @@ public class Input {
 			Game.MOUSE_BUTTON1_DOWN = true;
 			
 			//Checks if the player has a block selected in the hotbar
-			if(Game.myPlayer.selectedItem.block != null && Game.current.getTileAtCoordinates(x, y) != null){
-				Game.current.getTileAtCoordinates(x + (int)Game.cameraOffsetX, y - (int)Game.cameraOffsetY).setBlock(Game.myPlayer.selectedItem.block);
+			if(Game.myPlayer.selectedItem.block != null && Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY) != null){
+				Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY).setBlock(Game.myPlayer.selectedItem.block);
 			}
 			
 			// ** Inventory management logic involving the mouse **
