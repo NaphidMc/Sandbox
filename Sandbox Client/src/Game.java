@@ -44,6 +44,13 @@ public class Game extends BasicGame {
 	
 	public static Game current;
 	
+	//Colors
+	int msCycle=1000;
+	int currentTimeUntilNextCycle=1000;
+	Color currentColor=new Color(0,51,102);
+	Color dayColor;
+	Color nightColor;
+	
 	public Game(String name) {
 		super(name);
 		current = this;
@@ -338,8 +345,9 @@ public class Game extends BasicGame {
 	@Override
 	public void render(GameContainer gc, Graphics g) throws SlickException {
 		
-		//Draws the blue background
-		g.setColor(new Color(100, 149, 237));
+		
+
+		g.setColor(currentColor);   //new Color(100, 149, 237)
 		g.fillRect(0, 0, appgc.getWidth(), appgc.getHeight());
 		
 		//Loops through all the tiles and draws them
@@ -379,6 +387,15 @@ public class Game extends BasicGame {
 		drawUI(g);
 		
 		TextureImpl.bindNone();
+		
+		//Timer for night and day colors
+		
+		
+		
+		
+		
+		
+		
 	}
 
 	/** Draws all UI elements
@@ -516,12 +533,6 @@ public class Game extends BasicGame {
 	 * Called when the program launches. Sets up the map, places the player, loads the textures, etc...
 	 */
 	
-	public void poop(){
-		
-	}
-	public void fantabulous(){
-		//this method is called fantabulous and it is pretty fantabulous if you ask me
-	}
 	
 	@Override
 	public void init(GameContainer container) throws SlickException {
@@ -574,6 +585,11 @@ public class Game extends BasicGame {
 			myPlayer.inventory.add(new InventorySlot());
 		}
 		myPlayer.inventory.get(0).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
+		
+		//Colors setup
+		dayColor=new Color(100, 149, 237);
+		nightColor=new Color(0,51,102);
+		currentColor=dayColor;
 	}
 	
 	@Override
@@ -589,6 +605,20 @@ public class Game extends BasicGame {
 		if(MOUSE_BUTTON1_DOWN){
 			input.mouseButtonHeld(0, container.getInput().getMouseX(), container.getInput().getMouseY());
 		}
+		
+		//Night and Day Cycle
+		currentTimeUntilNextCycle-=delta;
+		if(currentTimeUntilNextCycle<0){
+			currentTimeUntilNextCycle=msCycle;
+			if(currentColor==dayColor){
+				currentColor=nightColor;
+			} else if(currentColor==nightColor){
+				currentColor=dayColor;
+			}
+		
+			
+		}
+		
 	}
 	
 	@Override 
