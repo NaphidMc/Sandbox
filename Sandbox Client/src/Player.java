@@ -4,7 +4,7 @@ import java.util.ArrayList;
 public class Player {
 	
 	int ID = -1;
-	public float x, y, velocityX, velocityY, moveSpeed = 350f, jumpVelocity = 2.0f;
+	public float x, y, velocityX, velocityY, moveSpeed = 350f, jumpVelocity = 5.0f;
 	private int collisionRectOffsetX = Tile.tileSize * 0, collisionRectOffsetY = 10;
 	public int width, height;
 	public int miningDistance = 4 * Tile.tileSize;
