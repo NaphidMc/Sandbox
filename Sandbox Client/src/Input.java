@@ -201,10 +201,13 @@ public class Input {
 		if(button == 0){
 			Tile t = null;
 			if(((t = Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null)){
+					
+				if(t.block != Database.BLOCK_BEDROCK){
 					t.health -= Game.myPlayer.selectedItem.MiningPower;
 					if(t.health <= 0){
 						t.setBlock(Database.BLOCK_AIR);
 					}
+				}
 			}
 		}
 	}
