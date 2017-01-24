@@ -199,7 +199,7 @@ public class Player {
 	}
 	
 	public void removeItem(Item item, int quantity){
-
+		
 		//First tries to remove from inventory and then hotbar
 		for(int i = 0; i < inventory.size(); i++){
 			if(inventory.get(i).itemStack.item == null)

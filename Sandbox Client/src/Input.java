@@ -1,3 +1,4 @@
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Input {
 	
@@ -206,6 +207,16 @@ public class Input {
 					t.health -= Game.myPlayer.selectedItem.MiningPower;
 					if(t.health <= 0){
 						t.setBlock(Database.BLOCK_AIR);
+						
+						//Gives the player the block's drops
+						int rand = 0;
+						for(int i = 0; i < t.block.itemDropIDs[0].length; i++){
+							rand = ThreadLocalRandom.current().nextInt(1, 100); //Gets a random number
+							
+							if(rand < t.block.itemDropIDs[1][i]){ //Checks the drop chance to see if the player got it
+								Game.myPlayer.addItem(t.block.itemDropIDs[0][i], 1); //Adds the item
+							}
+						}
 					}
 				}
 			}
