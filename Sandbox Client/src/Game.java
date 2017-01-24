@@ -34,7 +34,9 @@ public class Game extends BasicGame {
 	public static boolean KEY_D_DOWN;
 	public static boolean MOUSE_BUTTON1_DOWN;
 	
-	int mouseX, mouseY;
+	//Current mouse coordinates - set in update
+	public static int mouseX; 
+	public static int mouseY;
 	
 	public static AppGameContainer appgc;
 	public static Input input;
@@ -44,18 +46,31 @@ public class Game extends BasicGame {
 	
 	public static Game current;
 	
-	//Colors
-	int msCycle=480000; //Day and Night cycle is 8 mins each
-	int currentTimeUntilNextCycle=480000;
-	Color currentColor=new Color(0,51,102);
+	//Day & Night Cycle variables
+	int msCycle = 480000; //Day and Night cycle are 8 minutes each
+	int currentTimeUntilNextCycle = 480000;
+	Color currentColor;
 	Color dayColor;
 	Color nightColor;
 	
 	public Game(String name) {
 		super(name);
-		current = this;
+		current = this; //The current static instance of Game used by other classes
 	}
 	
+	/**
+	 * 
+	 * @param groundLevel - How many blocks of air there are above the base ground height
+	 * @param hills - How many hills there are
+	 * @param minHillHeight - How low hills can be? I think...
+	 * @param maxHillHeight - How high the hills can become
+	 * @param minHillWidth - The minimum width of hills
+	 * @param maxHillWidth - The widest hills can get
+	 * @param stoneDepth - How deep you have to go to see stone
+	 * @param stoneTransition - How deep until the stone/dirt layer appears
+	 * @param ironDepth - How deep you have to go to see iron
+	 * @param ironFrequencyMultiplier - The frequency of iron deposits
+	 */
 	public void generateMap(int groundLevel, int hills, int minHillHeight, int maxHillHeight, int minHillWidth, int maxHillWidth, int stoneDepth, int stoneTransition, int ironDepth, float ironFrequencyMultiplier){
 		int height = 0;
 		int width = 0;
@@ -345,9 +360,8 @@ public class Game extends BasicGame {
 	@Override
 	public void render(GameContainer gc, Graphics g) throws SlickException {
 		
-		
-
-		g.setColor(currentColor);   //new Color(100, 149, 237)
+		//Draws the sky with an appropriate color
+		g.setColor(currentColor);
 		g.fillRect(0, 0, appgc.getWidth(), appgc.getHeight());
 		
 		//Loops through all the tiles and draws them
@@ -384,18 +398,9 @@ public class Game extends BasicGame {
 		sprites.renderInUse((int)myPlayer.x + (int)cameraOffsetX, (int)myPlayer.y - (int)cameraOffsetY, 1, 2);
 		sprites.endUse();
 		
-		drawUI(g);
+		drawUI(g); 
 		
-		TextureImpl.bindNone();
-		
-		//Timer for night and day colors
-		
-		
-		
-		
-		
-		
-		
+		TextureImpl.bindNone(); //Fixes the FPS counter in the top left
 	}
 
 	/** Draws all UI elements
@@ -537,10 +542,13 @@ public class Game extends BasicGame {
 	@Override
 	public void init(GameContainer container) throws SlickException {
 		
+		//Makes a new Input class
 		input = new Input();
 		
+		//Configures tile size: divide 800 by a lower number for more tiles and vise versa for less
 		Tile.tileSize = 800/12;
 		
+		//Loads the sprite sheet
 		try{
 			Image src = new Image("resources/spritesheet.png");
 			SPRITESHEET_WIDTH = src.getWidth()/128;
@@ -550,29 +558,30 @@ public class Game extends BasicGame {
 			System.err.println("FAILED TO LOAD SPRITES");
 			System.exit(0);
 		}
-		sprites.setFilter(Image.FILTER_NEAREST);
+		sprites.setFilter(Image.FILTER_NEAREST); //Setting the filter to nearest solves some weird graphical issues
 		
-		myPlayer = new Player(400, 0);
+		myPlayer = new Player(400, 0); //Instantiates the player at the given coordinates
 		
 		mapWidth = 100;
 		mapHeight = 32;
 		
 		mapEndCoordinate = Tile.tileSize * mapWidth;
-		mapBottonCoordinate = Tile.tileSize*mapHeight + (int)(9.25 * Tile.tileSize);
+		mapBottonCoordinate = Tile.tileSize*mapHeight;
 		
 		craftingUIPositionX = 400;
 		craftingUIPositionY = 250;
 		
+		//Below are all the map generation stuff
 		map = new Tile[mapWidth*mapHeight];
-		generateMap(7, 13, 2, 5, 2, 4, 12, 1, 13, .5f);
-		fixGrassBlocks();
-		generateTrees(2f);
-		growTrees();
+		generateMap(7, 13, 2, 5, 2, 4, 12, 1, 13, .5f); //This confusing mess does most of the generation
+		fixGrassBlocks(); //This function makes it so grass blocks can't have blocks on top of them
+		generateTrees(2f); //Generates the trees; the parameter is tree density
+		growTrees(); //Adds leaves and stems to the trees
 		
 		cameraOffsetX = 0;
 		cameraOffsetY = -300;
 		
-		//Sets up the myPlayer.Hotbar
+		//Adds the player's hotbar slots and adds starting items
 		for(int i = 0; i < Player.numberOfHotbarSlots; i++){
 			myPlayer.hotbar.add(new InventorySlot());
 		}
@@ -580,7 +589,7 @@ public class Game extends BasicGame {
 		myPlayer.hotbar.get(1).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
 		myPlayer.selectedItem = myPlayer.hotbar.get(0).itemStack.item;
 		
-		//Sets up player inventory
+		//Sets up player inventory and adds starting items
 		for(int i = 0; i <= myPlayer.inventoryRows*myPlayer.inventoryColumns; i++){
 			myPlayer.inventory.add(new InventorySlot());
 		}
@@ -594,8 +603,15 @@ public class Game extends BasicGame {
 	
 	@Override
 	public void update(GameContainer container, int delta) throws SlickException {
+		
+		//Updates mouse coords
+		mouseX = container.getInput().getMouseX();
+		mouseY = container.getInput().getMouseY();
+		
+		//Updates players
 		myPlayer.Update(delta);
 		
+		//**Input**\\
 		if(KEY_A_DOWN){
 			myPlayer.MoveLeft(delta);
 		} else if(KEY_D_DOWN){
@@ -603,24 +619,26 @@ public class Game extends BasicGame {
 		}
 		
 		if(MOUSE_BUTTON1_DOWN){
-			input.mouseButtonHeld(0, container.getInput().getMouseX(), container.getInput().getMouseY());
+			input.mouseButtonHeld(0, mouseX, mouseY);
 		}
+		//*End Input*\\
 		
 		//Night and Day Cycle
 		currentTimeUntilNextCycle-=delta;
 		if(currentTimeUntilNextCycle<0){
-			currentTimeUntilNextCycle=msCycle;
-			if(currentColor==dayColor){
-				currentColor=nightColor;
-			} else if(currentColor==nightColor){
-				currentColor=dayColor;
-			}
-		
 			
+			currentTimeUntilNextCycle=msCycle;
+			
+			if(currentColor == dayColor){
+				currentColor = nightColor;
+			} else if(currentColor == nightColor){
+				currentColor = dayColor;
+			}
 		}
 		
 	}
 	
+	//Input methods are sent to the Input class to keep Game class cleaner
 	@Override 
 	public void keyPressed(int key, char c){
 		input.keyPressed(key, c);
