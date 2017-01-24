@@ -423,16 +423,16 @@ public class Game extends BasicGame {
 		
 		//Draws the hotbar slots and colors the selected one
 		for(int i = 0; i < myPlayer.hotbar.size(); i++){
-			myPlayer.hotbar.get(i).x = hotbarPositionX + InventorySlot.inventorySlotSize * i;
+			myPlayer.hotbar.get(i).x = hotbarPositionX + 80 * i;
 			myPlayer.hotbar.get(i).y = hotbarPositionY;
 			
 			if(i == myPlayer.selectedHotbarSlot){
 				g.setColor(new Color(1f, 1f, 1f, .35f));
-				g.fillRect(hotbarPositionX + 80 * i, hotbarPositionY, InventorySlot.inventorySlotSize + 10, InventorySlot.inventorySlotSize + 10);
+				g.fillRect(myPlayer.hotbar.get(i).x, myPlayer.hotbar.get(i).y, InventorySlot.inventorySlotSize + 10, InventorySlot.inventorySlotSize + 10);
 			}
 			else{
 				g.setColor(new Color(0f, 0f, 0f, .35f));
-				g.fillRect(hotbarPositionX + 80 * i, hotbarPositionY,	InventorySlot.inventorySlotSize + 10, InventorySlot.inventorySlotSize + 10);
+				g.fillRect(myPlayer.hotbar.get(i).x, hotbarPositionY, InventorySlot.inventorySlotSize + 10, InventorySlot.inventorySlotSize + 10);
 			}
 		}
 		
@@ -492,12 +492,11 @@ public class Game extends BasicGame {
 					myPlayer.craftingTable.get(currentCraftingTableIndex).x = craftingUIPositionX + x * InventorySlot.inventorySlotSize;
 					myPlayer.craftingTable.get(currentCraftingTableIndex).y = craftingUIPositionY + y * InventorySlot.inventorySlotSize;
 					
-					sprites.renderInUse(myPlayer.craftingTable.get(currentCraftingTableIndex).x + 175, myPlayer.craftingTable.get(currentCraftingTableIndex).y, 3, 3);
+					sprites.renderInUse(myPlayer.craftingTable.get(currentCraftingTableIndex).x, myPlayer.craftingTable.get(currentCraftingTableIndex).y, 3, 3);
 					
+					//Draws the items in the crafting table
 					if(myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.item != null){
-						sprites.renderInUse(myPlayer.craftingTable.get(currentCraftingTableIndex).x, myPlayer.craftingTable.get(currentCraftingTableIndex).y + (int)(.15*InventorySlot.inventorySlotSize), myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.item.icon/SPRITESHEET_WIDTH); 
-					
-						g.drawString("" + myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.quantity, myPlayer.craftingTable.get(currentCraftingTableIndex).x + (int)(.95f*Item.IconSize), myPlayer.craftingTable.get(currentCraftingTableIndex).y + (int)(1.15f*Item.IconSize));
+						sprites.renderInUse(myPlayer.craftingTable.get(currentCraftingTableIndex).x, myPlayer.craftingTable.get(currentCraftingTableIndex).y, myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.item.icon/SPRITESHEET_WIDTH); 
 					}
 					
 					currentCraftingTableIndex++;
@@ -509,20 +508,20 @@ public class Game extends BasicGame {
 					}
 			}
 			
+			myPlayer.craftingTableOutput.x = myPlayer.craftingTable.get(4).x;
+			myPlayer.craftingTableOutput.y = craftingUIPositionY + 3 * InventorySlot.inventorySlotSize;
+			
 			//Draws the output square
-			sprites.renderInUse(myPlayer.craftingTable.get(4).x + 175, craftingUIPositionY + 3 * InventorySlot.inventorySlotSize, 3, 3);
+			sprites.renderInUse(myPlayer.craftingTable.get(4).x, craftingUIPositionY + 3 * InventorySlot.inventorySlotSize, 3, 3);
 			
 			if(myPlayer.craftingTableOutput.itemStack.item != null){
-				sprites.renderInUse(0 + 4 * InventorySlot.inventorySlotSize, craftingUIPositionY + InventorySlot.inventorySlotSize + (int)(.15f*Item.IconSize), myPlayer.craftingTableOutput.itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.craftingTableOutput.itemStack.item.icon/SPRITESHEET_WIDTH);
-			
-				g.drawString("" + myPlayer.craftingTableOutput.itemStack.quantity, craftingUIPositionX + 4 * InventorySlot.inventorySlotSize, craftingUIPositionY + InventorySlot.inventorySlotSize + (int)(1.15f*Item.IconSize));
+				sprites.renderInUse(myPlayer.craftingTable.get(4).x, craftingUIPositionY + 3 * InventorySlot.inventorySlotSize, myPlayer.craftingTableOutput.itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.craftingTableOutput.itemStack.item.icon/SPRITESHEET_WIDTH);
 			}
 			
 			if(myPlayer.pickedUpItem != null){
-				//sprites.renderInUse(myPlayer.pickedUpItem.item.icon, mouseX, mouseY, null);
-				g.drawString("" + myPlayer.pickedUpItem.quantity, mouseX, mouseY + (int)(1.15 * Item.IconSize));
+				sprites.renderInUse(mouseX, mouseY, myPlayer.pickedUpItem.item.icon%4, myPlayer.pickedUpItem.item.icon/4);
 			}
-			
+
 		}
 		
 		sprites.endUse();
@@ -535,6 +534,22 @@ public class Game extends BasicGame {
 					g.drawString("" + myPlayer.inventory.get(currentInventorySlot).itemStack.quantity, inventoryPositionX + InventorySlot.inventorySlotSize * k, inventoryPositionY + InventorySlot.inventorySlotSize * i);
 					currentInventorySlot++;
 				}
+			}
+			
+			//Draws the quantity string for crafting table output
+			if(myPlayer.craftingTableOutput.itemStack.item != null){
+				g.drawString("" + myPlayer.craftingTableOutput.itemStack.quantity, craftingUIPositionX + 4 * InventorySlot.inventorySlotSize, craftingUIPositionY + InventorySlot.inventorySlotSize);
+			}
+			
+			//Draws the quantity string for picked up items
+			if(myPlayer.pickedUpItem != null){
+				g.drawString("" + myPlayer.pickedUpItem.quantity, mouseX, mouseY);
+			}
+			
+			//Loops and draws quantity strings for the crafting table
+			for(int i = 0; i < 9; i++){
+				if(myPlayer.craftingTable.get(i).itemStack.item != null)
+					g.drawString("" + myPlayer.craftingTable.get(i).itemStack.quantity, myPlayer.craftingTable.get(i).x, myPlayer.craftingTable.get(i).y);
 			}
 		}
 	}
@@ -573,7 +588,7 @@ public class Game extends BasicGame {
 		mapEndCoordinate = Tile.tileSize * mapWidth;
 		mapBottonCoordinate = Tile.tileSize*mapHeight;
 		
-		craftingUIPositionX = 400;
+		craftingUIPositionX = 575;
 		craftingUIPositionY = 250;
 		
 		//Below are all the map generation stuff

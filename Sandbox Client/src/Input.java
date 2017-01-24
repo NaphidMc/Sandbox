@@ -78,7 +78,7 @@ public class Input {
 			Tile t = null; //A temporary tile variable
 			
 			//Checks if the player has a block selected in the hotbar
-			if(Game.myPlayer.selectedItem.block != null && (t = Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null){
+			if(Game.myPlayer.selectedItem.block != null && (t = Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null && t.block == Database.BLOCK_AIR && !Game.myPlayer.inventoryOpen){
 				t.setBlock(Game.myPlayer.selectedItem.block);
 			}
 			
@@ -209,7 +209,7 @@ public class Input {
 		//Left click
 		if(button == 0){
 			Tile t = null;
-			if(((t = Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null) && Game.myPlayer.selectedItem != null){
+			if(((t = Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null) && Game.myPlayer.selectedItem != null && !Game.myPlayer.inventoryOpen){
 					
 				if(t.block != Database.BLOCK_BEDROCK){
 					t.health -= Game.myPlayer.selectedItem.MiningPower;
