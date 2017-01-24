@@ -195,7 +195,7 @@ public class Player {
 	}
 	
 	public void addItem(int id, int quantity){
-		addItem(Item.getItemByID(id), quantity); //Calls the other addItem method
+		addItem(Item.getItemByID(id), quantity); 
 	}
 	
 	public void removeItem(Item item, int quantity){
