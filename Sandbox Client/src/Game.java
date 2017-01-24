@@ -440,7 +440,7 @@ public class Game extends BasicGame {
 		sprites.startUse();
 		for(int i = 0; i < myPlayer.hotbar.size(); i++){
 			if(myPlayer.hotbar.get(i).itemStack.item != null){
-				sprites.renderInUse(hotbarPositionX + 90 * i - 2, hotbarPositionY + 5, myPlayer.hotbar.get(i).itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.hotbar.get(i).itemStack.item.icon/SPRITESHEET_WIDTH);
+				sprites.renderInUse(hotbarPositionX + 80 * i + 5, hotbarPositionY + 5, myPlayer.hotbar.get(i).itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.hotbar.get(i).itemStack.item.icon/SPRITESHEET_WIDTH);
 			}
 		}
 		sprites.endUse();
