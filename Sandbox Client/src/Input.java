@@ -216,7 +216,7 @@ public class Input {
 								Game.myPlayer.addItem(t.block.itemDropIDs[0][i], 1); //Adds the item
 							}
 						}
-						//asdf
+						
 						t.setBlock(Database.BLOCK_AIR); //Finally, removes the block
 					}
 				}
