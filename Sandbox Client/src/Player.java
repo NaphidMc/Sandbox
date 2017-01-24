@@ -255,10 +255,7 @@ public class Player {
 			x -= velocityX;
 			y -= velocityY;
 			
-			if(Game.cameraOffsetY + Game.appgc.getHeight() < Game.mapBottonCoordinate + 1.4*Tile.tileSize && velocityY < 0){
-				Game.cameraOffsetY -= velocityY;
-			}
-			else if(Game.mapBottonCoordinate - y > Game.appgc.getHeight()/2 - 100 && velocityY > 0){
+			if(Game.cameraOffsetY + 600 < Game.mapBottonCoordinate - 9.25 * Tile.tileSize && velocityY < 0){
 				Game.cameraOffsetY -= velocityY;
 			}
 		}
