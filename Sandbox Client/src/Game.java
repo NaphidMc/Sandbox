@@ -45,8 +45,8 @@ public class Game extends BasicGame {
 	public static Game current;
 	
 	//Colors
-	int msCycle=1000;
-	int currentTimeUntilNextCycle=1000;
+	int msCycle=480000; //Day and Night cycle is 8 mins each
+	int currentTimeUntilNextCycle=480000;
 	Color currentColor=new Color(0,51,102);
 	Color dayColor;
 	Color nightColor;
