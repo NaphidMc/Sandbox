@@ -276,11 +276,16 @@ public class Game extends BasicGame {
 	public void specialTileInteraction(int x, int y){
 		Tile tile = getTileAtCoordinates(x, y);
 		
+		//Makes sure the tile exists
 		if(tile != null){
-			if(tile.block == Database.BLOCK_DIRT){
-				if(myPlayer.selectedItem == Database.ITEM_GRASS_SEEDS && getTileAtCoordinates(x, y - Tile.tileSize).block == Database.BLOCK_AIR){
-					tile.setBlock(Database.BLOCK_GRASS);
-					myPlayer.removeItem(Database.ITEM_GRASS_SEEDS, 1);
+			//All special actions that are done with grass blocks
+			if(myPlayer.selectedItem == Database.ITEM_GRASS_SEEDS){
+				if(tile.block == Database.BLOCK_DIRT){
+					//Makes sure the tile above is air
+					if(getTileAtCoordinates(x, y - Tile.tileSize).block == Database.BLOCK_AIR){
+						tile.setBlock(Database.BLOCK_GRASS);
+						myPlayer.removeItem(Database.ITEM_GRASS_SEEDS, 1);
+					}
 				}
 			}
 		}

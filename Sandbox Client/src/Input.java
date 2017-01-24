@@ -75,9 +75,17 @@ public class Input {
 		if(button == 0){
 			Game.MOUSE_BUTTON1_DOWN = true;
 			
+			Tile t = null; //A temporary tile variable
+			
 			//Checks if the player has a block selected in the hotbar
-			if(Game.myPlayer.selectedItem.block != null && Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY) != null){
-				Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY).setBlock(Game.myPlayer.selectedItem.block);
+			if(Game.myPlayer.selectedItem.block != null && (t = Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null){
+				t.setBlock(Game.myPlayer.selectedItem.block);
+			}
+			
+			//If the player is not holding a block or mining tool, the method specialTileInteraction in game checks if 
+			//anything can be done with the tool in hand (Example: Grass Seeds)
+			else if(Game.myPlayer.selectedItem.MiningPower == 0 && Game.myPlayer.selectedItem.block == null && (t = Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null){
+				Game.current.specialTileInteraction(t.x, t.y);
 			}
 			
 			// ** Inventory management logic involving the mouse **
@@ -201,7 +209,7 @@ public class Input {
 		//Left click
 		if(button == 0){
 			Tile t = null;
-			if(((t = Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null)){
+			if(((t = Game.current.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null) && Game.myPlayer.selectedItem != null){
 					
 				if(t.block != Database.BLOCK_BEDROCK){
 					t.health -= Game.myPlayer.selectedItem.MiningPower;
@@ -216,7 +224,7 @@ public class Input {
 								Game.myPlayer.addItem(t.block.itemDropIDs[0][i], 1); //Adds the item
 							}
 						}
-						//
+						
 						t.setBlock(Database.BLOCK_AIR); //Finally, removes the block
 					}
 				}
