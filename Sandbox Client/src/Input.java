@@ -206,7 +206,6 @@ public class Input {
 				if(t.block != Database.BLOCK_BEDROCK){
 					t.health -= Game.myPlayer.selectedItem.MiningPower;
 					if(t.health <= 0){
-						t.setBlock(Database.BLOCK_AIR);
 						
 						//Gives the player the block's drops
 						int rand = 0;
@@ -217,6 +216,8 @@ public class Input {
 								Game.myPlayer.addItem(t.block.itemDropIDs[0][i], 1); //Adds the item
 							}
 						}
+						
+						t.setBlock(Database.BLOCK_AIR); //Finally, removes the block
 					}
 				}
 			}
