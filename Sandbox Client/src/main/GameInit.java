@@ -12,7 +12,10 @@ public class GameInit extends ScalableGame {
 		super(held, normalWidth, normalHeight, maintainAspect);
 	}
 	
+	public static AppGameContainer game;
+	public static AppGameContainer mainMenu;
 	public static Game g;
+	public static MainMenu m;
 	
 	public static void main(String[] args){
 		EventQueue.invokeLater(new Runnable(){
@@ -20,16 +23,22 @@ public class GameInit extends ScalableGame {
 				
 				Database.Populate();
 				
-				AppGameContainer appgc = null;
-				g = new Game("Sandbox", false);
-
+				g = new Game("Sandbox");
+				m = new MainMenu("Main Menu");
+				
 				try {
+					
 					GameInit gi = new GameInit(g, 800, 600, true);
-					appgc = new AppGameContainer(gi);
-					appgc.setDisplayMode(appgc.getScreenWidth(), appgc.getScreenHeight(), true);
-					appgc.setFullscreen(true);
-					Game.appgc = appgc;
-					appgc.start();
+					game = new AppGameContainer(gi);
+					game.setDisplayMode(game.getScreenWidth(), game.getScreenHeight(), true);
+					game.setFullscreen(true);
+					Game.appgc = game;
+					
+					GameInit mi = new GameInit(m, 800, 600, false);
+					mainMenu = new AppGameContainer(mi);
+					mainMenu.setDisplayMode(mainMenu.getScreenWidth(), mainMenu.getScreenHeight(), true);
+					mainMenu.setFullscreen(true);
+					mainMenu.start();
 					
 				} catch (SlickException e) {
 					e.printStackTrace();

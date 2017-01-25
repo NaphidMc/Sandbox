@@ -13,7 +13,6 @@ public class Game extends BasicGame {
 	
 	public static float cameraOffsetX, cameraOffsetY;
 	
-	public static Tile[] map;
 	public static Player myPlayer;
 	
 	public static int hotbarPositionX = 25, hotbarPositionY = 10;
@@ -48,7 +47,7 @@ public class Game extends BasicGame {
 	Color dayColor;
 	Color nightColor;
 	
-	public Game(String name, boolean multiplayer) {
+	public Game(String name) {
 		super(name);
 		current = this; //The current static instance of Game used by other classes
 	}
@@ -68,31 +67,36 @@ public class Game extends BasicGame {
 		//Loops through all the tiles and draws them
 		sprites.startUse();
 		int mapIndex = 0;
-		for (int i = 0; i < currentMap.getWidth(); i++) {
-			for (int j = 0; j < currentMap.getHeight(); j++) {
+		for (int i = 0; i < currentMap.getHeight(); i++) {
+			for (int j = 0; j < currentMap.getWidth(); j++) {
 				try {
 					//Updates tile coordinates
-					map[mapIndex].x = Tile.tileSize * j;
-					map[mapIndex].y = Tile.tileSize * i;
+					currentMap.tiles[mapIndex].x = Tile.tileSize * j;
+					currentMap.tiles[mapIndex].y = Tile.tileSize * i;
 					
 					//If the tile is 'air' it simply isn't drawn
-					if (map[mapIndex].block == Database.BLOCK_AIR) {
+					if (currentMap.tiles[mapIndex].block == Database.BLOCK_AIR) {
 						mapIndex++;
 						continue;
 					
 					} else {	
+						
+						if(currentMap.tiles[mapIndex].block == Database.BLOCK_BEDROCK)
+							System.out.println((Tile.tileSize * j + "," +  (Tile.tileSize * i)));
 						//Before drawing a tile, it checks if it is visible
 						if(Tile.tileSize * j + (int)cameraOffsetX > -Tile.tileSize + 0 && Tile.tileSize * j + (int)cameraOffsetX < 800 && Tile.tileSize * i - (int)cameraOffsetY > 0 -Tile.tileSize && Tile.tileSize * i - (int)cameraOffsetY < 600){
 
 							//Finally, this draws the tile
-							sprites.renderInUse(0 + Tile.tileSize * j + (int)cameraOffsetX, 0 + Tile.tileSize * i - (int)cameraOffsetY, map[mapIndex].texture%4, map[mapIndex].texture/4);
+							sprites.renderInUse(0 + Tile.tileSize * j + (int)cameraOffsetX, 0 + Tile.tileSize * i - (int)cameraOffsetY, currentMap.tiles[mapIndex].texture%SPRITESHEET_WIDTH, currentMap.tiles[mapIndex].texture/SPRITESHEET_WIDTH);
 							
 						}
 					}
 					mapIndex++;
+					
 				} catch (Exception e) { }
 				
 			}
+			System.out.print("\n");
 		}
 
 		// Draws the player
@@ -262,6 +266,10 @@ public class Game extends BasicGame {
 		//Configures tile size: divide 800 by a lower number for more tiles and vise versa for less
 		Tile.tileSize = 800/12;
 		
+		currentMap = new Map(16, 32); //Generates a new map
+		currentMap.mapEndCoordinate = Tile.tileSize * currentMap.getWidth();
+		currentMap.mapBottonCoordinate = Tile.tileSize*currentMap.getHeight();
+		
 		//Loads the sprite sheet
 		try{
 			Image src = new Image("resources/spritesheet.png");
@@ -276,16 +284,10 @@ public class Game extends BasicGame {
 		
 		myPlayer = new Player(400, 0); //Instantiates the player at the given coordinates
 		
-		currentMap.mapEndCoordinate = Tile.tileSize * currentMap.getWidth();
-		currentMap.mapBottonCoordinate = Tile.tileSize*currentMap.getHeight();
-		
 		craftingUIPositionX = 575;
 		craftingUIPositionY = 250;
 		cameraOffsetX = 0;
 		cameraOffsetY = -300;
-		
-		currentMap = new Map(100, 32);
-		map = new Tile[currentMap.getWidth()*currentMap.getHeight()];
 		
 		//Adds the player's hotbar slots and adds starting items
 		for(int i = 0; i < Player.numberOfHotbarSlots; i++){
