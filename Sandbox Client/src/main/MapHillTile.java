@@ -1,3 +1,4 @@
+package main;
 
 public class MapHillTile {
 	public int x, y;

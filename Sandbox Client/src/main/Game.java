@@ -1,5 +1,4 @@
-import java.util.concurrent.ThreadLocalRandom;
-
+package main;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;

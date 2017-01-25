@@ -1,6 +1,8 @@
+package main;
 import java.util.ArrayList;
 
 public class MapHill {
+	
 	public int height;
 	public int width;
 	public int peakPositionX;
