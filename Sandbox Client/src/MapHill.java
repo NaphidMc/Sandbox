@@ -13,10 +13,6 @@ public class MapHill {
 		this.groundLevel = groundLevel;
 		this.peakPositionX = peakPositionX;
 		generateHillTiles();
-		
-		//System.out.println("Height: " + height);
-		//System.out.println("Width: " + width);
-		//System.out.println("Peak Position: " + peakPositionX);
 	}
 	
 	public void generateHillTiles(){

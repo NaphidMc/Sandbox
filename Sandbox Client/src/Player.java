@@ -51,11 +51,11 @@ public class Player {
 	}
 	
 	public void MoveRight(int delta) {
-		if(x + moveSpeed * delta/1000f < Game.mapEndCoordinate - Tile.tileSize){
+		if(x + moveSpeed * delta/1000f < Game.currentMap.mapEndCoordinate - Tile.tileSize){
 			if(!tileRightToPlayer()){
 				x += moveSpeed * delta/1000f;
 				
-				if(-Game.cameraOffsetX + 800 < Game.mapEndCoordinate && x >= 400) {
+				if(-Game.cameraOffsetX + 800 < Game.currentMap.mapEndCoordinate && x >= 400) {
 					Game.cameraOffsetX -= moveSpeed * delta/1000f;
 				}
 			}
@@ -67,7 +67,7 @@ public class Player {
 			if(!tileLeftToPlayer()){
 				x -= moveSpeed * delta/1000f;
 				
-				if(-Game.cameraOffsetX > 0 && Game.mapEndCoordinate - x >= 400){
+				if(-Game.cameraOffsetX > 0 && Game.currentMap.mapEndCoordinate - x >= 400){
 					Game.cameraOffsetX += moveSpeed * delta/1000f;
 				}
 			}
@@ -255,10 +255,10 @@ public class Player {
 			x -= velocityX;
 			y -= velocityY;
 			
-			if(Game.cameraOffsetY + 600 < Game.mapBottonCoordinate && velocityY < 0){
+			if(Game.cameraOffsetY + 600 < Game.currentMap.mapBottonCoordinate && velocityY < 0){
 				Game.cameraOffsetY -= velocityY;
 			} 
-			else if(Game.mapBottonCoordinate - y > 600/2 - 100 && velocityY > 0){
+			else if(Game.currentMap.mapBottonCoordinate - y > 600/2 - 100 && velocityY > 0){
 				Game.cameraOffsetY -= velocityY;
 			}
 		}

@@ -20,7 +20,7 @@ public class GameInit extends ScalableGame {
 				Database.Populate();
 				
 				AppGameContainer appgc = null;
-				g = new Game("Sandbox");
+				g = new Game("Sandbox", false);
 
 				try {
 					GameInit gi = new GameInit(g, 800, 600, true);
