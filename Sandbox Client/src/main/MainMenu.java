@@ -8,56 +8,46 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 
-public class MainMenu extends BasicGame {
+public class MainMenu {
 
 	//Below are the rectangles that are used as the buttons for the menu
 	public Rectangle singlePlayerButton;
 	public Rectangle multiPlayerButton;
 	public Rectangle quitButton;
 	
-	public MainMenu(String title) {
-		super(title);
-		
+	public MainMenu() {
 		//Sets up the menu button rectangles
 		singlePlayerButton = new Rectangle(200, 100, 150, 60);
-		multiPlayerButton = new Rectangle(200, 170, 150, 60);
-		quitButton = new Rectangle(200, 140, 150, 60);
+		multiPlayerButton = new Rectangle(200, 200, 150, 60);
+		quitButton = new Rectangle(200, 300, 150, 60);
 	}
-
-	@Override
+	
 	public void render(GameContainer container, Graphics g) throws SlickException {
 		
 		//Draws background color
 		g.setColor(Color.lightGray);
-		g.drawRect(0, 0, 800, 600);
-		
-		g.setColor(Color.darkGray);
+		g.fillRect(0, 0, 800, 600);
 		
 		//Single-Player button
-		g.drawRect(singlePlayerButton.x, singlePlayerButton.y, (float)singlePlayerButton.getWidth(), (float)singlePlayerButton.getHeight());
-		g.drawString("Singleplayer", singlePlayerButton.x + .5f * (float) singlePlayerButton.getHeight(), (float) singlePlayerButton.y); 
+		g.setColor(Color.darkGray);
+		g.fillRect(singlePlayerButton.x, singlePlayerButton.y, (float)singlePlayerButton.getWidth(), (float)singlePlayerButton.getHeight());
+		g.setColor(Color.white);
+		g.drawString("Singleplayer", singlePlayerButton.x + .5f * (float) singlePlayerButton.getHeight(), (float) singlePlayerButton.y + 25); 
 		
 		//Multi-Player button
-		g.drawRect(multiPlayerButton.x, multiPlayerButton.y, (float)multiPlayerButton.getWidth(), (float)multiPlayerButton.getHeight());
-		g.drawString("Multiplayer", multiPlayerButton.x + .5f * (float) multiPlayerButton.getHeight(), (float) multiPlayerButton.y); 
+		g.setColor(Color.darkGray);
+		g.fillRect(multiPlayerButton.x, multiPlayerButton.y, (float)multiPlayerButton.getWidth(), (float)multiPlayerButton.getHeight());
+		g.setColor(Color.white);
+		g.drawString("Multiplayer", multiPlayerButton.x + .5f * (float) multiPlayerButton.getHeight(), (float) multiPlayerButton.y + 25); 
 		
 		//Quit Button
-		g.drawRect(quitButton.x, quitButton.y, (float)quitButton.getWidth(), (float)quitButton.getHeight());
-		g.drawString("Quit", quitButton.x + .5f * (float) quitButton.getHeight(), (float) quitButton.y); 
+		g.setColor(Color.darkGray);
+		g.fillRect(quitButton.x, quitButton.y, (float)quitButton.getWidth(), (float)quitButton.getHeight());
+		g.setColor(Color.white);
+		g.drawString("Quit", quitButton.x + .5f * (float) quitButton.getHeight(), (float) quitButton.y + 25); 
 	
 	}
-
-	@Override
-	public void init(GameContainer container) throws SlickException {
-		
-	}
-
-	@Override
-	public void update(GameContainer container, int delta) throws SlickException {
-		
-	}
-
-	@Override
+	
 	public void mousePressed(int button, int x, int y){
 		
 		//Left click
@@ -78,13 +68,6 @@ public class MainMenu extends BasicGame {
 	}
 	
 	public void launchGame(boolean singlePlayer){
-		
-		GameInit.mainMenu.pause(); //Quits the main menu
-		
-		try {
-			GameInit.game.start();
-		} catch (SlickException e) {
-			e.printStackTrace();
-		}
+		Game.currentGameState = Game.GameState.Game;
 	}
 }

@@ -39,6 +39,13 @@ public class Game extends BasicGame {
 	
 	public static Game current;
 	public static Map currentMap;
+	public static MainMenu mainMenu = new MainMenu();
+	
+	public static enum GameState{
+		MainMenu,
+		Game
+	};
+	public static GameState currentGameState = GameState.MainMenu;
 	
 	//Day & Night Cycle variables
 	int msCycle = 480000; //Day and Night cycle are 8 minutes each
@@ -60,6 +67,11 @@ public class Game extends BasicGame {
 	@Override
 	public void render(GameContainer gc, Graphics g) throws SlickException {
 		
+		if(currentGameState == GameState.MainMenu){
+			mainMenu.render(gc, g);
+			return;
+		}
+		
 		//Draws the sky with an appropriate color
 		g.setColor(currentColor);
 		g.fillRect(0, 0, appgc.getWidth(), appgc.getHeight());
@@ -80,9 +92,6 @@ public class Game extends BasicGame {
 						continue;
 					
 					} else {	
-						
-						if(currentMap.tiles[mapIndex].block == Database.BLOCK_BEDROCK)
-							System.out.println((Tile.tileSize * j + "," +  (Tile.tileSize * i)));
 						//Before drawing a tile, it checks if it is visible
 						if(Tile.tileSize * j + (int)cameraOffsetX > -Tile.tileSize + 0 && Tile.tileSize * j + (int)cameraOffsetX < 800 && Tile.tileSize * i - (int)cameraOffsetY > 0 -Tile.tileSize && Tile.tileSize * i - (int)cameraOffsetY < 600){
 
@@ -96,7 +105,6 @@ public class Game extends BasicGame {
 				} catch (Exception e) { }
 				
 			}
-			System.out.print("\n");
 		}
 
 		// Draws the player
@@ -312,6 +320,9 @@ public class Game extends BasicGame {
 	@Override
 	public void update(GameContainer container, int delta) throws SlickException {
 		
+		if(currentGameState == GameState.MainMenu)
+			return;
+		
 		//Updates mouse coords
 		mouseX = container.getInput().getMouseX();
 		mouseY = container.getInput().getMouseY();
@@ -364,6 +375,12 @@ public class Game extends BasicGame {
 	
 	@Override
 	public void mousePressed(int button, int x, int y){
+		
+		if(currentGameState == GameState.MainMenu){
+			mainMenu.mousePressed(button, x, y);
+			return;
+		}
+		
 		input.mousePressed(button, x, y);
 	}
 	
