@@ -84,18 +84,18 @@ public class Player {
 	public boolean tileUnderPlayer(){
 		Rectangle playerRect = collisionRect;
 		
-		for(int i = 0; i < Game.map.length; i++) {
-			if(Game.map[i].block.solid == false)
+		for(int i = 0; i < Game.currentMap.tiles.length; i++) {
+			if(Game.currentMap.tiles[i].block.solid == false)
 				continue;
 			
-			double dist = Math.sqrt(Math.pow(Game.map[i].x - playerRect.x, 2) + Math.pow(Game.map[i].y - playerRect.y, 2));
+			double dist = Math.sqrt(Math.pow(Game.currentMap.tiles[i].x - playerRect.x, 2) + Math.pow(Game.currentMap.tiles[i].y - playerRect.y, 2));
 			
 			if(dist > 150)
 				continue;
 			
-			Rectangle tileRect = new Rectangle(Game.map[i].x, Game.map[i].y, Tile.tileSize, Tile.tileSize);
-			if(playerRect.intersects(tileRect) && Game.map[i].block != Database.BLOCK_AIR && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2     
-				|| tileRect.intersects(playerRect) && Game.map[i].block != Database.BLOCK_AIR && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
+			Rectangle tileRect = new Rectangle(Game.currentMap.tiles[i].x, Game.currentMap.tiles[i].y, Tile.tileSize, Tile.tileSize);
+			if(playerRect.intersects(tileRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2     
+				|| tileRect.intersects(playerRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
 				return true;
 			}
 		}
@@ -106,18 +106,18 @@ public class Player {
 	public boolean tileRightToPlayer(){
 		Rectangle playerRect = collisionRect;
 		
-		for(int i = 0; i < Game.map.length; i++) {
-			if(Game.map[i].block.solid == false)
+		for(int i = 0; i < Game.currentMap.tiles.length; i++) {
+			if(Game.currentMap.tiles[i].block.solid == false)
 				continue;
 			
-			double dist = Math.sqrt(Math.pow(Game.map[i].x - playerRect.x, 2) + Math.pow(Game.map[i].y - playerRect.y, 2));
+			double dist = Math.sqrt(Math.pow(Game.currentMap.tiles[i].x - playerRect.x, 2) + Math.pow(Game.currentMap.tiles[i].y - playerRect.y, 2));
 			
 			if(dist > 150)
 				continue;
 			
-			Rectangle tileRect = new Rectangle(Game.map[i].x, Game.map[i].y, Tile.tileSize, Tile.tileSize);
-			if(playerRect.intersects(tileRect) && Game.map[i].block != Database.BLOCK_AIR && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
-				|| tileRect.intersects(playerRect) && Game.map[i].block != Database.BLOCK_AIR && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
+			Rectangle tileRect = new Rectangle(Game.currentMap.tiles[i].x, Game.currentMap.tiles[i].y, Tile.tileSize, Tile.tileSize);
+			if(playerRect.intersects(tileRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
+				|| tileRect.intersects(playerRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
 				return true;
 			}
 			
@@ -129,18 +129,18 @@ public class Player {
 	public boolean tileLeftToPlayer(){
 		Rectangle playerRect = collisionRect;
 		
-		for(int i = 0; i < Game.map.length; i++) {
-			if(Game.map[i].block.solid == false)
+		for(int i = 0; i < Game.currentMap.tiles.length; i++) {
+			if(Game.currentMap.tiles[i].block.solid == false)
 				continue;
 			
-			double dist = Math.sqrt(Math.pow(Game.map[i].x - playerRect.x, 2) + Math.pow(Game.map[i].y - playerRect.y, 2));
+			double dist = Math.sqrt(Math.pow(Game.currentMap.tiles[i].x - playerRect.x, 2) + Math.pow(Game.currentMap.tiles[i].y - playerRect.y, 2));
 			
 			if(dist > 150)
 				continue;
 			
-			Rectangle tileRect = new Rectangle(Game.map[i].x, Game.map[i].y, Tile.tileSize, Tile.tileSize);
-			if(playerRect.intersects(tileRect) && Game.map[i].block != Database.BLOCK_AIR && Math.abs(tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
-				|| tileRect.intersects(playerRect) && Game.map[i].block != Database.BLOCK_AIR && Math.abs(tileRect.x - playerRect.x) <= playerRect.width  && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
+			Rectangle tileRect = new Rectangle(Game.currentMap.tiles[i].x, Game.currentMap.tiles[i].y, Tile.tileSize, Tile.tileSize);
+			if(playerRect.intersects(tileRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && Math.abs(tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
+				|| tileRect.intersects(playerRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && Math.abs(tileRect.x - playerRect.x) <= playerRect.width  && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
 				return true;
 			}
 			
@@ -152,18 +152,18 @@ public class Player {
 	public boolean tileAbovePlayer(){
 		Rectangle playerRect = collisionRect;
 		
-		for(int i = 0; i < Game.map.length; i++) {
-			if(Game.map[i].block.solid == false)
+		for(int i = 0; i < Game.currentMap.tiles.length; i++) {
+			if(Game.currentMap.tiles[i].block.solid == false)
 				continue;
 			
-			double dist = Math.sqrt(Math.pow(Game.map[i].x - playerRect.x, 2) + Math.pow(Game.map[i].y - playerRect.y, 2));
+			double dist = Math.sqrt(Math.pow(Game.currentMap.tiles[i].x - playerRect.x, 2) + Math.pow(Game.currentMap.tiles[i].y - playerRect.y, 2));
 			
 			if(dist > 150)
 				continue;
 			
-			Rectangle tileRect = new Rectangle(Game.map[i].x, Game.map[i].y, Tile.tileSize, Tile.tileSize);
-			if(playerRect.intersects(tileRect) && Game.map[i].block != Database.BLOCK_AIR && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2
-				|| tileRect.intersects(playerRect) && Game.map[i].block != Database.BLOCK_AIR && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
+			Rectangle tileRect = new Rectangle(Game.currentMap.tiles[i].x, Game.currentMap.tiles[i].y, Tile.tileSize, Tile.tileSize);
+			if(playerRect.intersects(tileRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2
+				|| tileRect.intersects(playerRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
 				return true;
 			}
 		}

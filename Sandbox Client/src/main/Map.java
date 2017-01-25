@@ -65,17 +65,14 @@ public class Map {
 		
 		A: for(int i = 0; i < mapWidth*mapHeight; i++){
 			
-			int currentX = Tile.tileSize*width - (int)Game.cameraOffsetX;
-			int currentY = Tile.tileSize*height - (int)Game.cameraOffsetY;
-			
-			//System.out.println("Current X: " + currentX);
-			//System.out.println(Tile.TileSize + "*" + width + "-" + Game.cameraOffsetX);
+			int currentX = Tile.tileSize * width;
+			int currentY = Tile.tileSize * height;
 			
 			//Checks if the current tile is part of a hill
 			for(int k = 0; k < mapHills.length; k++){
 				
 				for(int j = 0; j < mapHills[k].hillTiles.size(); j++){
-					//System.out.println(mapHills[k].hillTiles.get(j).x + "," + mapHills[k].hillTiles.get(j).y);
+					
 					if(mapHills[k].hillTiles.get(j).x == width && mapHills[k].hillTiles.get(j).y == height){
 
 						if(mapHills[k].hillTiles.get(j).topTile){
@@ -98,10 +95,10 @@ public class Map {
 			
 			if(height < groundLevel){
 				tiles[i] = new Tile(currentX, currentY, Database.BLOCK_AIR);
-			}else if(height == groundLevel){
+			} else if(height == groundLevel){
 				//Top grass layer
 				tiles[i] = new Tile(currentX, currentY, Database.BLOCK_GRASS);
-			}else{
+			} else{
 				if(height != mapHeight - 1){
 					//Most generation stuff goes here
 					int random = ThreadLocalRandom.current().nextInt(1, 101);
