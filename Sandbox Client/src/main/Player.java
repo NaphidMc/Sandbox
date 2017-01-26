@@ -281,7 +281,7 @@ public class Player {
 		
 		collisionRect = new Rectangle((int)x + collisionRectOffsetX, (int)y + collisionRectOffsetY, width, height);
 		
-		addHealth(healthRegen+=(delta/10f));
+		addHealth(healthRegen*(delta/1000f));
 		
 	}
 }
