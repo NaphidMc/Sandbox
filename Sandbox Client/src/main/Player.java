@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Player {
 	
-	int ID = -1;
+	public int ID = -1;
 	public float x, y, velocityX, velocityY, moveSpeed = 350f, jumpVelocity = 5.0f;
 	private int collisionRectOffsetX = Tile.tileSize * 0, collisionRectOffsetY = 10;
 	public int width, height;
@@ -28,9 +28,9 @@ public class Player {
 	public InventorySlot craftingTableOutput = new InventorySlot();
 	
 	//Player stats
-	public float health;
-	public float maxHealth = 100;
-	public float healthRegen = 5; 
+	private float health;
+	private float maxHealth = 100;
+	private float healthRegen = 5; 
 	
 	
 	public Player(int startPositionX, int startPositionY) {
@@ -59,6 +59,14 @@ public class Player {
 		} else if(health > maxHealth){
 			health = maxHealth;
 		}
+	}
+	
+	public float getHealth(){
+		return health;
+	}
+	
+	public float getMaxHealth(){
+		return maxHealth;
 	}
 	
 	public void setSelectedHotbarSlot(int slot){
@@ -254,6 +262,8 @@ public class Player {
 	
 	public void Update(int delta) {
 		
+		addHealth(healthRegen * (delta/1000f));
+		
 		if(!tileUnderPlayer()){
 			velocityY -= 10 * delta/1000f;
 		}
@@ -280,8 +290,6 @@ public class Player {
 		}
 		
 		collisionRect = new Rectangle((int)x + collisionRectOffsetX, (int)y + collisionRectOffsetY, width, height);
-		
-		addHealth(healthRegen * (delta/1000f));
 		
 	}
 }

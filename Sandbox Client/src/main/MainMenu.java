@@ -2,7 +2,6 @@ package main;
 
 import java.awt.Rectangle;
 
-import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -15,11 +14,16 @@ public class MainMenu {
 	public Rectangle multiPlayerButton;
 	public Rectangle quitButton;
 	
+	boolean init;
+	
 	public MainMenu() {
+		
 		//Sets up the menu button rectangles
 		singlePlayerButton = new Rectangle(200, 100, 150, 60);
 		multiPlayerButton = new Rectangle(200, 200, 150, 60);
 		quitButton = new Rectangle(200, 300, 150, 60);
+		
+		init = true;
 	}
 	
 	public void render(GameContainer container, Graphics g) throws SlickException {
@@ -50,15 +54,18 @@ public class MainMenu {
 	
 	public void mousePressed(int button, int x, int y){
 		
+		if(!init)
+			return;
+		
 		//Left click
 		if(button == 0){
 			
 			//Checks if your mouse was inside the button's bounds when you clicked
 			if(singlePlayerButton.contains(x, y)){
-				launchGame(true);
+				launchGame(false);
 			} 
 			else if(multiPlayerButton.contains(x, y)){
-				launchGame(false);
+				launchGame(true);
 			} 
 			else if(quitButton.contains(x, y)){
 				System.exit(0); //Quit button
@@ -67,7 +74,11 @@ public class MainMenu {
 		
 	}
 	
-	public void launchGame(boolean singlePlayer){
+	public void launchGame(boolean multiplayer){
+		
+		if(multiplayer)
+			Game.current.startMultiplayer();
+		
 		Game.currentGameState = Game.GameState.Game;
 	}
 }

@@ -1,8 +1,4 @@
 package main;
-import java.awt.Image;
-import java.io.File;
-
-import javax.imageio.ImageIO;
 
 public class Block {
 	

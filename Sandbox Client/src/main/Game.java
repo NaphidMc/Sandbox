@@ -9,6 +9,10 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.SpriteSheet;
 import org.newdawn.slick.opengl.TextureImpl;
 
+import com.jmr.wrapper.client.Client;
+
+import packets.PlayerPacket;
+
 public class Game extends BasicGame {
 	
 	public static float cameraOffsetX, cameraOffsetY;
@@ -40,6 +44,7 @@ public class Game extends BasicGame {
 	public static Game current;
 	public static Map currentMap;
 	public static MainMenu mainMenu = new MainMenu();
+	public static Client client;
 	
 	public static enum GameState{
 		MainMenu,
@@ -57,6 +62,17 @@ public class Game extends BasicGame {
 	public Game(String name) {
 		super(name);
 		current = this; //The current static instance of Game used by other classes
+	}
+	
+	public void startMultiplayer(){
+		
+		client = new Client("localhost", 2667, 2667);
+		client.setListener(new ClientListener());
+		client.connect();
+		
+		if(client.isConnected()){
+			client.getServerConnection().sendUdp(new PlayerPacket(myPlayer)); //The client sends the server the player
+		}
 	}
 	
 	/**
@@ -262,12 +278,13 @@ public class Game extends BasicGame {
 		}
 		
 		//Health Bar
-		//width=maxHealth
+		//Background
 		g.setColor(Color.gray);
 		g.fillRect(600, 550, 100,15);
 		
+		//Foreground
 		g.setColor(Color.magenta);		
-		g.fillRect(600, 550, 100*(float)(myPlayer.health/myPlayer.maxHealth), 15);
+		g.fillRect(600, 550, 100 * (float)(myPlayer.getHealth()/myPlayer.getMaxHealth()), 15);
 		
 		
 		
