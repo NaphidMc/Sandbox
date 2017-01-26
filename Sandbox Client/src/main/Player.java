@@ -30,7 +30,6 @@ public class Player {
 	float health;
 	float maxHealth=100;
 	
-	
 	public Player(int startPositionX, int startPositionY) {
 		System.out.println("Creating new player...");
 		
@@ -48,14 +47,14 @@ public class Player {
 		}
 		craftingTableOutput.isNotCraftingTableOutput = false;
 		
-		health=maxHealth;
+		health = maxHealth;
 	}
-	public void addHealth(float amt){
-		health+=amt;
-		if(health<=0){
-			health=0;
+	public void addHealth(float amount){
+		health += amount;
+		if(health <= 0){
+			health = 0;
 			//die
-		} else if(health>maxHealth){
+		} else if(health  >maxHealth){
 			health=maxHealth;
 		}
 	}

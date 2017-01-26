@@ -373,8 +373,8 @@ public class Game extends BasicGame {
 			}
 		}
 		
-		
-		health+=(delta/10f);
+		if(health <= maxHealth)
+			health+=(delta/10f);
 		
 		
 	}
