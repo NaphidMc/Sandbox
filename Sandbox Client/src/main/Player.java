@@ -29,6 +29,8 @@ public class Player {
 	
 	float health;
 	float maxHealth=100;
+	float healthRegen=5; //temp 5
+	
 	
 	public Player(int startPositionX, int startPositionY) {
 		System.out.println("Creating new player...");
@@ -278,5 +280,8 @@ public class Player {
 		}
 		
 		collisionRect = new Rectangle((int)x + collisionRectOffsetX, (int)y + collisionRectOffsetY, width, height);
+		
+		addHealth(healthRegen+=(delta/10f));
+		
 	}
 }
