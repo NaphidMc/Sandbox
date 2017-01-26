@@ -54,6 +54,13 @@ public class Game extends BasicGame {
 	Color dayColor;
 	Color nightColor;
 	
+	//Health bar stuff
+	float health;
+	float maxHealth=100;
+
+	
+	
+	
 	public Game(String name) {
 		super(name);
 		current = this; //The current static instance of Game used by other classes
@@ -260,6 +267,17 @@ public class Game extends BasicGame {
 					g.drawString("" + myPlayer.craftingTable.get(i).itemStack.quantity, myPlayer.craftingTable.get(i).x, myPlayer.craftingTable.get(i).y);
 			}
 		}
+		
+		//Health Bar
+		//width=maxHealth
+		g.setColor(Color.gray);
+		g.fillRect(600, 550, 100,15);
+		
+		g.setColor(Color.magenta);		
+		g.fillRect(600, 550, 100*(float)(health/maxHealth), 15);
+		
+		
+		
 	}
 	
 	/**
@@ -354,6 +372,10 @@ public class Game extends BasicGame {
 				currentColor = dayColor;
 			}
 		}
+		
+		
+		health+=(delta/10f);
+		
 		
 	}
 	

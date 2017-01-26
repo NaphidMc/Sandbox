@@ -27,6 +27,9 @@ public class Player {
 	public ArrayList<InventorySlot> craftingTable = new ArrayList<InventorySlot>();
 	public InventorySlot craftingTableOutput = new InventorySlot();
 	
+	float health;
+	float maxHealth=100;
+	
 	
 	public Player(int startPositionX, int startPositionY) {
 		System.out.println("Creating new player...");
@@ -44,6 +47,17 @@ public class Player {
 			craftingTable.add(new InventorySlot());
 		}
 		craftingTableOutput.isNotCraftingTableOutput = false;
+		
+		health=maxHealth;
+	}
+	public void addHealth(float amt){
+		health+=amt;
+		if(health<=0){
+			health=0;
+			//die
+		} else if(health>maxHealth){
+			health=maxHealth;
+		}
 	}
 	
 	public void setSelectedHotbarSlot(int slot){
