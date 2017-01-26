@@ -27,9 +27,10 @@ public class Player {
 	public ArrayList<InventorySlot> craftingTable = new ArrayList<InventorySlot>();
 	public InventorySlot craftingTableOutput = new InventorySlot();
 	
-	float health;
-	float maxHealth=100;
-	float healthRegen=5; //temp 5
+	//Player stats
+	public float health;
+	public float maxHealth = 100;
+	public float healthRegen = 5; 
 	
 	
 	public Player(int startPositionX, int startPositionY) {
@@ -55,9 +56,8 @@ public class Player {
 		health += amount;
 		if(health <= 0){
 			health = 0;
-			//die
-		} else if(health  >maxHealth){
-			health=maxHealth;
+		} else if(health > maxHealth){
+			health = maxHealth;
 		}
 	}
 	
@@ -281,7 +281,7 @@ public class Player {
 		
 		collisionRect = new Rectangle((int)x + collisionRectOffsetX, (int)y + collisionRectOffsetY, width, height);
 		
-		addHealth(healthRegen*(delta/1000f));
+		addHealth(healthRegen * (delta/1000f));
 		
 	}
 }

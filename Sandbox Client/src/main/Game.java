@@ -54,13 +54,6 @@ public class Game extends BasicGame {
 	Color dayColor;
 	Color nightColor;
 	
-	//Health bar stuff
-	float health;
-	float maxHealth=100;
-
-	
-	
-	
 	public Game(String name) {
 		super(name);
 		current = this; //The current static instance of Game used by other classes
@@ -274,7 +267,7 @@ public class Game extends BasicGame {
 		g.fillRect(600, 550, 100,15);
 		
 		g.setColor(Color.magenta);		
-		g.fillRect(600, 550, 100*(float)(health/maxHealth), 15);
+		g.fillRect(600, 550, 100*(float)(myPlayer.health/myPlayer.maxHealth), 15);
 		
 		
 		
@@ -372,11 +365,6 @@ public class Game extends BasicGame {
 				currentColor = dayColor;
 			}
 		}
-		
-		if(health <= maxHealth)
-			health+=(delta/10f);
-		
-		
 	}
 	
 	//Input methods are sent to the Input class to keep Game class cleaner
