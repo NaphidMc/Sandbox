@@ -432,9 +432,9 @@ public class Game extends BasicGame {
 			}
 		}
 		
-		if(myPlayer.ID != -1)
+		if(myPlayer.ID != -1 && client.getServerConnection().getSocket().isClosed() == false)
 			client.getServerConnection().sendTcp(new PlayerPacket(myPlayer)); //The client sends the server the player  
-
+		
 	}
 	
 	//Input methods are sent to  the Input class to keep Game class cleaner

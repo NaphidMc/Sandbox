@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.EventQueue;
+import java.io.File;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.ScalableGame;
@@ -16,6 +17,7 @@ public class GameInit extends ScalableGame {
 	public static Game g;
 	
 	public static void main(String[] args){
+		
 		EventQueue.invokeLater(new Runnable(){
 			public void run() {
 				

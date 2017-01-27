@@ -1,8 +1,6 @@
 package main;
 import java.util.concurrent.ThreadLocalRandom;
 
-import packets.MapChunkPacket;
-
 public class Input {
 	
 	public void keyPressed(int key, char c){

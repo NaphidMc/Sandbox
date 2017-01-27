@@ -2,7 +2,6 @@ package packets;
 
 import java.io.Serializable;
 
-import main.Game;
 import main.Player;
 
 /**The player packet is the object that is sent to the server
