@@ -418,7 +418,7 @@ public class Game extends BasicGame {
 		}
 		
 		if(myPlayer.ID != -1)
-			client.getServerConnection().sendUdp(new PlayerPacket(myPlayer)); //The client sends the server the player  
+			client.getServerConnection().sendTcp(new PlayerPacket(myPlayer)); //The client sends the server the player  
 
 	}
 	
