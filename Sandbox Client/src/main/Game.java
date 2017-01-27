@@ -324,7 +324,11 @@ public class Game extends BasicGame {
 		g.setColor(Color.magenta);		
 		g.fillRect(600, 550, 100 * (float)(myPlayer.getHealth()/myPlayer.getMaxHealth()), 15);
 		
-		
+		//Draws other player's name tags
+		for(java.util.Map.Entry<Integer, PlayerPacket> entry : players.entrySet()){
+			PlayerPacket pp = entry.getValue();
+			g.drawString("player" + pp.id, pp.x + cameraOffsetX, pp.y - 15 - cameraOffsetY);
+		}
 		
 	}
 	
