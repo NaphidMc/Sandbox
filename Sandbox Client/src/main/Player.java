@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Player {
 	
 	public int ID = -1;
-	public float x, y, velocityX, velocityY, moveSpeed = 350f, jumpVelocity = 5.0f;
+	public float x, y, velocityX, velocityY, moveSpeed = 350f, jumpVelocity = 4.0f;
 	private int collisionRectOffsetX = Tile.tileSize * 0, collisionRectOffsetY = 10;
 	public int width, height;
 	public int miningDistance = 4 * Tile.tileSize;
@@ -265,19 +265,23 @@ public class Player {
 		if(Game.currentMap == null)
 			return;
 		
-		addHealth(healthRegen * (delta/1000f));
+		addHealth(healthRegen * (delta/100000f));
 		
 		if(!tileUnderPlayer()){
 			velocityY -= 10 * delta/1000f;
 		}
 		else{
 			if(velocityY < 0){
+				if(velocityY<-4){
+					health+=velocityY;
+				}
 				velocityY = 0;
 			}
 		}
 		
 		if(velocityY > 0 && tileAbovePlayer()){
 			velocityY = 0;
+			
 		}
 		
 		if(velocityX != 0 || velocityY != 0){
