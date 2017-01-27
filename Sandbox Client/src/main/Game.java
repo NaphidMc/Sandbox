@@ -388,7 +388,7 @@ public class Game extends BasicGame {
 		}
 		myPlayer.inventory.get(0).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
 		
-		//Colors setup
+		//Night and Day Colors setup
 		dayColor = new Color(100, 149, 237);
 		nightColor = new Color(0, 51, 102);
 		currentColor = dayColor;
