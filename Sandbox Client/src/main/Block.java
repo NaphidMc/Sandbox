@@ -1,6 +1,10 @@
 package main;
 
-public class Block {
+import java.io.Serializable;
+
+public class Block implements Serializable {
+	
+	private static final long serialVersionUID = -4698775568353685790L;
 	
 	public int texture;
 	public String Name;
@@ -25,6 +29,22 @@ public class Block {
 		
 		this.health = health;
 		this.solid = solid;
+	}
+	
+	@Override
+	public boolean equals(Object obj){
+		
+		if(obj == null)
+			return false;
+		
+		if(obj instanceof Block){
+			Block block = (Block)obj;
+			if(this.Name.equals(block.Name) && this.texture == block.texture){
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 }

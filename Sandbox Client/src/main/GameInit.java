@@ -19,7 +19,7 @@ public class GameInit extends ScalableGame {
 		EventQueue.invokeLater(new Runnable(){
 			public void run() {
 				
-				Database.Populate();
+				Database.populate();
 				
 				g = new Game("Sandbox");
 				

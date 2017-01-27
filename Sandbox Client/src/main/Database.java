@@ -37,7 +37,7 @@ public class Database {
 	public static CraftingRecipe RECIPE_GRASS_5;
 	public static CraftingRecipe RECIPE_GRASS_6;
 	
-	public static void Populate(){
+	public static void populate(){
 		
 		//Blocks
 		BLOCK_GRASS = new Block("Grass", 0, new int[][] { {1, 3, 3, 3}, {100, 50, 50, 50} }, true, 20);

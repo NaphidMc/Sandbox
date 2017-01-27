@@ -1,4 +1,7 @@
 package main;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
@@ -45,6 +48,10 @@ public class Game extends BasicGame {
 	public static Map currentMap;
 	public static MainMenu mainMenu = new MainMenu();
 	public static Client client;
+	public boolean mapLoaded = false;
+	
+	public java.util.Map<Integer, PlayerPacket> players = new HashMap<Integer, PlayerPacket>();
+	public ArrayList<Integer> playerIDS = new ArrayList<Integer>();
 	
 	public static enum GameState{
 		MainMenu,
@@ -71,8 +78,17 @@ public class Game extends BasicGame {
 		client.connect();
 		
 		if(client.isConnected()){
-			client.getServerConnection().sendUdp(new PlayerPacket(myPlayer)); //The client sends the server the player
+			client.getServerConnection().sendUdp(new PlayerPacket(myPlayer)); //The client sends the server the player       
 		}
+	}
+	
+	public void startSinglePlayer(){
+		
+		mapLoaded = true;
+		currentMap = new Map(16, 32); //Generates a new map
+		currentMap.mapEndCoordinate = Tile.tileSize * currentMap.getWidth();
+		currentMap.mapBottonCoordinate = Tile.tileSize*currentMap.getHeight();
+		
 	}
 	
 	/**
@@ -82,6 +98,13 @@ public class Game extends BasicGame {
 	 */
 	@Override
 	public void render(GameContainer gc, Graphics g) throws SlickException {
+		
+		//If the map isn't done loading and your not in the main menu
+		if(!mapLoaded && currentGameState != GameState.MainMenu){ 
+			g.setColor(Color.black);
+			g.fillRect(0, 0, 800, 600);
+			return;
+		}
 		
 		if(currentGameState == GameState.MainMenu){
 			mainMenu.render(gc, g);
@@ -103,7 +126,7 @@ public class Game extends BasicGame {
 					currentMap.tiles[mapIndex].y = Tile.tileSize * i;
 					
 					//If the tile is 'air' it simply isn't drawn
-					if (currentMap.tiles[mapIndex].block == Database.BLOCK_AIR) {
+					if (currentMap.tiles[mapIndex].block.equals(Database.BLOCK_AIR)) {
 						mapIndex++;
 						continue;
 					
@@ -113,7 +136,6 @@ public class Game extends BasicGame {
 
 							//Finally, this draws the tile
 							sprites.renderInUse(0 + Tile.tileSize * j + (int)cameraOffsetX, 0 + Tile.tileSize * i - (int)cameraOffsetY, currentMap.tiles[mapIndex].texture%SPRITESHEET_WIDTH, currentMap.tiles[mapIndex].texture/SPRITESHEET_WIDTH);
-							
 						}
 					}
 					mapIndex++;
@@ -123,8 +145,15 @@ public class Game extends BasicGame {
 			}
 		}
 
-		// Draws the player
+		//Draws other players
+		for(java.util.Map.Entry<Integer, PlayerPacket> entry : players.entrySet()){
+			PlayerPacket pp = entry.getValue();
+			sprites.renderInUse((int)pp.x + (int)cameraOffsetX, (int)pp.y - (int)cameraOffsetY, 1, 2);
+		}
+		
+		// Draws your player
 		sprites.renderInUse((int)myPlayer.x + (int)cameraOffsetX, (int)myPlayer.y - (int)cameraOffsetY, 1, 2);
+		
 		sprites.endUse();
 		
 		drawUI(g); 
@@ -302,10 +331,6 @@ public class Game extends BasicGame {
 		//Configures tile size: divide 800 by a lower number for more tiles and vise versa for less
 		Tile.tileSize = 800/12;
 		
-		currentMap = new Map(16, 32); //Generates a new map
-		currentMap.mapEndCoordinate = Tile.tileSize * currentMap.getWidth();
-		currentMap.mapBottonCoordinate = Tile.tileSize*currentMap.getHeight();
-		
 		//Loads the sprite sheet
 		try{
 			Image src = new Image("resources/spritesheet.png");
@@ -348,7 +373,7 @@ public class Game extends BasicGame {
 	@Override
 	public void update(GameContainer container, int delta) throws SlickException {
 		
-		if(currentGameState == GameState.MainMenu)
+		if(currentGameState == GameState.MainMenu || !mapLoaded)
 			return;
 		
 		//Updates mouse coords
@@ -371,7 +396,7 @@ public class Game extends BasicGame {
 		//*End Input*\\
 		
 		//Night and Day Cycle
-		currentTimeUntilNextCycle-=delta;
+		currentTimeUntilNextCycle -= delta;
 		if(currentTimeUntilNextCycle<0){
 			
 			currentTimeUntilNextCycle=msCycle;
@@ -382,22 +407,29 @@ public class Game extends BasicGame {
 				currentColor = dayColor;
 			}
 		}
+		
+		if(myPlayer.ID != -1)
+			client.getServerConnection().sendUdp(new PlayerPacket(myPlayer)); //The client sends the server the player  
+
 	}
 	
-	//Input methods are sent to the Input class to keep Game class cleaner
+	//Input methods are sent to  the Input class to keep Game class cleaner
 	@Override 
 	public void keyPressed(int key, char c){
-		input.keyPressed(key, c);
+		if(mapLoaded)
+			input.keyPressed(key, c);
 	}
 	
 	@Override 
 	public void keyReleased(int key, char c){
-		input.keyReleased(key, c);
+		if(mapLoaded)
+			input.keyReleased(key, c);
 	}
 	
 	@Override
 	public void mouseClicked(int button, int x, int y, int clickCount){
-		input.mouseClicked(button, x, y, clickCount);
+		if(mapLoaded)
+			input.mouseClicked(button, x, y, clickCount);
 	}
 	
 	@Override
@@ -408,7 +440,8 @@ public class Game extends BasicGame {
 			return;
 		}
 		
-		input.mousePressed(button, x, y);
+		if(mapLoaded)
+			input.mousePressed(button, x, y);
 	}
 	
 	@Override

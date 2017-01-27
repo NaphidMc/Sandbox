@@ -78,6 +78,8 @@ public class MainMenu {
 		
 		if(multiplayer)
 			Game.current.startMultiplayer();
+		else
+			Game.current.startSinglePlayer();
 		
 		Game.currentGameState = Game.GameState.Game;
 	}

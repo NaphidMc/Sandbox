@@ -1,4 +1,5 @@
 package main;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Map {
@@ -7,6 +8,10 @@ public class Map {
 	public int mapEndCoordinate;
 	public int mapBottonCoordinate;
 	private int mapWidth, mapHeight;
+	
+	public Map(){
+		
+	}
 	
 	public Map(int mapWidth, int mapHeight){
 		
@@ -33,6 +38,14 @@ public class Map {
 	 */
 	public int getHeight(){
 		return mapHeight;
+	}
+	
+	public void setWidth(int value){
+		this.mapWidth = value;
+	}
+	
+	public void setHeight(int value){
+		this.mapHeight = value;
 	}
 	
 	/**

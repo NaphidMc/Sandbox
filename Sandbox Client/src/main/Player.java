@@ -117,8 +117,8 @@ public class Player {
 				continue;
 			
 			Rectangle tileRect = new Rectangle(Game.currentMap.tiles[i].x, Game.currentMap.tiles[i].y, Tile.tileSize, Tile.tileSize);
-			if(playerRect.intersects(tileRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2     
-				|| tileRect.intersects(playerRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
+			if(playerRect.intersects(tileRect) && !Game.currentMap.tiles[i].block.equals(Database.BLOCK_AIR) && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2     
+				|| tileRect.intersects(playerRect) && !Game.currentMap.tiles[i].block.equals(Database.BLOCK_AIR) && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
 				return true;
 			}
 		}
@@ -139,8 +139,8 @@ public class Player {
 				continue;
 			
 			Rectangle tileRect = new Rectangle(Game.currentMap.tiles[i].x, Game.currentMap.tiles[i].y, Tile.tileSize, Tile.tileSize);
-			if(playerRect.intersects(tileRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
-				|| tileRect.intersects(playerRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
+			if(playerRect.intersects(tileRect) && !Game.currentMap.tiles[i].block.equals(Database.BLOCK_AIR) && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
+				|| tileRect.intersects(playerRect) && !Game.currentMap.tiles[i].block.equals(Database.BLOCK_AIR) && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
 				return true;
 			}
 			
@@ -162,8 +162,8 @@ public class Player {
 				continue;
 			
 			Rectangle tileRect = new Rectangle(Game.currentMap.tiles[i].x, Game.currentMap.tiles[i].y, Tile.tileSize, Tile.tileSize);
-			if(playerRect.intersects(tileRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && Math.abs(tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
-				|| tileRect.intersects(playerRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && Math.abs(tileRect.x - playerRect.x) <= playerRect.width  && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
+			if(playerRect.intersects(tileRect) && !Game.currentMap.tiles[i].block.equals(Database.BLOCK_AIR) && Math.abs(tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
+				|| tileRect.intersects(playerRect) && !Game.currentMap.tiles[i].block.equals(Database.BLOCK_AIR) && Math.abs(tileRect.x - playerRect.x) <= playerRect.width  && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
 				return true;
 			}
 			
@@ -185,8 +185,8 @@ public class Player {
 				continue;
 			
 			Rectangle tileRect = new Rectangle(Game.currentMap.tiles[i].x, Game.currentMap.tiles[i].y, Tile.tileSize, Tile.tileSize);
-			if(playerRect.intersects(tileRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2
-				|| tileRect.intersects(playerRect) && Game.currentMap.tiles[i].block != Database.BLOCK_AIR && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
+			if(playerRect.intersects(tileRect) && !Game.currentMap.tiles[i].block.equals(Database.BLOCK_AIR) && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2
+				|| tileRect.intersects(playerRect) && !Game.currentMap.tiles[i].block.equals(Database.BLOCK_AIR) && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
 				return true;
 			}
 		}
@@ -261,6 +261,9 @@ public class Player {
 	}
 	
 	public void Update(int delta) {
+		
+		if(Game.currentMap == null)
+			return;
 		
 		addHealth(healthRegen * (delta/1000f));
 		
