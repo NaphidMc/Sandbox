@@ -19,46 +19,50 @@ import packets.PlayerPacket;
 
 public class Game extends BasicGame {
 	
-	public static float cameraOffsetX, cameraOffsetY;
+	public static float cameraOffsetX, cameraOffsetY;	//Basically the position of the camera, sort of
 	
-	public static Player myPlayer;
+	//**UI Positioning numbers**\\
 	
 	public static int hotbarPositionX = 25, hotbarPositionY = 10;
 	public static int inventoryPositionX = 10, inventoryPositionY = 250;
 	public static int craftingUIPositionX, craftingUIPositionY;
 	
-	public static int Frames = 0;
-	public static int FramesPerSecond = 0;
+	//**Input**\\
 	
 	// Key booleans
 	public static boolean KEY_A_DOWN;
 	public static boolean KEY_D_DOWN;
 	public static boolean MOUSE_BUTTON1_DOWN;
 	
-	//Current mouse coordinates - set in update
+	//Current mouse coordinates - set in update every frame
 	public static int mouseX; 
 	public static int mouseY;
-	
-	public static AppGameContainer appgc;
-	public static Input input;
 	
 	public SpriteSheet sprites;
 	public static int SPRITESHEET_WIDTH;
 	
-	public static Game current;
-	public static Map currentMap;
+	//Public static object instances:
+	public static Game current;				//Current instance of Game
+	public static Map currentMap;			//The current Map being displayed
+	public static Client client;			//The client in use; null in single player
+	public static Player myPlayer;			//The player that is controlled
+	public static AppGameContainer appgc; 	//The appGameContainer that holds Game
+	public static Input input;				//An instance of the input class; Set in init
 	public static MainMenu mainMenu = new MainMenu();
-	public static Client client;
-	public boolean mapLoaded = false;
 	
+	//A list of all players and IDS
 	public java.util.Map<Integer, PlayerPacket> players = new HashMap<Integer, PlayerPacket>();
 	public ArrayList<Integer> playerIDS = new ArrayList<Integer>();
+	
+	//**Game State**\\
 	
 	public static enum GameState{
 		MainMenu,
 		Game
 	};
 	public static GameState currentGameState = GameState.MainMenu;
+	
+	public boolean mapLoaded = false; 	//Set to true in ClientListener when the last map packet is received
 	
 	//Day & Night Cycle variables
 	int msCycle = 480000; //Day and Night cycle are 8 minutes each
@@ -72,6 +76,9 @@ public class Game extends BasicGame {
 		current = this; //The current static instance of Game used by other classes
 	}
 	
+	/**
+	 * Initializes a multiplayer game by connecting to a server
+	 */
 	public void startMultiplayer(){
 		
 		try{
@@ -79,18 +86,21 @@ public class Game extends BasicGame {
 			client.setListener(new ClientListener());
 			client.connect();
 		} catch (Exception e){
-			System.err.println("Could not connect to server!!!");
+			System.err.println("Could not connect to server (Make sure the server is running)");
 			System.exit(0);
 		}
 		
 		if(client.isConnected()){
 			client.getServerConnection().sendTcp(new PlayerPacket(myPlayer)); //The client sends the server the player       
 		} else{
-			System.err.println("Could not send initial player packet!!");
+			System.err.println("Could not send initial player packet!!");	//This should not happen
 			System.exit(0);
 		}
 	}
 	
+	/**
+	 * Starts a single player game by creating a map
+	 */
 	public void startSinglePlayer(){
 		
 		mapLoaded = true;
@@ -101,7 +111,7 @@ public class Game extends BasicGame {
 	}
 	
 	/**
-	 * Renders tiles and entities
+	 * Renders tiles and entities (players)
 	 * @param gc - The GameContainer object
 	 * @param g - The current Graphics object
 	 */
@@ -176,11 +186,10 @@ public class Game extends BasicGame {
 	 */
 	public void drawUI(Graphics g){
 		
-		//If any of the large ui menus is open, then it just draws those
+		//Draws a gray semi-transparent overlay to indicate the inventory is open
 		if(myPlayer.inventoryOpen){
-			
 			g.setColor(new Color(0, 0, 0, .35f));
-			g.fillRect(0, 0, appgc.getWidth(), appgc.getHeight());
+			g.fillRect(0, 0, 800, 600);
 		}
 		
 		//Draws the hotbar slots and colors the selected one
@@ -198,7 +207,7 @@ public class Game extends BasicGame {
 			}
 		}
 		
-		
+		//Draws item icons in the hotbar
 		sprites.startUse();
 		for(int i = 0; i < myPlayer.hotbar.size(); i++){
 			if(myPlayer.hotbar.get(i).itemStack.item != null){
@@ -207,6 +216,7 @@ public class Game extends BasicGame {
 		}
 		sprites.endUse();
 		
+		//Draws item quantities in the hotbar
 		for(int i = 0; i < myPlayer.hotbar.size(); i++){
 			if(myPlayer.hotbar.get(i).itemStack.item != null){
 				g.setColor(Color.white);
@@ -220,16 +230,17 @@ public class Game extends BasicGame {
 			tempItemName = myPlayer.selectedItem.Name;
 		g.drawString("Selected item: " + tempItemName, 25, 100);
 		
+		//Makes sure that the player doesn't have an item picked up by their cursor
 		if(!myPlayer.inventoryOpen){
 			myPlayer.pickedUpItem = null;
 		}
 		
+		//**Player Inventory**\\
+		
 		sprites.startUse();
-		//Draws the inventory of the player
 		if(myPlayer.inventoryOpen){
 			
-			//inventory
-			int currentInventorySlot = 0;
+			int currentInventorySlot = 0;	//The current slot index
 			for(int i = 0; i < myPlayer.inventoryRows; i++){
 				for(int k = 0; k < myPlayer.inventoryColumns; k++){
 					sprites.renderInUse(inventoryPositionX + InventorySlot.inventorySlotSize * k, inventoryPositionY + InventorySlot.inventorySlotSize * i, 3, 3);
@@ -246,22 +257,20 @@ public class Game extends BasicGame {
 				}
 			}
 			
-			//Crafting table
-			int currentCraftingTableIndex = 0;
-			int x = 0, y = 0;
+			//**Crafting table**\\
+			
+			int x = 0, y = 0; //x, y position in slots (not pixels!!) of the current slot
 			for(int i = 0; i < 9; i++){
 					
-					myPlayer.craftingTable.get(currentCraftingTableIndex).x = craftingUIPositionX + x * InventorySlot.inventorySlotSize;
-					myPlayer.craftingTable.get(currentCraftingTableIndex).y = craftingUIPositionY + y * InventorySlot.inventorySlotSize;
+					myPlayer.craftingTable.get(i).x = craftingUIPositionX + x * InventorySlot.inventorySlotSize;
+					myPlayer.craftingTable.get(i).y = craftingUIPositionY + y * InventorySlot.inventorySlotSize;
 					
-					sprites.renderInUse(myPlayer.craftingTable.get(currentCraftingTableIndex).x, myPlayer.craftingTable.get(currentCraftingTableIndex).y, 3, 3);
+					sprites.renderInUse(myPlayer.craftingTable.get(i).x, myPlayer.craftingTable.get(i).y, 3, 3);
 					
 					//Draws the items in the crafting table
-					if(myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.item != null){
-						sprites.renderInUse(myPlayer.craftingTable.get(currentCraftingTableIndex).x, myPlayer.craftingTable.get(currentCraftingTableIndex).y, myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.craftingTable.get(currentCraftingTableIndex).itemStack.item.icon/SPRITESHEET_WIDTH); 
+					if(myPlayer.craftingTable.get(i).itemStack.item != null){
+						sprites.renderInUse(myPlayer.craftingTable.get(i).x, myPlayer.craftingTable.get(i).y, myPlayer.craftingTable.get(i).itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.craftingTable.get(i).itemStack.item.icon/SPRITESHEET_WIDTH); 
 					}
-					
-					currentCraftingTableIndex++;
 					
 					x++;
 					if(x % 3 == 0){
@@ -270,16 +279,18 @@ public class Game extends BasicGame {
 					}
 			}
 			
-			myPlayer.craftingTableOutput.x = myPlayer.craftingTable.get(4).x;
+			myPlayer.craftingTableOutput.x = myPlayer.craftingTable.get(4).x; 	//The output's x is the same as the middle slot's
 			myPlayer.craftingTableOutput.y = craftingUIPositionY + 3 * InventorySlot.inventorySlotSize;
 			
 			//Draws the output square
 			sprites.renderInUse(myPlayer.craftingTable.get(4).x, craftingUIPositionY + 3 * InventorySlot.inventorySlotSize, 3, 3);
 			
+			//Draws the output item
 			if(myPlayer.craftingTableOutput.itemStack.item != null){
 				sprites.renderInUse(myPlayer.craftingTable.get(4).x, craftingUIPositionY + 3 * InventorySlot.inventorySlotSize, myPlayer.craftingTableOutput.itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.craftingTableOutput.itemStack.item.icon/SPRITESHEET_WIDTH);
 			}
 			
+			//Draws the item that the player picked up with the mouse
 			if(myPlayer.pickedUpItem != null){
 				sprites.renderInUse(mouseX, mouseY, myPlayer.pickedUpItem.item.icon%4, myPlayer.pickedUpItem.item.icon/4);
 			}
@@ -289,7 +300,7 @@ public class Game extends BasicGame {
 		sprites.endUse();
 		
 		if(myPlayer.inventoryOpen){
-		int currentInventorySlot = 0;
+			int currentInventorySlot = 0;	//Holds the index of the current inventory slot
 			for(int i = 0; i < myPlayer.inventoryRows; i++){
 				for(int k = 0; k < myPlayer.inventoryColumns; k++){
 					//displays the item's quantity in the inventory
@@ -308,14 +319,15 @@ public class Game extends BasicGame {
 				g.drawString("" + myPlayer.pickedUpItem.quantity, mouseX, mouseY);
 			}
 			
-			//Loops and draws quantity strings for the crafting table
+			//Loops through and draws quantity strings for the crafting table
 			for(int i = 0; i < 9; i++){
 				if(myPlayer.craftingTable.get(i).itemStack.item != null)
 					g.drawString("" + myPlayer.craftingTable.get(i).itemStack.quantity, myPlayer.craftingTable.get(i).x, myPlayer.craftingTable.get(i).y);
 			}
 		}
 		
-		//Health Bar
+		//**Health Bar**\\
+		
 		//Background
 		g.setColor(Color.gray);
 		g.fillRect(600, 550, 100,15);
@@ -324,7 +336,7 @@ public class Game extends BasicGame {
 		g.setColor(Color.magenta);		
 		g.fillRect(600, 550, 100 * (float)(myPlayer.getHealth()/myPlayer.getMaxHealth()), 15);
 		
-		//Draws other player's name tags
+		//Draws other player's name tags. For now name tags are just player + playerID
 		for(java.util.Map.Entry<Integer, PlayerPacket> entry : players.entrySet()){
 			PlayerPacket pp = entry.getValue();
 			g.drawString("player" + pp.id, pp.x + cameraOffsetX, pp.y - 15 - cameraOffsetY);
@@ -338,8 +350,7 @@ public class Game extends BasicGame {
 	@Override
 	public void init(GameContainer container) throws SlickException {
 		
-		//Makes a new Input class
-		input = new Input();
+		input = new Input();	//Makes a new input class
 		
 		//Configures tile size: divide 800 by a lower number for more tiles and vise versa for less
 		Tile.tileSize = 800/12;
@@ -347,9 +358,9 @@ public class Game extends BasicGame {
 		//Loads the sprite sheet
 		try{
 			Image src = new Image("resources/spritesheet.png");
-			SPRITESHEET_WIDTH = src.getWidth()/128;
+			SPRITESHEET_WIDTH = src.getWidth()/128;	//Sets the number of sprites per row
 			sprites = new SpriteSheet(src.getScaledCopy(Tile.tileSize * src.getWidth()/128, Tile.tileSize * src.getHeight()/128), Tile.tileSize, Tile.tileSize);
-
+			
 		} catch (SlickException e) {
 			System.err.println("FAILED TO LOAD SPRITES");
 			System.exit(0);
@@ -369,7 +380,7 @@ public class Game extends BasicGame {
 		}
 		myPlayer.hotbar.get(0).itemStack = new ItemStack(Database.ITEM_PICKAXE, 1);
 		myPlayer.hotbar.get(1).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
-		myPlayer.selectedItem = myPlayer.hotbar.get(0).itemStack.item;
+		myPlayer.selectedItem = myPlayer.hotbar.get(0).itemStack.item; 	//By default the player selects the first hotbar slot
 		
 		//Sets up player inventory and adds starting items
 		for(int i = 0; i <= myPlayer.inventoryRows*myPlayer.inventoryColumns; i++){
