@@ -58,7 +58,6 @@ public class ClientListener implements SocketListener {
 		
 		if(obj instanceof MapChunkPacket){
 			MapChunkPacket mcp = (MapChunkPacket)obj;
-			
 			if(Game.currentMap == null){
 				System.err.println("MAP CHUNK LOST!!!"); //This should not happen
 			} else{

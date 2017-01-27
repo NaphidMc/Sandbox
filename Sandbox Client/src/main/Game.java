@@ -1,4 +1,5 @@
 package main;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -73,12 +74,20 @@ public class Game extends BasicGame {
 	
 	public void startMultiplayer(){
 		
-		client = new Client("localhost", 2667, 2667);
-		client.setListener(new ClientListener());
-		client.connect();
+		try{
+			client = new Client(InetAddress.getByName("www.naphid.com").getHostAddress(), 6756, 6756);
+			client.setListener(new ClientListener());
+			client.connect();
+		} catch (Exception e){
+			System.err.println("Could not connect to server!!!");
+			System.exit(0);
+		}
 		
 		if(client.isConnected()){
-			client.getServerConnection().sendUdp(new PlayerPacket(myPlayer)); //The client sends the server the player       
+			client.getServerConnection().sendTcp(new PlayerPacket(myPlayer)); //The client sends the server the player       
+		} else{
+			System.err.println("Could not send initial player packet!!");
+			System.exit(0);
 		}
 	}
 	
