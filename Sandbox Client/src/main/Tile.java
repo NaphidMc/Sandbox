@@ -15,6 +15,7 @@ public class Tile implements Serializable {
 	public Block block;
 	public int texture;
 	public boolean changed = true;
+	public float lightLevel;
 	
 	public Tile(int posX, int posY, Block block) {
 		x = posX;
@@ -26,6 +27,9 @@ public class Tile implements Serializable {
 		this.block = block;
 		this.texture = block.texture;
 		this.health = block.health;
+		
+		if(Game.currentMap != null)
+			Game.currentMap.calculateLightLevels();		//Recalculates light levels when a block is changed
 		
 		//If it is multiplayer, send update to server
 		if(Game.client != null) 

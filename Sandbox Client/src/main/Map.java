@@ -24,6 +24,7 @@ public class Map {
 		fixGrassBlocks(); //This function makes it so grass blocks can't have blocks on top of them
 		generateTrees(2f); //Generates the trees; the parameter is tree density
 		growTrees(); //Adds leaves and stems to the trees
+		calculateLightLevels();
 	}
 	
 	/**
@@ -164,6 +165,73 @@ public class Map {
 			if(tiles[i] == null)
 			{
 				tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
+			}
+		}
+	}
+	
+	public void calculateLightLevels(){
+		
+		for(int i = 0; i < tiles.length; i++){
+			tiles[i].lightLevel = 0;
+		}
+		
+		int index = 0;
+		for(int i = 0; i < mapHeight; i++){
+			for(int k = 0; k < mapWidth; k++){
+				
+				Tile above = getTileAtCoordinates(tiles[index].x, tiles[index].y - Tile.tileSize), 
+					 below = getTileAtCoordinates(tiles[index].x, tiles[index].y + Tile.tileSize), 
+					 right = getTileAtCoordinates(tiles[index].x + Tile.tileSize, tiles[index].y), 
+					 left = getTileAtCoordinates(tiles[index].x - Tile.tileSize, tiles[index].y);
+				
+				if(tiles[index].block.equals(Database.BLOCK_AIR) || tiles[index].block.equals(Database.BLOCK_WOOD) || tiles[index].block.equals(Database.BLOCK_LEAVES)){
+					tiles[index].lightLevel = 2.0f;
+				} 
+
+				/*if(i < 3){
+					if(tiles[index].block.equals(Database.BLOCK_AIR))
+						tiles[index].lightLevel = 1.0f;
+				}
+				
+				if(above != null){
+					if(above.block.equals(Database.BLOCK_AIR))
+						above.lightLevel += tiles[index].lightLevel/1f;
+					else
+						above.lightLevel += tiles[index].lightLevel/8f;
+				}
+				if(below != null){
+					if(below.block.equals(Database.BLOCK_AIR))
+						below.lightLevel += tiles[index].lightLevel/1f;
+					else
+						below.lightLevel += tiles[index].lightLevel/8f;
+				}
+				if(right != null){
+					if(right.block.equals(Database.BLOCK_AIR))
+						right.lightLevel += tiles[index].lightLevel/1f;
+					else
+						right.lightLevel += tiles[index].lightLevel/8f;
+				}
+				if(left != null){
+					if(left.block.equals(Database.BLOCK_AIR))
+						left.lightLevel += tiles[index].lightLevel/1f;
+					else
+						left.lightLevel += tiles[index].lightLevel/8f;
+				}*/
+				
+			if(above != null){
+				above.lightLevel += tiles[index].lightLevel/4f;
+			}
+			if(below != null){
+				below.lightLevel += tiles[index].lightLevel/4f;
+			}
+			if(right != null){
+				right.lightLevel += tiles[index].lightLevel/4f;
+			}
+			if(left != null){
+				left.lightLevel += tiles[index].lightLevel/4f;
+			}
+				
+				index++;
 			}
 		}
 	}

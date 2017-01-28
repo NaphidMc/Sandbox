@@ -152,8 +152,8 @@ public class Game extends BasicGame {
 					} else {	
 						//Before drawing a tile, it checks if it is visible
 						if(Tile.tileSize * j + (int)cameraOffsetX > -Tile.tileSize + 0 && Tile.tileSize * j + (int)cameraOffsetX < 800 && Tile.tileSize * i - (int)cameraOffsetY > 0 -Tile.tileSize && Tile.tileSize * i - (int)cameraOffsetY < 600){
-
 							//Finally, this draws the tile
+							new Color(currentMap.tiles[mapIndex].lightLevel, currentMap.tiles[mapIndex].lightLevel, currentMap.tiles[mapIndex].lightLevel, 1f).bind();
 							sprites.renderInUse(0 + Tile.tileSize * j + (int)cameraOffsetX, 0 + Tile.tileSize * i - (int)cameraOffsetY, currentMap.tiles[mapIndex].texture%SPRITESHEET_WIDTH, currentMap.tiles[mapIndex].texture/SPRITESHEET_WIDTH);
 						}
 					}
@@ -163,7 +163,8 @@ public class Game extends BasicGame {
 				
 			}
 		}
-
+		Color.white.bind();
+		
 		//Draws other players
 		for(java.util.Map.Entry<Integer, PlayerPacket> entry : players.entrySet()){
 			PlayerPacket pp = entry.getValue();
