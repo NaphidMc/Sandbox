@@ -33,9 +33,8 @@ public class Player {
 	private float maxHealth = 100;
 	private float healthRegen = 5; 
 	
-	
 	public Player(int startPositionX, int startPositionY) {
-		System.out.println("Creating new player...");
+		System.out.println("Creating new player at (" + startPositionX + ", " + startPositionY + ")");
 		
 		x = startPositionX;
 		y = startPositionY;
@@ -53,6 +52,7 @@ public class Player {
 		
 		health = maxHealth;
 	}
+	
 	public void addHealth(float amount){
 		health += amount;
 		if(health <= 0){

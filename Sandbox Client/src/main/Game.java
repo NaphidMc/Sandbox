@@ -103,11 +103,10 @@ public class Game extends BasicGame {
 	 */
 	public void startSinglePlayer(){
 		
-		mapLoaded = true;
-		currentMap = new Map(16, 32); // Generates a new map
+		currentMap = new Map(16, 24); // Generates a new map
 		currentMap.mapEndCoordinate = Tile.tileSize * currentMap.getWidth();
 		currentMap.mapBottonCoordinate = Tile.tileSize*currentMap.getHeight();
-		
+		mapLoaded = true;
 	}
 	
 	/**
@@ -350,6 +349,8 @@ public class Game extends BasicGame {
 	 */
 	@Override
 	public void init(GameContainer container) throws SlickException {
+		
+		System.out.println("*\n*\n*\n*"); // Separates slick debug info from the game's
 		
 		input = new Input();	// Makes a new input class
 		

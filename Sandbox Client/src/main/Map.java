@@ -1,6 +1,7 @@
 package main;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Map {
@@ -203,6 +204,8 @@ public class Map {
 	
 	public void calculateLightLevels(){
 		
+		HashMap<String, Tile> tileCache = new HashMap<String, Tile>();
+		
 		for(int i = 0; i < tiles.length; i++){
 			tiles[i].lightLevel = 0;
 		}
@@ -211,44 +214,28 @@ public class Map {
 		for(int i = 0; i < mapHeight; i++){
 			for(int k = 0; k < mapWidth; k++){
 				
-				Tile above = getTileAtCoordinates(tiles[index].x, tiles[index].y - Tile.tileSize), 
-					 below = getTileAtCoordinates(tiles[index].x, tiles[index].y + Tile.tileSize), 
-					 right = getTileAtCoordinates(tiles[index].x + Tile.tileSize, tiles[index].y), 
-					 left = getTileAtCoordinates(tiles[index].x - Tile.tileSize, tiles[index].y);
+				Tile above = null, below = null, right = null, left = null;
+				
+				if((above = tileCache.get(tiles[index].x + "," + (tiles[index].y - Tile.tileSize))) == null){
+					above = getTileAtCoordinates(tiles[index].x, tiles[index].y - Tile.tileSize);
+					tileCache.put(tiles[index].x + "," + (tiles[index].y - Tile.tileSize), above);
+				}
+				if((below = tileCache.get(tiles[index].x + "," + (tiles[index].y + Tile.tileSize))) == null){
+					below = getTileAtCoordinates(tiles[index].x, tiles[index].y + Tile.tileSize); 
+					tileCache.put(tiles[index].x + "," + (tiles[index].y + Tile.tileSize), below);
+				}
+				if((right = tileCache.get((tiles[index].x + Tile.tileSize) + "," + tiles[index].y)) == null){
+					right = getTileAtCoordinates(tiles[index].x + Tile.tileSize, tiles[index].y); 
+					tileCache.put((tiles[index].x + Tile.tileSize) + "," + tiles[index].y, right);
+				}
+				if((left = tileCache.get((tiles[index].x - Tile.tileSize) + "," + tiles[index].y)) == null){
+					left = getTileAtCoordinates(tiles[index].x - Tile.tileSize, tiles[index].y);
+					tileCache.put((tiles[index].x - Tile.tileSize) + "," + tiles[index].y, left);
+				}
 				
 				if(tiles[index].block.equals(Database.BLOCK_AIR) || tiles[index].block.equals(Database.BLOCK_WOOD) || tiles[index].block.equals(Database.BLOCK_LEAVES)){
 					tiles[index].lightLevel = 2.0f;
-				} 
-
-				/*if(i < 3){
-					if(tiles[index].block.equals(Database.BLOCK_AIR))
-						tiles[index].lightLevel = 1.0f;
 				}
-				
-				if(above != null){
-					if(above.block.equals(Database.BLOCK_AIR))
-						above.lightLevel += tiles[index].lightLevel/1f;
-					else
-						above.lightLevel += tiles[index].lightLevel/8f;
-				}
-				if(below != null){
-					if(below.block.equals(Database.BLOCK_AIR))
-						below.lightLevel += tiles[index].lightLevel/1f;
-					else
-						below.lightLevel += tiles[index].lightLevel/8f;
-				}
-				if(right != null){
-					if(right.block.equals(Database.BLOCK_AIR))
-						right.lightLevel += tiles[index].lightLevel/1f;
-					else
-						right.lightLevel += tiles[index].lightLevel/8f;
-				}
-				if(left != null){
-					if(left.block.equals(Database.BLOCK_AIR))
-						left.lightLevel += tiles[index].lightLevel/1f;
-					else
-						left.lightLevel += tiles[index].lightLevel/8f;
-				}*/
 				
 			if(above != null){
 				above.lightLevel += tiles[index].lightLevel/4f;
