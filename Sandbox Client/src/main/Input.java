@@ -87,7 +87,7 @@ public class Input {
 			
 			// If the player is not holding a block or mining tool, the method specialTileInteraction in game checks if 
 			// anything can be done with the tool in hand (Example: Grass Seeds)
-			else if(Game.myPlayer.selectedItem.MiningPower == 0 && Game.myPlayer.selectedItem.block == null && (t = Game.currentMap.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null){
+			else if(Game.myPlayer.selectedItem != null && Game.myPlayer.selectedItem.MiningPower == 0 && Game.myPlayer.selectedItem.block == null && (t = Game.currentMap.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null){
 				Game.currentMap.specialTileInteraction(t.x, t.y);
 			}
 			

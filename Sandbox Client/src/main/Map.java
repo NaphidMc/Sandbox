@@ -236,7 +236,7 @@ public class Map {
 				if(tiles[index].block.equals(Database.BLOCK_AIR) || tiles[index].block.equals(Database.BLOCK_WOOD) || tiles[index].block.equals(Database.BLOCK_LEAVES)){
 					tiles[index].lightLevel = 2.0f;
 				}
-				
+			
 			if(above != null){
 				above.lightLevel += tiles[index].lightLevel/4f;
 			}
