@@ -1,5 +1,6 @@
 package main;
 
+import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Map {
@@ -9,9 +10,7 @@ public class Map {
 	public int mapBottonCoordinate;
 	private int mapWidth, mapHeight;
 	
-	public Map(){
-		
-	}
+	public Map() { }
 	
 	public Map(int mapWidth, int mapHeight){
 		
@@ -20,11 +19,44 @@ public class Map {
 
 		tiles = new Tile[mapWidth * mapHeight];
 		
+		Date start = null;
+		Date finish = null;
+		long timeElapsed = 0;
+		
+		System.out.print("Generating tiles... ");
+		start = new Date();
 		generateTiles(7, 13, 2, 5, 2, 4, 12, 1, 13, .5f); // This confusing mess does most of the generation
+		finish = new Date();
+		timeElapsed = finish.getTime() - start.getTime();
+		System.out.print("Done! (" + timeElapsed + "ms)\n");
+		
+		System.out.print("Fixing grass blocks... ");
+		start = new Date();
 		fixGrassBlocks(); // This function makes it so grass blocks can't have blocks on top of them
+		finish = new Date();
+		timeElapsed = finish.getTime() - start.getTime();
+		System.out.print("Done! (" + timeElapsed + "ms)\n");
+		
+		System.out.print("Placing trees... ");
+		start = new Date();
 		generateTrees(2f); // Generates the trees; the parameter is tree density
+		finish = new Date();
+		timeElapsed = finish.getTime() - start.getTime();
+		System.out.print("Done! (" + timeElapsed + "ms)\n");
+		
+		System.out.print("Growing trees... ");
+		start = new Date();
 		growTrees(); // Adds leaves and stems to the trees
+		finish = new Date();
+		timeElapsed = finish.getTime() - start.getTime();
+		System.out.print("Done! (" + timeElapsed + "ms)\n");
+		
+		System.out.print("Calculating light levels... ");
+		start = new Date();
 		calculateLightLevels();
+		finish = new Date();
+		timeElapsed = finish.getTime() - start.getTime();
+		System.out.print("Done! (" + timeElapsed + "ms)\n");
 	}
 	
 	/**
@@ -278,7 +310,6 @@ public class Map {
 	 * Replaces all saplings with fully grown trees
 	 */
 	public void growTrees(){
-		System.out.println("Growing trees...");
 		int treeGrowChance = 101;
 		TileLoop: for(int i = 0; i < tiles.length; i++){
 			if(tiles[i].block == Database.BLOCK_SAPLING){
