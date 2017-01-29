@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Player {
 	
 	public int ID = -1;
-	//jumpVelocity at 45.0f allows for a two block-high jump
+	// jumpVelocity at 45.0f allows for a two block-high jump
 	public float x, y, velocityX, velocityY, moveSpeed = 350f, jumpVelocity = 45.0f;  
 	private int collisionRectOffsetX = Tile.tileSize * 0, collisionRectOffsetY = 10;
 	public int width, height;
@@ -28,7 +28,7 @@ public class Player {
 	public ArrayList<InventorySlot> craftingTable = new ArrayList<InventorySlot>();
 	public InventorySlot craftingTableOutput = new InventorySlot();
 	
-	//Player stats
+	// Player stats
 	private float health;
 	private float maxHealth = 100;
 	private float healthRegen = 5; 
@@ -45,7 +45,7 @@ public class Player {
 		
 		collisionRect = new Rectangle((int)x + collisionRectOffsetX, (int)y + collisionRectOffsetY, width, height);
 		
-		//Sets up crafting table
+		// Sets up crafting table
 		for(int i = 0; i < 9; i++){
 			craftingTable.add(new InventorySlot());
 		}
@@ -196,9 +196,9 @@ public class Player {
 	}
 	
 	public void addItem(Item item, int quantity){
-		//Tries to add it to the hotbar first
+		// Tries to add it to the hotbar first
 		
-		//Attempts to add to existing stack
+		// Attempts to add to existing stack
 		for(int i = 0; i < hotbar.size(); i++){
 			if(hotbar.get(i).itemStack == null || hotbar.get(i).itemStack.item == null)
 				continue;
@@ -209,10 +209,10 @@ public class Player {
 			}
 		}
 		
-		//Otherwise, it adds a new stack to the hotbar
+		// Otherwise, it adds a new stack to the hotbar
 		for(int i = 0; i < hotbar.size(); i++){
 			if(hotbar.get(i).itemStack.item == null){
-				//Hotbar slot is empty! add new itemstack
+				// Hotbar slot is empty! add new itemstack
 				hotbar.get(i).itemStack = new ItemStack(item, quantity);
 				return;
 			}
@@ -225,7 +225,7 @@ public class Player {
 	
 	public void removeItem(Item item, int quantity){
 		
-		//First tries to remove from inventory and then hotbar
+		// First tries to remove from inventory and then hotbar
 		for(int i = 0; i < inventory.size(); i++){
 			if(inventory.get(i).itemStack.item == null)
 				continue;
@@ -273,7 +273,7 @@ public class Player {
 		}
 		else{
 			if(velocityY < 0){
-				if(velocityY < -65f){   //four block fall damage
+				if(velocityY < -65f){   // four block fall damage
 					addHealth(velocityY/4f);
 				}
 				velocityY = 0;

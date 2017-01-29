@@ -8,22 +8,22 @@ import packets.MapChunkPacket;
 import packets.MapPacket;
 import packets.PlayerPacket;
 
-//This class listens for connections, disconnections, and incoming packets
+// This class listens for connections, disconnections, and incoming packets
 public class ClientListener implements SocketListener {
 	
-	//Called when connected to the server
+	// Called when connected to the server
 	@Override
 	public void connected(Connection conn) {
 		System.out.println("Connected to server...");
 	}
 	
-	//Called when disconnected from the server
+	// Called when disconnected from the server
 	@Override
 	public void disconnected(Connection conn) {
 		
 	}
 
-	//Called upon receiving a packet from the server
+	// Called upon receiving a packet from the server
 	@Override
 	public void received(Connection conn, Object obj) {
 		
@@ -48,7 +48,7 @@ public class ClientListener implements SocketListener {
 			Game.currentMap.setHeight(mp.mapHeight);
 		}
 		
-		//Disconnects a player
+		// Disconnects a player
 		if(obj instanceof DisconnectNotice){
 			DisconnectNotice dn = (DisconnectNotice)obj;
 			
@@ -59,7 +59,7 @@ public class ClientListener implements SocketListener {
 		if(obj instanceof MapChunkPacket){
 			MapChunkPacket mcp = (MapChunkPacket)obj;
 			if(Game.currentMap == null){
-				System.err.println("MAP CHUNK LOST!!!"); //This should not happen
+				System.err.println("MAP CHUNK LOST!!!"); // This should not happen
 			} else{
 				for(int i = 0; i < mcp.length; i++){
 					if(Game.currentMap.tiles.length > mcp.startIndex + i){

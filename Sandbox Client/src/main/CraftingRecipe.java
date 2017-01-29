@@ -29,15 +29,15 @@ public class CraftingRecipe {
 					if(craftingTableItems[k] == null && Database.craftingRecipes.get(i).input[k] == null){
 						continue;
 					} else if(craftingTableItems[k] == null && Database.craftingRecipes.get(i).input[k] != null){
-						//System.out.println("Crafting table item is null while recipe item is not");
+						// System.out.println("Crafting table item is null while recipe item is not");
 						continue A;
 					} else if(craftingTableItems[k] != null && Database.craftingRecipes.get(i).input[k] == null){
-						//System.out.println("Recipe item is null while crafting table item is not");
+						// System.out.println("Recipe item is null while crafting table item is not");
 						continue A;
 					}
 					
 					if(craftingTableItems[k].ID != Database.craftingRecipes.get(i).input[k].ID){
-						//System.out.println("IDS don't match: " + craftingTableItems[k].ID + " " + Database.craftingRecipes.get(i).input[k].ID);
+						// System.out.println("IDS don't match: " + craftingTableItems[k].ID + " " + Database.craftingRecipes.get(i).input[k].ID);
 						continue A;
 					}
 				}

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import main.Map;
 import main.Tile;
 
-//Holds part of a map
+// Holds part of a map
 public class MapChunkPacket implements Serializable {
 	
 	private static final long serialVersionUID = -6457402230661740952L;

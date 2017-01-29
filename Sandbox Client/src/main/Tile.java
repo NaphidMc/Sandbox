@@ -10,7 +10,7 @@ public class Tile implements Serializable {
 	
 	public static int tileSize;
 	public int x, y;
-	public int index; //The index of this tile in Map.tiles
+	public int index; // The index of this tile in Map.tiles
 	public float health;
 	public Block block;
 	public int texture;
@@ -29,9 +29,9 @@ public class Tile implements Serializable {
 		this.health = block.health;
 		
 		if(Game.currentMap != null)
-			Game.currentMap.calculateLightLevels();		//Recalculates light levels when a block is changed
+			Game.currentMap.calculateLightLevels();		// Recalculates light levels when a block is changed
 		
-		//If it is multiplayer, send update to server
+		// If it is multiplayer, send update to server
 		if(Game.client != null) 
 			Game.client.getServerConnection().sendTcp(new MapChunkPacket(Game.currentMap, index, 1));
 	}

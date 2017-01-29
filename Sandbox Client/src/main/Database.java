@@ -6,7 +6,7 @@ public class Database {
 	public static ArrayList<Item> items = new ArrayList<Item>();
 	public static ArrayList<CraftingRecipe> craftingRecipes = new ArrayList<CraftingRecipe>();
 	
-	//Blocks
+	// Blocks
 	public static Block BLOCK_GRASS;
 	public static Block BLOCK_DIRT;
 	public static Block BLOCK_AIR;
@@ -18,7 +18,7 @@ public class Database {
 	public static Block BLOCK_LEAVES;
 	public static Block TEST;
 	
-	//Items
+	// Items
 	public static Item ITEM_PICKAXE;
 	public static Item ITEM_DIRT;
 	public static Item ITEM_GRASS;
@@ -29,7 +29,7 @@ public class Database {
 	public static Item ITEM_IRONCHUNK;
 	public static Item ITEM_SAPLING;
 	
-	//Recipes
+	// Recipes
 	public static CraftingRecipe RECIPE_GRASS_1;
 	public static CraftingRecipe RECIPE_GRASS_2;
 	public static CraftingRecipe RECIPE_GRASS_3;
@@ -39,7 +39,7 @@ public class Database {
 	
 	public static void populate(){
 		
-		//Blocks
+		// Blocks
 		BLOCK_GRASS = new Block("Grass", 0, new int[][] { {1, 3, 3, 3}, {100, 50, 50, 50} }, true, 20);
 		BLOCK_DIRT = new Block("Dirt", 3, new int[][] { {1}, {100} }, true, 20);
 		BLOCK_AIR = new Block("Air", 2, new int[][] {{-1}, {-1} }, true, 0);
@@ -50,7 +50,7 @@ public class Database {
 		BLOCK_WOOD = new Block("Wood", 14, new int[][] { {6}, {100}}, false, 30);
 		BLOCK_LEAVES = new Block("Leaves", 7, new int[][] { {8, 8}, {75, 50}}, false, 5);
 		
-		//Items
+		// Items
 		ITEM_PICKAXE = new Item(0, "Pickaxe", 12, 2.0f, null);
 		ITEM_DIRT = new Item(1, "Dirt", 3, 0.0f, BLOCK_DIRT);
 		ITEM_GRASS = new Item(2, "Grass", 0, 0.0f, BLOCK_GRASS);
@@ -61,7 +61,7 @@ public class Database {
 		ITEM_IRONCHUNK = new Item(7, "Iron Ore", 8, 0.0f, null);
 		ITEM_SAPLING = new Item(8, "Sapling", 13, 0.0f, BLOCK_SAPLING);
 		
-		//Recipes
+		// Recipes
 		RECIPE_GRASS_1 = new CraftingRecipe(new Item[] { ITEM_GRASS_SEEDS, null, null,
 						 ITEM_DIRT, null, null,
 						 null, null, null }, new ItemStack(ITEM_GRASS, 1));

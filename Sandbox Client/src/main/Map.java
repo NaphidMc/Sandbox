@@ -20,10 +20,10 @@ public class Map {
 
 		tiles = new Tile[mapWidth * mapHeight];
 		
-		generateTiles(7, 13, 2, 5, 2, 4, 12, 1, 13, .5f); //This confusing mess does most of the generation
-		fixGrassBlocks(); //This function makes it so grass blocks can't have blocks on top of them
-		generateTrees(2f); //Generates the trees; the parameter is tree density
-		growTrees(); //Adds leaves and stems to the trees
+		generateTiles(7, 13, 2, 5, 2, 4, 12, 1, 13, .5f); // This confusing mess does most of the generation
+		fixGrassBlocks(); // This function makes it so grass blocks can't have blocks on top of them
+		generateTrees(2f); // Generates the trees; the parameter is tree density
+		growTrees(); // Adds leaves and stems to the trees
 		calculateLightLevels();
 	}
 	
@@ -82,7 +82,7 @@ public class Map {
 			int currentX = Tile.tileSize * width;
 			int currentY = Tile.tileSize * height;
 			
-			//Checks if the current tile is part of a hill
+			// Checks if the current tile is part of a hill
 			for(int k = 0; k < mapHills.length; k++){
 				
 				for(int j = 0; j < mapHills[k].hillTiles.size(); j++){
@@ -110,19 +110,19 @@ public class Map {
 			if(height < groundLevel){
 				tiles[i] = new Tile(currentX, currentY, Database.BLOCK_AIR);
 			} else if(height == groundLevel){
-				//Top grass layer
+				// Top grass layer
 				tiles[i] = new Tile(currentX, currentY, Database.BLOCK_GRASS);
 			} else{
 				if(height != mapHeight - 1){
-					//Most generation stuff goes here
+					// Most generation stuff goes here
 					int random = ThreadLocalRandom.current().nextInt(1, 101);
 					
 					if(!(height <= stoneDepth) && !(height >= stoneDepth - stoneTransition)) {
-						//Dirt layer
+						// Dirt layer
 						
 						tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
 					} else if(height <= stoneDepth && height >= stoneDepth - stoneTransition) {    
-						//Stone transitional layer
+						// Stone transitional layer
 						
 						if(random <= 55){
 							tiles[i] = new Tile(currentX, currentY, Database.BLOCK_STONE);
@@ -131,7 +131,7 @@ public class Map {
 							tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
 						}
 					} else if(height > stoneDepth){
-						//Stone layer
+						// Stone layer
 						
 						random = ThreadLocalRandom.current().nextInt(0, 101);
 						
@@ -265,10 +265,10 @@ public class Map {
 				int random = ThreadLocalRandom.current().nextInt(1, 101);
 				
 				if(random < treeChance){
-					//Make a tree
+					// Make a tree
 					getTileAtCoordinates(tiles[i].x, tiles[i].y - Tile.tileSize).setBlock(Database.BLOCK_SAPLING);
 				} else{
-					//treeChance += (5*treeDensity);
+					// treeChance += (5*treeDensity);
 				}
 			}
 		}
@@ -286,7 +286,7 @@ public class Map {
 				if(rand <= treeGrowChance){
 					int stemHeight = ThreadLocalRandom.current().nextInt(1, 5);
 					
-					//Grow tree
+					// Grow tree
 					tiles[i].setBlock(Database.BLOCK_WOOD);
 					
 					int maxStemHeight = 0;
@@ -303,7 +303,7 @@ public class Map {
 						maxStemHeight = k;
 					}
 					
-					//Leaves
+					// Leaves
 					Tile temp;
 					
 					temp = getTileAtCoordinates(tiles[i].x - Tile.tileSize, tiles[i].y - maxStemHeight * Tile.tileSize);
@@ -339,16 +339,16 @@ public class Map {
 	}
 	
 
-	//Called when the player clicks on a block with something other than a mining tool or block
+	// Called when the player clicks on a block with something other than a mining tool or block
 	public void specialTileInteraction(int x, int y){
 		Tile tile = getTileAtCoordinates(x, y);
 		
-		//Makes sure the tile exists
+		// Makes sure the tile exists
 		if(tile != null){
-			//All special actions that are done with grass blocks
+			// All special actions that are done with grass blocks
 			if(Game.myPlayer.selectedItem == Database.ITEM_GRASS_SEEDS){
 				if(tile.block == Database.BLOCK_DIRT){
-					//Makes sure the tile above is air
+					// Makes sure the tile above is air
 					if(getTileAtCoordinates(x, y - Tile.tileSize).block == Database.BLOCK_AIR){
 						tile.setBlock(Database.BLOCK_GRASS);
 						Game.myPlayer.removeItem(Database.ITEM_GRASS_SEEDS, 1);
@@ -358,26 +358,26 @@ public class Map {
 		}
 	}
 	
-	//Called when the player clicks on a block with a mining tool
+	// Called when the player clicks on a block with a mining tool
 	public void removeTileAtCoordinates(int x, int y){
 		
 		double dist = Math.sqrt(Math.pow(((y + Game.cameraOffsetY) - Game.myPlayer.y), 2) + Math.pow(((x + Game.cameraOffsetX) - Game.myPlayer.x), 2));
 		
-		//If the block is too far away, ignore the request
+		// If the block is too far away, ignore the request
 		if(dist > Game.myPlayer.miningDistance){
 			return;
 		}
 		
-		Tile tile = getTileAtCoordinates(x, y); //Gets the tile at mouse position
+		Tile tile = getTileAtCoordinates(x, y); // Gets the tile at mouse position
 		
 		if(tile != null && tile.block != Database.BLOCK_BEDROCK){
 			
-			//Takes away from the tile's health
+			// Takes away from the tile's health
 			tile.health -= Game.myPlayer.selectedItem.MiningPower;
 			
 			if(tile.health <= 0){
 				
-				//Gives the player block drops
+				// Gives the player block drops
 				if(tile.block.itemDropIDs[0][0] != -1){
 					for(int i = 0; i < tile.block.itemDropIDs[0].length; i++){
 						
@@ -394,7 +394,7 @@ public class Map {
 		}
 	}
 	
-	//Called when the player clicks on a block with a block selected in the Game.myPlayer.Hotbar
+	// Called when the player clicks on a block with a block selected in the Game.myPlayer.Hotbar
 	public void placeBlockAtCoordinates(int x, int y){
 		Tile tile = getTileAtCoordinates(x, y);
 		if(tile != null){

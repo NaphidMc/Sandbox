@@ -8,7 +8,7 @@ public class Block implements Serializable {
 	
 	public int texture;
 	public String Name;
-	public int[][] itemDropIDs; //Format: { <ItemID>, <ItemID> }, {<Chance to drop item 1>, <Chance to drop item 2>
+	public int[][] itemDropIDs; // Format: { <ItemID>, <ItemID> }, {<Chance to drop item 1>, <Chance to drop item 2>
 	public boolean solid;
 	public float health;
 	
