@@ -5,8 +5,8 @@ import java.util.ArrayList;
 public class Player {
 	
 	public int ID = -1;
-	public float x, y, velocityX, velocityY, moveSpeed = 350f, jumpVelocity = 45.0f;  
 	//jumpVelocity at 45.0f allows for a two block-high jump
+	public float x, y, velocityX, velocityY, moveSpeed = 350f, jumpVelocity = 45.0f;  
 	private int collisionRectOffsetX = Tile.tileSize * 0, collisionRectOffsetY = 10;
 	public int width, height;
 	public int miningDistance = 4 * Tile.tileSize;
