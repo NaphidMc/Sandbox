@@ -7,6 +7,8 @@ import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.ScalableGame;
 import org.newdawn.slick.SlickException;
 
+import main.Game;
+
 public class GameInit extends ScalableGame {
 	
 	public GameInit(org.newdawn.slick.Game held, int normalWidth, int normalHeight, boolean maintainAspect) {
