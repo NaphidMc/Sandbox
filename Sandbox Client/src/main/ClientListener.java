@@ -65,8 +65,10 @@ public class ClientListener implements SocketListener {
 					if(Game.currentMap.tiles.length > mcp.startIndex + i){
 						Game.currentMap.tiles[mcp.startIndex + i] = mcp.tiles[i];
 						
-						if(mcp.startIndex + i == Game.currentMap.tiles.length - 1 && !Game.current.mapLoaded)
+						if(mcp.startIndex + i == Game.currentMap.tiles.length - 1 && !Game.current.mapLoaded){
 							Game.current.mapLoaded = true;
+							Game.currentMap.calculateLightLevels();
+						}
 					}
 				}
 			}
