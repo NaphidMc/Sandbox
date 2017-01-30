@@ -43,7 +43,6 @@ public class ClientListener implements SocketListener {
 			Game.currentMap = new Map();
 			Game.currentMap.mapBottonCoordinate = Tile.tileSize * mp.mapHeight;
 			Game.currentMap.mapEndCoordinate = Tile.tileSize * mp.mapWidth;
-			Game.currentMap.tiles = new Tile[mp.mapWidth * mp.mapHeight];
 			Game.currentMap.setWidth(mp.mapWidth);
 			Game.currentMap.setHeight(mp.mapHeight);
 		}
@@ -61,13 +60,15 @@ public class ClientListener implements SocketListener {
 			if(Game.currentMap == null){
 				System.err.println("MAP CHUNK LOST!!!"); // This should not happen
 			} else{
-				for(int i = 0; i < mcp.length; i++){
-					if(Game.currentMap.tiles.length > mcp.startIndex + i){
-						Game.currentMap.tiles[mcp.startIndex + i] = mcp.tiles[i];
-						
-						if(mcp.startIndex + i == Game.currentMap.tiles.length - 1 && !Game.current.mapLoaded){
-							Game.current.mapLoaded = true;
-							Game.currentMap.calculateLightLevels();
+				for(int k = 0; k < Game.currentMap.chunks.length; k++){
+					for(int i = 0; i < mcp.length; i++){
+						if(Game.currentMap.chunks[k].tiles.length > mcp.startIndex + i){
+							Game.currentMap.chunks[k].tiles[mcp.startIndex + i] = mcp.tiles[i];
+							
+							if(mcp.startIndex + i == Game.currentMap.chunks[k].tiles.length - 1 && !Game.current.mapLoaded){
+								Game.current.mapLoaded = true;
+								Game.currentMap.calculateLightLevels();
+							}
 						}
 					}
 				}

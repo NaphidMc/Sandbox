@@ -1,28 +1,33 @@
 package main;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Map {
 	
-	public Tile[] tiles;
+	public Chunk chunks[];
 	public int mapEndCoordinate;
 	public int mapBottonCoordinate;
-	private int mapWidth, mapHeight;
+	private static int mapWidth, mapHeight;
+	public int chunkSize = 16;
 	
 	public Map() { }
 	
 	public Map(int mapWidth, int mapHeight){
 		
-		this.mapWidth = mapWidth;
-		this.mapHeight = mapHeight;
-
-		tiles = new Tile[mapWidth * mapHeight];
+		Map.mapWidth = mapWidth;
+		Map.mapHeight = mapHeight;
 		
 		Date start = null;
 		Date finish = null;
 		long timeElapsed = 0;
+		
+		chunks = new Chunk[(int) Math.ceil(mapWidth/chunkSize)];
+		for(int i = 0; i < chunks.length; i++){
+			chunks[i] = new Chunk(chunkSize);
+		}
 		
 		System.out.print("Generating tiles... ");
 		start = new Date();
@@ -63,23 +68,23 @@ public class Map {
 	/**
 	 * Returns the width in tiles of the map
 	 */
-	public int getWidth(){
+	public static int getWidth(){
 		return mapWidth;
 	}
 	
 	/**
 	 * Returns the height in tiles of the map
 	 */
-	public int getHeight(){
+	public static int getHeight(){
 		return mapHeight;
 	}
 	
 	public void setWidth(int value){
-		this.mapWidth = value;
+		Map.mapWidth = value;
 	}
 	
 	public void setHeight(int value){
-		this.mapHeight = value;
+		Map.mapHeight = value;
 	}
 	
 	/**
@@ -96,8 +101,11 @@ public class Map {
 	 * @param ironFrequencyMultiplier - The frequency of iron deposits
 	 */
 	public void generateTiles(int groundLevel, int hills, int minHillHeight, int maxHillHeight, int minHillWidth, int maxHillWidth, int stoneDepth, int stoneTransition, int ironDepth, float ironFrequencyMultiplier){
+		
 		int height = 0;
 		int width = 0;
+		int tileIndex = 0;
+		int clampedWidth = 0;
 		
 		MapHill[] mapHills = new MapHill[hills];
 		
@@ -110,8 +118,9 @@ public class Map {
 		}
 		
 		
-		A: for(int i = 0; i < mapWidth*mapHeight; i++){
+		A: for(int i = 0; i < mapWidth * mapHeight; i++){
 			
+			tileIndex = clampedWidth + height * chunkSize;
 			int currentX = Tile.tileSize * width;
 			int currentY = Tile.tileSize * height;
 			
@@ -121,12 +130,18 @@ public class Map {
 				for(int j = 0; j < mapHills[k].hillTiles.size(); j++){
 					
 					if(mapHills[k].hillTiles.get(j).x == width && mapHills[k].hillTiles.get(j).y == height){
-
+						
 						if(mapHills[k].hillTiles.get(j).topTile){
-							tiles[i] = new Tile(currentX, currentY, Database.BLOCK_GRASS);
-						}else{
-							tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
+							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_GRASS);
+							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_GRASS));
+						} else{
+							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
+							chunks[(width/(chunkSize))].tiles[tileIndex] = ( new Tile(currentX, currentY, Database.BLOCK_DIRT));
 						}
+						
+						clampedWidth++;
+						if(clampedWidth >= chunkSize)
+							clampedWidth = 0;
 						
 						width++;
 						if((i + 1)%mapWidth == 0){
@@ -141,10 +156,13 @@ public class Map {
 			
 			
 			if(height < groundLevel){
-				tiles[i] = new Tile(currentX, currentY, Database.BLOCK_AIR);
+				//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_AIR);
+				//System.out.println(width);
+				chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_AIR));
 			} else if(height == groundLevel){
 				// Top grass layer
-				tiles[i] = new Tile(currentX, currentY, Database.BLOCK_GRASS);
+				//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_GRASS);
+				chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_GRASS));
 			} else{
 				if(height != mapHeight - 1){
 					// Most generation stuff goes here
@@ -153,15 +171,18 @@ public class Map {
 					if(!(height <= stoneDepth) && !(height >= stoneDepth - stoneTransition)) {
 						// Dirt layer
 						
-						tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
+						//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
+						chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_DIRT));
 					} else if(height <= stoneDepth && height >= stoneDepth - stoneTransition) {    
 						// Stone transitional layer
 						
 						if(random <= 55){
-							tiles[i] = new Tile(currentX, currentY, Database.BLOCK_STONE);
+							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_STONE);
+							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_STONE));
 						}
 						else{
-							tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
+							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
+							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_DIRT));
 						}
 					} else if(height > stoneDepth){
 						// Stone layer
@@ -178,16 +199,24 @@ public class Map {
 						}
 						
 						if(random < ironChance){
-							tiles[i] = new Tile(currentX, currentY, Database.BLOCK_IRONORE);
+							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_IRONORE);
+							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_IRONORE));
+							
 						}else{
-						tiles[i] = new Tile(currentX, currentY, Database.BLOCK_STONE);
+							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_STONE);
+							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_STONE));
 						}
 					}
 				}
 				else{
-					tiles[i] = new Tile(currentX, currentY, Database.BLOCK_BEDROCK);
+					//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_BEDROCK);
+					chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_BEDROCK));
 				}
 			}
+			
+			clampedWidth++;
+			if(clampedWidth >= chunkSize)
+				clampedWidth = 0;
 			
 			width++;
 			if((i + 1)%mapWidth == 0){
@@ -195,9 +224,10 @@ public class Map {
 				width = 0;
 			}
 			
-			if(tiles[i] == null)
+			if(chunks[(width/(chunkSize))].tiles[tileIndex] == null)
 			{
-				tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
+				//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
+				chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_DIRT));
 			}
 		}
 	}
@@ -206,51 +236,51 @@ public class Map {
 		
 		HashMap<String, Tile> tileCache = new HashMap<String, Tile>();
 		
-		for(int i = 0; i < tiles.length; i++){
-			tiles[i].lightLevel = 0;
+		for(int i = 0; i < chunks.length; i++){
+			for(int j = 0; j < chunks[i].tiles.length; j++){
+				chunks[i].tiles[j].lightLevel = 0f;
+			}
 		}
 		
-		int index = 0;
-		for(int i = 0; i < mapHeight; i++){
-			for(int k = 0; k < mapWidth; k++){
+		for(int i = 0; i < chunks.length; i++){
+			for(int k = 0; k < chunks[i].tiles.length; k++){
 				
 				Tile above = null, below = null, right = null, left = null;
 				
-				if((above = tileCache.get(tiles[index].x + "," + (tiles[index].y - Tile.tileSize))) == null){
-					above = getTileAtCoordinates(tiles[index].x, tiles[index].y - Tile.tileSize);
-					tileCache.put(tiles[index].x + "," + (tiles[index].y - Tile.tileSize), above);
+				if((above = tileCache.get(chunks[i].tiles[k].x + "," + (chunks[i].tiles[k].y - Tile.tileSize))) == null){
+					above = getTileAtCoordinates(chunks[i].tiles[k].x, chunks[i].tiles[k].y - Tile.tileSize);
+					tileCache.put(chunks[i].tiles[k].x + "," + (chunks[i].tiles[k].y - Tile.tileSize), above);
 				}
-				if((below = tileCache.get(tiles[index].x + "," + (tiles[index].y + Tile.tileSize))) == null){
-					below = getTileAtCoordinates(tiles[index].x, tiles[index].y + Tile.tileSize); 
-					tileCache.put(tiles[index].x + "," + (tiles[index].y + Tile.tileSize), below);
+				if((below = tileCache.get(chunks[i].tiles[k].x + "," + (chunks[i].tiles[k].y + Tile.tileSize))) == null){
+					below = getTileAtCoordinates(chunks[i].tiles[k].x, chunks[i].tiles[k].y + Tile.tileSize); 
+					tileCache.put(chunks[i].tiles[k].x + "," + (chunks[i].tiles[k].y + Tile.tileSize), below);
 				}
-				if((right = tileCache.get((tiles[index].x + Tile.tileSize) + "," + tiles[index].y)) == null){
-					right = getTileAtCoordinates(tiles[index].x + Tile.tileSize, tiles[index].y); 
-					tileCache.put((tiles[index].x + Tile.tileSize) + "," + tiles[index].y, right);
+				if((right = tileCache.get((chunks[i].tiles[k].x + Tile.tileSize) + "," + chunks[i].tiles[k].y)) == null){
+					right = getTileAtCoordinates(chunks[i].tiles[k].x + Tile.tileSize, chunks[i].tiles[k].y); 
+					tileCache.put((chunks[i].tiles[k].x + Tile.tileSize) + "," + chunks[i].tiles[k].y, right);
 				}
-				if((left = tileCache.get((tiles[index].x - Tile.tileSize) + "," + tiles[index].y)) == null){
-					left = getTileAtCoordinates(tiles[index].x - Tile.tileSize, tiles[index].y);
-					tileCache.put((tiles[index].x - Tile.tileSize) + "," + tiles[index].y, left);
+				if((left = tileCache.get((chunks[i].tiles[k].x - Tile.tileSize) + "," + chunks[i].tiles[k].y)) == null){
+					left = getTileAtCoordinates(chunks[i].tiles[k].x - Tile.tileSize, chunks[i].tiles[k].y);
+					tileCache.put((chunks[i].tiles[k].x - Tile.tileSize) + "," + chunks[i].tiles[k].y, left);
 				}
 				
-				if(tiles[index].block.equals(Database.BLOCK_AIR) || tiles[index].block.equals(Database.BLOCK_WOOD) || tiles[index].block.equals(Database.BLOCK_LEAVES)){
-					tiles[index].lightLevel = 2.0f;
+				if(chunks[i].tiles[k].block.equals(Database.BLOCK_AIR) || chunks[i].tiles[k].block.equals(Database.BLOCK_WOOD) || chunks[i].tiles[k].block.equals(Database.BLOCK_LEAVES)){
+					chunks[i].tiles[k].lightLevel = 2.0f;
 				}
 			
 			if(above != null){
-				above.lightLevel += tiles[index].lightLevel/4f;
+				above.lightLevel += chunks[i].tiles[k].lightLevel/4f;
 			}
 			if(below != null){
-				below.lightLevel += tiles[index].lightLevel/4f;
+				below.lightLevel += chunks[i].tiles[k].lightLevel/4f;
 			}
 			if(right != null){
-				right.lightLevel += tiles[index].lightLevel/4f;
+				right.lightLevel += chunks[i].tiles[k].lightLevel/4f;
 			}
 			if(left != null){
-				left.lightLevel += tiles[index].lightLevel/4f;
+				left.lightLevel += chunks[i].tiles[k].lightLevel/4f;
 			}
 				
-				index++;
 			}
 		}
 	}
@@ -260,12 +290,26 @@ public class Map {
 	 * and if they do, the grass block is changed to dirt
 	 */
 	public void fixGrassBlocks() {
-		for(int i = 0; i < tiles.length; i++){
+		
+		/*for(int i = 0; i < tiles.length; i++){
 			if(tiles[i].block == Database.BLOCK_GRASS) {
 				Block block = getTileAtCoordinates(tiles[i].x, tiles[i].y - Tile.tileSize).block;
 				if(block != null){
 					if(block != Database.BLOCK_AIR && block.solid == true) {     
 						tiles[i].setBlock(Database.BLOCK_DIRT);
+					}
+				}
+			}
+		}*/
+		
+		for(int i = 0; i < chunks.length; i++){
+			for(int k = 0; k < chunks[i].tiles.length; k++){
+				if(chunks[i].tiles[k].block == Database.BLOCK_GRASS) {
+					Block block = getTileAtCoordinates(chunks[i].tiles[k].x, chunks[i].tiles[k].y - Tile.tileSize).block;
+					if(block != null){
+						if(block != Database.BLOCK_AIR && block.solid == true) {     
+							chunks[i].tiles[k].setBlock(Database.BLOCK_DIRT);
+						}
 					}
 				}
 			}
@@ -279,7 +323,7 @@ public class Map {
 	public void generateTrees(float treeDensity){
 		
 		float treeChance = (5*treeDensity);
-		for(int i = 0; i < tiles.length; i++){
+		/*for(int i = 0; i < tiles.length; i++){
 			if(tiles[i].block == Database.BLOCK_GRASS){
 				int random = ThreadLocalRandom.current().nextInt(1, 101);
 				
@@ -290,6 +334,19 @@ public class Map {
 					// treeChance += (5*treeDensity);
 				}
 			}
+		}*/
+		
+		for(int k = 0; k < chunks.length; k++){
+			for(int i = 0; i < chunks[k].tiles.length; i++){
+				if(chunks[k].tiles[i].block == Database.BLOCK_GRASS){
+					int random = ThreadLocalRandom.current().nextInt(1, 101);
+					
+					if(random < treeChance){
+						// Make a tree
+						getTileAtCoordinates(chunks[k].tiles[i].x, chunks[k].tiles[i].y - Tile.tileSize).setBlock(Database.BLOCK_SAPLING);
+					} 
+				}
+			}
 		}
 	}
 	
@@ -298,57 +355,60 @@ public class Map {
 	 */
 	public void growTrees(){
 		int treeGrowChance = 101;
-		TileLoop: for(int i = 0; i < tiles.length; i++){
-			if(tiles[i].block == Database.BLOCK_SAPLING){
-				int rand = ThreadLocalRandom.current().nextInt(1, 101);
-				if(rand <= treeGrowChance){
-					int stemHeight = ThreadLocalRandom.current().nextInt(1, 5);
-					
-					// Grow tree
-					tiles[i].setBlock(Database.BLOCK_WOOD);
-					
-					int maxStemHeight = 0;
-					for(int k = 1; k < stemHeight; k++){
-						Tile tile = getTileAtCoordinates(tiles[i].x, tiles[i].y - Tile.tileSize*k);
-						if(tile != null){
-							if(tile.block == Database.BLOCK_AIR){
-								tile.setBlock(Database.BLOCK_WOOD);
-							} else {
-								continue TileLoop;
+		
+		for(int j = 0; j < chunks.length; j++){
+			TileLoop: for(int i = 0; i < chunks[j].tiles.length; i++){
+				if(chunks[j].tiles[i].block == Database.BLOCK_SAPLING){
+					int rand = ThreadLocalRandom.current().nextInt(1, 101);
+					if(rand <= treeGrowChance){
+						int stemHeight = ThreadLocalRandom.current().nextInt(1, 5);
+						
+						// Grow tree
+						chunks[j].tiles[i].setBlock(Database.BLOCK_WOOD);
+						
+						int maxStemHeight = 0;
+						for(int k = 1; k < stemHeight; k++){
+							Tile tile = getTileAtCoordinates(chunks[j].tiles[i].x, chunks[j].tiles[i].y - Tile.tileSize*k);
+							if(tile != null){
+								if(tile.block == Database.BLOCK_AIR){
+									tile.setBlock(Database.BLOCK_WOOD);
+								} else {
+									continue TileLoop;
+								}
+							}
+							
+							maxStemHeight = k;
+						}
+						
+						// Leaves
+						Tile temp;
+						
+						temp = getTileAtCoordinates(chunks[j].tiles[i].x - Tile.tileSize, chunks[j].tiles[i].y - maxStemHeight * Tile.tileSize);
+						if(temp != null){
+							if(temp.block == Database.BLOCK_AIR){
+								temp.setBlock(Database.BLOCK_LEAVES);
 							}
 						}
 						
-						maxStemHeight = k;
-					}
-					
-					// Leaves
-					Tile temp;
-					
-					temp = getTileAtCoordinates(tiles[i].x - Tile.tileSize, tiles[i].y - maxStemHeight * Tile.tileSize);
-					if(temp != null){
-						if(temp.block == Database.BLOCK_AIR){
-							temp.setBlock(Database.BLOCK_LEAVES);
+						temp = getTileAtCoordinates(chunks[j].tiles[i].x, chunks[j].tiles[i].y - maxStemHeight * Tile.tileSize);
+						if(temp != null){
+							if(temp.block == Database.BLOCK_AIR){
+								temp.setBlock(Database.BLOCK_LEAVES);
+							}
 						}
-					}
-					
-					temp = getTileAtCoordinates(tiles[i].x, tiles[i].y - maxStemHeight * Tile.tileSize);
-					if(temp != null){
-						if(temp.block == Database.BLOCK_AIR){
-							temp.setBlock(Database.BLOCK_LEAVES);
+						
+						temp = getTileAtCoordinates(chunks[j].tiles[i].x + Tile.tileSize, chunks[j].tiles[i].y - maxStemHeight * Tile.tileSize);
+						if(temp != null){
+							if(temp.block == Database.BLOCK_AIR){
+								temp.setBlock(Database.BLOCK_LEAVES);
+							}
 						}
-					}
-					
-					temp = getTileAtCoordinates(tiles[i].x + Tile.tileSize, tiles[i].y - maxStemHeight * Tile.tileSize);
-					if(temp != null){
-						if(temp.block == Database.BLOCK_AIR){
-							temp.setBlock(Database.BLOCK_LEAVES);
-						}
-					}
-					
-					temp = getTileAtCoordinates(tiles[i].x, tiles[i].y - maxStemHeight * Tile.tileSize - Tile.tileSize);
-					if(temp != null){
-						if(temp.block == Database.BLOCK_AIR){
-							temp.setBlock(Database.BLOCK_LEAVES);
+						
+						temp = getTileAtCoordinates(chunks[j].tiles[i].x, chunks[j].tiles[i].y - maxStemHeight * Tile.tileSize - Tile.tileSize);
+						if(temp != null){
+							if(temp.block == Database.BLOCK_AIR){
+								temp.setBlock(Database.BLOCK_LEAVES);
+							}
 						}
 					}
 				}
@@ -431,11 +491,14 @@ public class Map {
 	 * @return The tile at the coordinates, returns null if it does not exist
 	 */
 	public Tile getTileAtCoordinates(int x, int y){
-		for(int i = 0; i < tiles.length; i++){
-			java.awt.Rectangle tileRect = new java.awt.Rectangle(tiles[i].x, tiles[i].y, Tile.tileSize, Tile.tileSize);
-			
-			if(tileRect.contains(x, y)){
-				return tiles[i];
+		
+		for(int i = 0; i < chunks.length; i++){
+			for(int k = 0; k < chunks[i].tiles.length; k++){
+				java.awt.Rectangle tileRect = new java.awt.Rectangle(chunks[i].tiles[k].x, chunks[i].tiles[k].y, Tile.tileSize, Tile.tileSize);
+				
+				if(tileRect.contains(x, y)){
+					return chunks[i].tiles[k];
+				}
 			}
 		}
 		

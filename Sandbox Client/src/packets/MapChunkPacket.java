@@ -20,9 +20,9 @@ public class MapChunkPacket implements Serializable {
 		
 		tiles = new Tile[length];
 		for(int i = 0; i < tiles.length; i++){
-			if(start + i < map.tiles.length)
+			/*if(start + i < map.tiles.length)
 				tiles[i] = map.tiles[start + i];
-				tiles[i].index = i;
+				tiles[i].index = i;*/
 		}
 	}
 }

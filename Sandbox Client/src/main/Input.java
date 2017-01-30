@@ -80,7 +80,7 @@ public class Input {
 			
 			// Checks if the player has a block selected in the hotbar
 			if(Game.myPlayer.selectedItem != null && Game.myPlayer.selectedItem.block != null && (t = Game.currentMap.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null && t.block == Database.BLOCK_AIR && !Game.myPlayer.inventoryOpen){
-				
+				Game.currentMap.fixGrassBlocks();
 				t.setBlock(Game.myPlayer.selectedItem.block); // Places the block
 				Game.myPlayer.removeItem(Game.myPlayer.selectedItem, 1); // Removes 1 of the blocks from the inventory
 			}

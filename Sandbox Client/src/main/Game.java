@@ -105,7 +105,7 @@ public class Game extends BasicGame {
 		
 		currentMap = new Map(16, 24); // Generates a new map
 		currentMap.mapEndCoordinate = Tile.tileSize * currentMap.getWidth();
-		currentMap.mapBottonCoordinate = Tile.tileSize*currentMap.getHeight();
+		currentMap.mapBottonCoordinate = Tile.tileSize* currentMap.getHeight();
 		mapLoaded = true;
 	}
 	
@@ -136,30 +136,44 @@ public class Game extends BasicGame {
 		// Loops through all the tiles and draws them
 		sprites.startUse();
 		int mapIndex = 0;
-		for (int i = 0; i < currentMap.getHeight(); i++) {
-			for (int j = 0; j < currentMap.getWidth(); j++) {
+		int xpos = 0;
+		int ypos = 0;
+		for(int k = 0; k < currentMap.chunks.length; k++){
+			mapIndex = 0;
+			for(int i = 0; i < currentMap.chunks[k].tiles.length; i++){
+				System.err.println(xpos);
 				try {
 					// Updates tile coordinates
-					currentMap.tiles[mapIndex].x = Tile.tileSize * j;
-					currentMap.tiles[mapIndex].y = Tile.tileSize * i;
+					currentMap.chunks[k].tiles[mapIndex].x = Tile.tileSize * xpos;
+					currentMap.chunks[k].tiles[mapIndex].y = Tile.tileSize * ypos;
 					
 					// If the tile is 'air' it simply isn't drawn
-					if (currentMap.tiles[mapIndex].block.equals(Database.BLOCK_AIR)) {
+					if (currentMap.chunks[k].tiles[mapIndex].block.equals(Database.BLOCK_AIR)) {
+						
 						mapIndex++;
+						xpos++;
+						if((xpos)%Map.getWidth() == 0){
+							ypos++;
+							xpos = 0;
+						}
 						continue;
 					
 					} else {	
 						// Before drawing a tile, it checks if it is visible
-						if(Tile.tileSize * j + (int)cameraOffsetX > -Tile.tileSize + 0 && Tile.tileSize * j + (int)cameraOffsetX < 800 && Tile.tileSize * i - (int)cameraOffsetY > 0 -Tile.tileSize && Tile.tileSize * i - (int)cameraOffsetY < 600){
+						if(Tile.tileSize * xpos + (int)cameraOffsetX > -Tile.tileSize + 0 && Tile.tileSize * xpos + (int)cameraOffsetX < 800 && Tile.tileSize * ypos - (int)cameraOffsetY > 0 -Tile.tileSize && Tile.tileSize * ypos - (int)cameraOffsetY < 600){
 							// Finally, this draws the tile
-							new Color(currentMap.tiles[mapIndex].lightLevel, currentMap.tiles[mapIndex].lightLevel, currentMap.tiles[mapIndex].lightLevel, 1f).bind();
-							sprites.renderInUse(0 + Tile.tileSize * j + (int)cameraOffsetX, 0 + Tile.tileSize * i - (int)cameraOffsetY, currentMap.tiles[mapIndex].texture%SPRITESHEET_WIDTH, currentMap.tiles[mapIndex].texture/SPRITESHEET_WIDTH);
+							new Color(currentMap.chunks[k].tiles[mapIndex].lightLevel, currentMap.chunks[k].tiles[mapIndex].lightLevel, currentMap.chunks[k].tiles[mapIndex].lightLevel, 1f).bind();
+							sprites.renderInUse(0 + Tile.tileSize * xpos + (int)cameraOffsetX, 0 + Tile.tileSize * ypos - (int)cameraOffsetY, currentMap.chunks[k].tiles[mapIndex].texture%SPRITESHEET_WIDTH, currentMap.chunks[k].tiles[mapIndex].texture/SPRITESHEET_WIDTH);
 						}
 					}
-					mapIndex++;
 					
 				} catch (Exception e) { }
-				
+				mapIndex++;
+				xpos++;
+				if((xpos)%Map.getWidth() == 0){
+					ypos++;
+					xpos = 0;
+				}
 			}
 		}
 		Color.white.bind();
@@ -292,7 +306,7 @@ public class Game extends BasicGame {
 			
 			// Draws the item that the player picked up with the mouse
 			if(myPlayer.pickedUpItem != null){
-				sprites.renderInUse(mouseX, mouseY, myPlayer.pickedUpItem.item.icon%4, myPlayer.pickedUpItem.item.icon/4);
+				sprites.renderInUse(mouseX, mouseY, myPlayer.pickedUpItem.item.icon%SPRITESHEET_WIDTH, myPlayer.pickedUpItem.item.icon/SPRITESHEET_WIDTH);
 			}
 
 		}
@@ -423,7 +437,7 @@ public class Game extends BasicGame {
 		
 		// Night and Day Cycle
 		currentTimeUntilNextCycle -= delta;
-		if(currentTimeUntilNextCycle<0){
+		if(currentTimeUntilNextCycle < 0){
 			
 			currentTimeUntilNextCycle=msCycle;
 			
