@@ -22,7 +22,6 @@ public class Game extends BasicGame {
 	public static float cameraOffsetX, cameraOffsetY;	// Basically the position of the camera, sort of
 	
 	// **UI Positioning numbers**\\
-	
 	public static int hotbarPositionX = 25, hotbarPositionY = 10;
 	public static int inventoryPositionX = 10, inventoryPositionY = 250;
 	public static int craftingUIPositionX, craftingUIPositionY;
@@ -103,9 +102,9 @@ public class Game extends BasicGame {
 	 */
 	public void startSinglePlayer(){
 		
-		currentMap = new Map(16, 24); // Generates a new map
-		currentMap.mapEndCoordinate = Tile.tileSize * currentMap.getWidth();
-		currentMap.mapBottonCoordinate = Tile.tileSize* currentMap.getHeight();
+		currentMap = new Map(32, 24); // Generates a new map
+		currentMap.mapEndCoordinate = Tile.tileSize * Map.getWidth();
+		currentMap.mapBottonCoordinate = Tile.tileSize* Map.getHeight();
 		mapLoaded = true;
 	}
 	
@@ -138,10 +137,14 @@ public class Game extends BasicGame {
 		int mapIndex = 0;
 		int xpos = 0;
 		int ypos = 0;
+		//Loops through all the chunks
 		for(int k = 0; k < currentMap.chunks.length; k++){
 			mapIndex = 0;
-			for(int i = 0; i < currentMap.chunks[k].tiles.length; i++){
-				System.err.println(xpos);
+			ypos = 0;
+			xpos = k * Map.chunkSize;
+			//Loops through all tiles in the chunk
+			for(int i = 0; i < currentMap.chunks[k].tiles.length; i++) {
+				
 				try {
 					// Updates tile coordinates
 					currentMap.chunks[k].tiles[mapIndex].x = Tile.tileSize * xpos;
@@ -152,27 +155,28 @@ public class Game extends BasicGame {
 						
 						mapIndex++;
 						xpos++;
-						if((xpos)%Map.getWidth() == 0){
+						if((xpos) == Map.chunkSize * (k + 1)){
 							ypos++;
-							xpos = 0;
+							xpos = k * Map.chunkSize;
 						}
 						continue;
 					
-					} else {	
+					} else {
 						// Before drawing a tile, it checks if it is visible
 						if(Tile.tileSize * xpos + (int)cameraOffsetX > -Tile.tileSize + 0 && Tile.tileSize * xpos + (int)cameraOffsetX < 800 && Tile.tileSize * ypos - (int)cameraOffsetY > 0 -Tile.tileSize && Tile.tileSize * ypos - (int)cameraOffsetY < 600){
-							// Finally, this draws the tile
-							new Color(currentMap.chunks[k].tiles[mapIndex].lightLevel, currentMap.chunks[k].tiles[mapIndex].lightLevel, currentMap.chunks[k].tiles[mapIndex].lightLevel, 1f).bind();
+							// Finally, this draws the tile + shading for a shadow effect
+							//new Color(currentMap.chunks[k].tiles[mapIndex].lightLevel, currentMap.chunks[k].tiles[mapIndex].lightLevel, currentMap.chunks[k].tiles[mapIndex].lightLevel, 1f).bind();
 							sprites.renderInUse(0 + Tile.tileSize * xpos + (int)cameraOffsetX, 0 + Tile.tileSize * ypos - (int)cameraOffsetY, currentMap.chunks[k].tiles[mapIndex].texture%SPRITESHEET_WIDTH, currentMap.chunks[k].tiles[mapIndex].texture/SPRITESHEET_WIDTH);
 						}
 					}
 					
 				} catch (Exception e) { }
+				
 				mapIndex++;
 				xpos++;
-				if((xpos)%Map.getWidth() == 0){
+				if((xpos) == (Map.chunkSize * (k + 1))){
 					ypos++;
-					xpos = 0;
+					xpos = k * Map.chunkSize;
 				}
 			}
 		}
@@ -263,7 +267,7 @@ public class Game extends BasicGame {
 					myPlayer.inventory.get(currentInventorySlot).y = inventoryPositionY + InventorySlot.inventorySlotSize * i;
 					
 					if(myPlayer.inventory.get(currentInventorySlot).itemStack.item != null){
-						// displays the item's icon in the inventory
+						// Displays the item's icon in the inventory
 						sprites.renderInUse(inventoryPositionX + InventorySlot.inventorySlotSize * k, inventoryPositionY + InventorySlot.inventorySlotSize * i, myPlayer.inventory.get(currentInventorySlot).itemStack.item.icon%SPRITESHEET_WIDTH, myPlayer.inventory.get(currentInventorySlot).itemStack.item.icon/SPRITESHEET_WIDTH);     
 						
 					}

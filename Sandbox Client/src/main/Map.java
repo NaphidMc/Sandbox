@@ -7,11 +7,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Map {
 	
-	public Chunk chunks[];
+	public Chunk[] chunks;
+	public ArrayList<Chunk> loadedChunks;
 	public int mapEndCoordinate;
 	public int mapBottonCoordinate;
 	private static int mapWidth, mapHeight;
-	public int chunkSize = 16;
+	public static int chunkSize = 16;
 	
 	public Map() { }
 	
@@ -27,6 +28,7 @@ public class Map {
 		chunks = new Chunk[(int) Math.ceil(mapWidth/chunkSize)];
 		for(int i = 0; i < chunks.length; i++){
 			chunks[i] = new Chunk(chunkSize);
+			loadedChunks.add(chunks[i]);
 		}
 		
 		System.out.print("Generating tiles... ");
@@ -63,6 +65,18 @@ public class Map {
 		finish = new Date();
 		timeElapsed = finish.getTime() - start.getTime();
 		System.out.print("Done! (" + timeElapsed + "ms)\n");
+	}
+	
+	/**
+	 * Redetermines which chunks should be loaded
+	 */
+	public void refreshLoadedChunks(){
+		
+		for(int i = 0; i < loadedChunks.size(); i++){
+			if(Math.abs(loadedChunks.get(i).tiles[0].x - Game.myPlayer.x) > chunkSize * Tile.tileSize * 2){
+				loadedChunks.remove(i);
+			}
+		}
 	}
 	
 	/**
@@ -121,6 +135,7 @@ public class Map {
 		A: for(int i = 0; i < mapWidth * mapHeight; i++){
 			
 			tileIndex = clampedWidth + height * chunkSize;
+			
 			int currentX = Tile.tileSize * width;
 			int currentY = Tile.tileSize * height;
 			
@@ -229,6 +244,7 @@ public class Map {
 				//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
 				chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_DIRT));
 			}
+			
 		}
 	}
 	
