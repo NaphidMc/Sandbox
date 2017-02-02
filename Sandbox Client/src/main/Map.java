@@ -9,10 +9,11 @@ public class Map {
 	
 	public Chunk[] chunks;
 	public ArrayList<Chunk> loadedChunks;
-	public int mapEndCoordinate;
-	public int mapBottonCoordinate;
 	private static int mapWidth, mapHeight;
-	public static int chunkSize = 16;
+	public static int chunkSize = 16;	// How large each chunk is in width
+	public float playerXAtChunkReload; 	// The player's x position when refreshLoadedChunks was last called
+	public int mapEndCoordinate; 		// X - Coordinate of the right edge of the map
+	public int mapBottonCoordinate; 	// Y - Coordinate of the bottom edge of the map
 	
 	public Map() { }
 	
@@ -26,8 +27,10 @@ public class Map {
 		long timeElapsed = 0;
 		
 		chunks = new Chunk[(int) Math.ceil(mapWidth/chunkSize)];
+		loadedChunks = new ArrayList<Chunk>();
 		for(int i = 0; i < chunks.length; i++){
 			chunks[i] = new Chunk(chunkSize);
+			chunks[i].chunkIndex = i;
 			loadedChunks.add(chunks[i]);
 		}
 		
@@ -65,6 +68,10 @@ public class Map {
 		finish = new Date();
 		timeElapsed = finish.getTime() - start.getTime();
 		System.out.print("Done! (" + timeElapsed + "ms)\n");
+		
+		refreshLoadedChunks();
+		
+		Game.current.mapLoaded = true;
 	}
 	
 	/**
@@ -72,9 +79,17 @@ public class Map {
 	 */
 	public void refreshLoadedChunks(){
 		
-		for(int i = 0; i < loadedChunks.size(); i++){
-			if(Math.abs(loadedChunks.get(i).tiles[0].x - Game.myPlayer.x) > chunkSize * Tile.tileSize * 2){
-				loadedChunks.remove(i);
+		playerXAtChunkReload = Game.myPlayer.x;
+		
+		int count = 0;
+		loadedChunks.clear();
+		
+		for(int i = 0; i < chunks.length; i++){
+			float chunkPos = (i) * chunkSize * Tile.tileSize + chunkSize/2 * Tile.tileSize;
+    
+			if(Math.abs(chunkPos - Game.myPlayer.x) < 1000){
+				loadedChunks.add(chunks[i]);  
+				count++;
 			}
 		}
 	}
@@ -252,49 +267,49 @@ public class Map {
 		
 		HashMap<String, Tile> tileCache = new HashMap<String, Tile>();
 		
-		for(int i = 0; i < chunks.length; i++){
-			for(int j = 0; j < chunks[i].tiles.length; j++){
-				chunks[i].tiles[j].lightLevel = 0f;
+		for(int i = 0; i < loadedChunks.size(); i++){
+			for(int j = 0; j < loadedChunks.get(i).tiles.length; j++){
+				loadedChunks.get(i).tiles[j].lightLevel = 0f;
 			}
 		}
 		
-		for(int i = 0; i < chunks.length; i++){
+		for(int i = 0; i < loadedChunks.size(); i++){
 			for(int k = 0; k < chunks[i].tiles.length; k++){
 				
 				Tile above = null, below = null, right = null, left = null;
 				
-				if((above = tileCache.get(chunks[i].tiles[k].x + "," + (chunks[i].tiles[k].y - Tile.tileSize))) == null){
-					above = getTileAtCoordinates(chunks[i].tiles[k].x, chunks[i].tiles[k].y - Tile.tileSize);
-					tileCache.put(chunks[i].tiles[k].x + "," + (chunks[i].tiles[k].y - Tile.tileSize), above);
+				if((above = tileCache.get(loadedChunks.get(i).tiles[k].x + "," + (loadedChunks.get(i).tiles[k].y - Tile.tileSize))) == null){
+					above = getTileAtCoordinates(loadedChunks.get(i).tiles[k].x, loadedChunks.get(i).tiles[k].y - Tile.tileSize);
+					tileCache.put(loadedChunks.get(i).tiles[k].x + "," + (loadedChunks.get(i).tiles[k].y - Tile.tileSize), above);
 				}
-				if((below = tileCache.get(chunks[i].tiles[k].x + "," + (chunks[i].tiles[k].y + Tile.tileSize))) == null){
-					below = getTileAtCoordinates(chunks[i].tiles[k].x, chunks[i].tiles[k].y + Tile.tileSize); 
-					tileCache.put(chunks[i].tiles[k].x + "," + (chunks[i].tiles[k].y + Tile.tileSize), below);
+				if((below = tileCache.get(loadedChunks.get(i).tiles[k].x + "," + (loadedChunks.get(i).tiles[k].y + Tile.tileSize))) == null){
+					below = getTileAtCoordinates(loadedChunks.get(i).tiles[k].x, loadedChunks.get(i).tiles[k].y + Tile.tileSize); 
+					tileCache.put(loadedChunks.get(i).tiles[k].x + "," + (loadedChunks.get(i).tiles[k].y + Tile.tileSize), below);
 				}
-				if((right = tileCache.get((chunks[i].tiles[k].x + Tile.tileSize) + "," + chunks[i].tiles[k].y)) == null){
-					right = getTileAtCoordinates(chunks[i].tiles[k].x + Tile.tileSize, chunks[i].tiles[k].y); 
-					tileCache.put((chunks[i].tiles[k].x + Tile.tileSize) + "," + chunks[i].tiles[k].y, right);
+				if((right = tileCache.get((loadedChunks.get(i).tiles[k].x + Tile.tileSize) + "," + loadedChunks.get(i).tiles[k].y)) == null){
+					right = getTileAtCoordinates(loadedChunks.get(i).tiles[k].x + Tile.tileSize, loadedChunks.get(i).tiles[k].y); 
+					tileCache.put((loadedChunks.get(i).tiles[k].x + Tile.tileSize) + "," + loadedChunks.get(i).tiles[k].y, right);
 				}
-				if((left = tileCache.get((chunks[i].tiles[k].x - Tile.tileSize) + "," + chunks[i].tiles[k].y)) == null){
-					left = getTileAtCoordinates(chunks[i].tiles[k].x - Tile.tileSize, chunks[i].tiles[k].y);
-					tileCache.put((chunks[i].tiles[k].x - Tile.tileSize) + "," + chunks[i].tiles[k].y, left);
+				if((left = tileCache.get((loadedChunks.get(i).tiles[k].x - Tile.tileSize) + "," + loadedChunks.get(i).tiles[k].y)) == null){
+					left = getTileAtCoordinates(loadedChunks.get(i).tiles[k].x - Tile.tileSize, loadedChunks.get(i).tiles[k].y);
+					tileCache.put((loadedChunks.get(i).tiles[k].x - Tile.tileSize) + "," + loadedChunks.get(i).tiles[k].y, left);
 				}
 				
-				if(chunks[i].tiles[k].block.equals(Database.BLOCK_AIR) || chunks[i].tiles[k].block.equals(Database.BLOCK_WOOD) || chunks[i].tiles[k].block.equals(Database.BLOCK_LEAVES)){
-					chunks[i].tiles[k].lightLevel = 2.0f;
+				if(loadedChunks.get(i).tiles[k].block.equals(Database.BLOCK_AIR) || loadedChunks.get(i).tiles[k].block.equals(Database.BLOCK_WOOD) || loadedChunks.get(i).tiles[k].block.equals(Database.BLOCK_LEAVES)){
+					loadedChunks.get(i).tiles[k].lightLevel = 2.0f;
 				}
 			
 			if(above != null){
-				above.lightLevel += chunks[i].tiles[k].lightLevel/4f;
+				above.lightLevel += loadedChunks.get(i).tiles[k].lightLevel/4f;
 			}
 			if(below != null){
-				below.lightLevel += chunks[i].tiles[k].lightLevel/4f;
+				below.lightLevel += loadedChunks.get(i).tiles[k].lightLevel/4f;
 			}
 			if(right != null){
-				right.lightLevel += chunks[i].tiles[k].lightLevel/4f;
+				right.lightLevel += loadedChunks.get(i).tiles[k].lightLevel/4f;
 			}
 			if(left != null){
-				left.lightLevel += chunks[i].tiles[k].lightLevel/4f;
+				left.lightLevel += loadedChunks.get(i).tiles[k].lightLevel/4f;
 			}
 				
 			}
@@ -307,24 +322,13 @@ public class Map {
 	 */
 	public void fixGrassBlocks() {
 		
-		/*for(int i = 0; i < tiles.length; i++){
-			if(tiles[i].block == Database.BLOCK_GRASS) {
-				Block block = getTileAtCoordinates(tiles[i].x, tiles[i].y - Tile.tileSize).block;
-				if(block != null){
-					if(block != Database.BLOCK_AIR && block.solid == true) {     
-						tiles[i].setBlock(Database.BLOCK_DIRT);
-					}
-				}
-			}
-		}*/
-		
-		for(int i = 0; i < chunks.length; i++){
-			for(int k = 0; k < chunks[i].tiles.length; k++){
-				if(chunks[i].tiles[k].block == Database.BLOCK_GRASS) {
-					Block block = getTileAtCoordinates(chunks[i].tiles[k].x, chunks[i].tiles[k].y - Tile.tileSize).block;
+		for(int i = 0; i < loadedChunks.size(); i++){
+			for(int k = 0; k < loadedChunks.get(i).tiles.length; k++){
+				if(loadedChunks.get(i).tiles[k].block == Database.BLOCK_GRASS) {
+					Block block = getTileAtCoordinates(loadedChunks.get(i).tiles[k].x, loadedChunks.get(i).tiles[k].y - Tile.tileSize).block;
 					if(block != null){
 						if(block != Database.BLOCK_AIR && block.solid == true) {     
-							chunks[i].tiles[k].setBlock(Database.BLOCK_DIRT);
+							loadedChunks.get(i).tiles[k].setBlock(Database.BLOCK_DIRT);
 						}
 					}
 				}
@@ -339,18 +343,6 @@ public class Map {
 	public void generateTrees(float treeDensity){
 		
 		float treeChance = (5*treeDensity);
-		/*for(int i = 0; i < tiles.length; i++){
-			if(tiles[i].block == Database.BLOCK_GRASS){
-				int random = ThreadLocalRandom.current().nextInt(1, 101);
-				
-				if(random < treeChance){
-					// Make a tree
-					getTileAtCoordinates(tiles[i].x, tiles[i].y - Tile.tileSize).setBlock(Database.BLOCK_SAPLING);
-				} else{
-					// treeChance += (5*treeDensity);
-				}
-			}
-		}*/
 		
 		for(int k = 0; k < chunks.length; k++){
 			for(int i = 0; i < chunks[k].tiles.length; i++){
@@ -508,12 +500,12 @@ public class Map {
 	 */
 	public Tile getTileAtCoordinates(int x, int y){
 		
-		for(int i = 0; i < chunks.length; i++){
-			for(int k = 0; k < chunks[i].tiles.length; k++){
-				java.awt.Rectangle tileRect = new java.awt.Rectangle(chunks[i].tiles[k].x, chunks[i].tiles[k].y, Tile.tileSize, Tile.tileSize);
+		for(int i = 0; i < loadedChunks.size(); i++){
+			for(int k = 0; k < loadedChunks.get(i).tiles.length; k++){
+				java.awt.Rectangle tileRect = new java.awt.Rectangle(loadedChunks.get(i).tiles[k].x, loadedChunks.get(i).tiles[k].y, Tile.tileSize, Tile.tileSize);
 				
 				if(tileRect.contains(x, y)){
-					return chunks[i].tiles[k];
+					return loadedChunks.get(i).tiles[k];
 				}
 			}
 		}

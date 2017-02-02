@@ -102,10 +102,10 @@ public class Game extends BasicGame {
 	 */
 	public void startSinglePlayer(){
 		
-		currentMap = new Map(32, 24); // Generates a new map
+		currentGameState = GameState.Game;
+		currentMap = new Map(64, 24); // Generates a new map
 		currentMap.mapEndCoordinate = Tile.tileSize * Map.getWidth();
 		currentMap.mapBottonCoordinate = Tile.tileSize* Map.getHeight();
-		mapLoaded = true;
 	}
 	
 	/**
@@ -138,26 +138,26 @@ public class Game extends BasicGame {
 		int xpos = 0;
 		int ypos = 0;
 		//Loops through all the chunks
-		for(int k = 0; k < currentMap.chunks.length; k++){
+		for(int k = 0; k < currentMap.loadedChunks.size(); k++){
 			mapIndex = 0;
 			ypos = 0;
-			xpos = k * Map.chunkSize;
+			xpos = currentMap.loadedChunks.get(k).chunkIndex * Map.chunkSize;
 			//Loops through all tiles in the chunk
-			for(int i = 0; i < currentMap.chunks[k].tiles.length; i++) {
+			for(int i = 0; i < currentMap.loadedChunks.get(k).tiles.length; i++) {
 				
 				try {
 					// Updates tile coordinates
-					currentMap.chunks[k].tiles[mapIndex].x = Tile.tileSize * xpos;
-					currentMap.chunks[k].tiles[mapIndex].y = Tile.tileSize * ypos;
+					currentMap.chunks[currentMap.loadedChunks.get(k).chunkIndex].tiles[mapIndex].x = Tile.tileSize * xpos;
+					currentMap.chunks[currentMap.loadedChunks.get(k).chunkIndex].tiles[mapIndex].y = Tile.tileSize * ypos;
 					
 					// If the tile is 'air' it simply isn't drawn
-					if (currentMap.chunks[k].tiles[mapIndex].block.equals(Database.BLOCK_AIR)) {
+					if (currentMap.loadedChunks.get(k).tiles[mapIndex].block.equals(Database.BLOCK_AIR)) {
 						
 						mapIndex++;
 						xpos++;
-						if((xpos) == Map.chunkSize * (k + 1)){
+						if((xpos) == Map.chunkSize * (currentMap.loadedChunks.get(k).chunkIndex + 1)){
 							ypos++;
-							xpos = k * Map.chunkSize;
+							xpos = currentMap.loadedChunks.get(k).chunkIndex * Map.chunkSize;
 						}
 						continue;
 					
@@ -165,8 +165,8 @@ public class Game extends BasicGame {
 						// Before drawing a tile, it checks if it is visible
 						if(Tile.tileSize * xpos + (int)cameraOffsetX > -Tile.tileSize + 0 && Tile.tileSize * xpos + (int)cameraOffsetX < 800 && Tile.tileSize * ypos - (int)cameraOffsetY > 0 -Tile.tileSize && Tile.tileSize * ypos - (int)cameraOffsetY < 600){
 							// Finally, this draws the tile + shading for a shadow effect
-							//new Color(currentMap.chunks[k].tiles[mapIndex].lightLevel, currentMap.chunks[k].tiles[mapIndex].lightLevel, currentMap.chunks[k].tiles[mapIndex].lightLevel, 1f).bind();
-							sprites.renderInUse(0 + Tile.tileSize * xpos + (int)cameraOffsetX, 0 + Tile.tileSize * ypos - (int)cameraOffsetY, currentMap.chunks[k].tiles[mapIndex].texture%SPRITESHEET_WIDTH, currentMap.chunks[k].tiles[mapIndex].texture/SPRITESHEET_WIDTH);
+							new Color(currentMap.loadedChunks.get(k).tiles[mapIndex].lightLevel, currentMap.loadedChunks.get(k).tiles[mapIndex].lightLevel, currentMap.loadedChunks.get(k).tiles[mapIndex].lightLevel, 1f).bind();
+							sprites.renderInUse(0 + Tile.tileSize * xpos + (int)cameraOffsetX, 0 + Tile.tileSize * ypos - (int)cameraOffsetY, currentMap.loadedChunks.get(k).tiles[mapIndex].texture%SPRITESHEET_WIDTH, currentMap.loadedChunks.get(k).tiles[mapIndex].texture/SPRITESHEET_WIDTH);
 						}
 					}
 					
@@ -174,9 +174,9 @@ public class Game extends BasicGame {
 				
 				mapIndex++;
 				xpos++;
-				if((xpos) == (Map.chunkSize * (k + 1))){
+				if((xpos) == (Map.chunkSize * (currentMap.loadedChunks.get(k).chunkIndex + 1))){
 					ypos++;
-					xpos = k * Map.chunkSize;
+					xpos = currentMap.loadedChunks.get(k).chunkIndex * Map.chunkSize;
 				}
 			}
 		}
@@ -425,7 +425,8 @@ public class Game extends BasicGame {
 		mouseY = container.getInput().getMouseY();
 		
 		// Updates players
-		myPlayer.Update(delta);
+		if(delta <= 100)
+			myPlayer.Update(delta);
 		
 		// **Input**\\
 		if(KEY_A_DOWN){
@@ -455,6 +456,9 @@ public class Game extends BasicGame {
 		if(myPlayer.ID != -1 && client.getServerConnection().getSocket().isClosed() == false)
 			client.getServerConnection().sendTcp(new PlayerPacket(myPlayer)); // The client sends the server the player  
 		
+		// If the player has moved a significant amount, the game redetermines which chunks to load
+		if(Math.abs(myPlayer.x - currentMap.playerXAtChunkReload) > 250)
+			currentMap.refreshLoadedChunks();
 	}
 	
 	// Input methods are sent to  the Input class to keep Game class cleaner
