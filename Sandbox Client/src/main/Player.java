@@ -32,7 +32,7 @@ public class Player {
 	private float health;
 	private float maxHealth = 100;
 	private float healthRegen = 5; 
-	public double timer;
+	public double respawnTimer;
 	
 	
 	public Player(int startPositionX, int startPositionY) {
@@ -69,7 +69,7 @@ public class Player {
 		}
 	}
 	public void die(){
-		double timer= 10;
+		respawnTimer= 10;
 		
 	}
 	
@@ -284,16 +284,18 @@ public class Player {
 	public void respawn(){
 		x=400;
 		y=0;
-		System.out.println();
+		Game.cameraOffsetX = 0;
+		Game.cameraOffsetY = -400;
+		health=maxHealth;
 	}
 	
 	public void Update(int delta) {
 		
 		if(Game.currentMap == null)
 			return;
-		
+		if(respawnTimer<=0){
 		addHealth(healthRegen * (delta/100000f));
-		
+		}
 		if(!tileUnderPlayer()){
 			velocityY -= 10 * delta/100f;
 		}
@@ -326,10 +328,12 @@ public class Player {
 	
 		
 		//respawn timer
-		timer-=delta;
-		if(timer<=0){
+		if(health<=0){
 			
-			respawn();
+			respawnTimer-=delta/1000d;
+			if(respawnTimer<=0){
+				respawn();
+			}
 		}
 	}
 }

@@ -360,8 +360,8 @@ public class Game extends BasicGame {
 			g.drawString("player" + pp.id, pp.x + cameraOffsetX, pp.y - 15 - cameraOffsetY);
 		}
 		
-		if(myPlayer.timer >=10){
-			g.drawString("You have died. \nRespawn? \nQuit?", 50, 50);
+		if(myPlayer.respawnTimer > 0){
+			g.drawString("You have died. You will respawn in "+((int)myPlayer.respawnTimer)+" seconds.", 100, 100);
 		}
 		
 		
@@ -476,6 +476,8 @@ public class Game extends BasicGame {
 	public void keyPressed(int key, char c){
 		if(mapLoaded)
 			input.keyPressed(key, c);
+		
+		
 	}
 	
 	@Override 
