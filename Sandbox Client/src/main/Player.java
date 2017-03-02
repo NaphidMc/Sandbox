@@ -34,7 +34,6 @@ public class Player {
 	private float healthRegen = 5; 
 	public double respawnTimer;
 	
-	
 	public Player(int startPositionX, int startPositionY) {
 		System.out.println("Creating new player at (" + startPositionX + ", " + startPositionY + ")");
 		
@@ -68,12 +67,20 @@ public class Player {
 			die();
 		}
 	}
-	public void die(){
-		respawnTimer= 10;
-		
+	
+	public void die() {
+		respawnTimer=10;
 	}
 	
-
+	// Moves the player and the camera to a location
+	//TODO: Fix camera being able to see outside map bounds
+	public void teleportTo(int x, int y) {
+		this.x = x;
+		this.y = y;
+		
+		Game.cameraOffsetX = this.x - 400;
+		Game.cameraOffsetY = this.y - 300;
+	}
 	
 	public float getHealth(){
 		return health;
@@ -89,6 +96,9 @@ public class Player {
 	}
 	
 	public void MoveRight(int delta) {
+		if(respawnTimer >= 0)
+			return;
+		
 		if(x + moveSpeed * delta/1000f < Game.currentMap.mapEndCoordinate - Tile.tileSize){
 			if(!tileRightToPlayer()){
 				x += moveSpeed * delta/1000f;
@@ -101,6 +111,9 @@ public class Player {
 	}
 	
 	public void MoveLeft(int delta){
+		if(respawnTimer >= 0)
+			return;
+		
 		if(x - moveSpeed * delta/1000f > 0){
 			if(!tileLeftToPlayer()){
 				x -= moveSpeed * delta/1000f;
@@ -112,8 +125,8 @@ public class Player {
 		}
 	}
 	
-	public void Jump(){
-		if(tileUnderPlayer()){
+	public void jump(){
+		if(tileUnderPlayer() && respawnTimer <= 0){
 			velocityY += jumpVelocity;
 		}
 	}
@@ -281,21 +294,21 @@ public class Player {
 			}
 		}
 	}
-	public void respawn(){
-		x=400;
-		y=0;
-		Game.cameraOffsetX = 0;
-		Game.cameraOffsetY = -400;
-		health=maxHealth;
+	
+	public void respawn() {
+		teleportTo(400, 0);
+		health = maxHealth;
 	}
 	
-	public void Update(int delta) {
+	public void update(int delta) {
 		
 		if(Game.currentMap == null)
 			return;
-		if(respawnTimer<=0){
-		addHealth(healthRegen * (delta/100000f));
-		}
+		
+		// If the player is not waiting to respawn
+		if(respawnTimer <= 0)
+			addHealth(healthRegen * (delta/100000f));
+		
 		if(!tileUnderPlayer()){
 			velocityY -= 10 * delta/100f;
 		}
@@ -328,10 +341,9 @@ public class Player {
 	
 		
 		//respawn timer
-		if(health<=0){
-			
-			respawnTimer-=delta/1000d;
-			if(respawnTimer<=0){
+		if(health <= 0){
+			respawnTimer -= delta/1000d;
+			if(respawnTimer <= 0){
 				respawn();
 			}
 		}

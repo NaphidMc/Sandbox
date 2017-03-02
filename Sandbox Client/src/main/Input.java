@@ -13,7 +13,7 @@ public class Input {
 				Game.KEY_D_DOWN = true;
 				break;
 			case ' ':
-				Game.myPlayer.Jump();
+				Game.myPlayer.jump();
 				break;
 			case '1':
 				Game.myPlayer.setSelectedHotbarSlot(0);

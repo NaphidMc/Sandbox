@@ -361,15 +361,9 @@ public class Game extends BasicGame {
 		}
 		
 		if(myPlayer.respawnTimer > 0){
-			g.drawString("You have died. You will respawn in "+((int)myPlayer.respawnTimer)+" seconds.", 100, 100);
+			g.setColor(Color.red);
+			g.drawString("You have died. You will respawn in " + ((int)myPlayer.respawnTimer) +"  seconds.", 100, 150);
 		}
-		
-		
-		
-		
-		
-		
-		
 	}
 	
 	/**
@@ -436,7 +430,7 @@ public class Game extends BasicGame {
 		
 		// Updates players
 		if(delta <= 100)
-			myPlayer.Update(delta);
+			myPlayer.update(delta);
 		
 		// **Input**\\
 		if(KEY_A_DOWN){
@@ -477,7 +471,8 @@ public class Game extends BasicGame {
 		if(mapLoaded)
 			input.keyPressed(key, c);
 		
-		
+		if(c == 'p') 
+			myPlayer.addHealth(-50);
 	}
 	
 	@Override 
