@@ -360,6 +360,16 @@ public class Game extends BasicGame {
 			g.drawString("player" + pp.id, pp.x + cameraOffsetX, pp.y - 15 - cameraOffsetY);
 		}
 		
+		if(myPlayer.timer >=10){
+			g.drawString("You have died. \nRespawn? \nQuit?", 50, 50);
+		}
+		
+		
+		
+		
+		
+		
+		
 	}
 	
 	/**

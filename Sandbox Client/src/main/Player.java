@@ -32,6 +32,8 @@ public class Player {
 	private float health;
 	private float maxHealth = 100;
 	private float healthRegen = 5; 
+	public double timer;
+	
 	
 	public Player(int startPositionX, int startPositionY) {
 		System.out.println("Creating new player at (" + startPositionX + ", " + startPositionY + ")");
@@ -51,6 +53,7 @@ public class Player {
 		craftingTableOutput.isNotCraftingTableOutput = false;
 		
 		health = maxHealth;
+		
 	}
 	
 	public void addHealth(float amount){
@@ -60,7 +63,17 @@ public class Player {
 		} else if(health > maxHealth){
 			health = maxHealth;
 		}
+		
+		if(health==0){
+			die();
+		}
 	}
+	public void die(){
+		double timer= 10;
+		
+	}
+	
+
 	
 	public float getHealth(){
 		return health;
@@ -268,6 +281,11 @@ public class Player {
 			}
 		}
 	}
+	public void respawn(){
+		x=400;
+		y=0;
+		System.out.println();
+	}
 	
 	public void Update(int delta) {
 		
@@ -305,6 +323,13 @@ public class Player {
 		}
 		
 		collisionRect = new Rectangle((int)x + collisionRectOffsetX, (int)y + collisionRectOffsetY, width, height);
+	
 		
+		//respawn timer
+		timer-=delta;
+		if(timer<=0){
+			
+			respawn();
+		}
 	}
 }
