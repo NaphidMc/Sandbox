@@ -3,8 +3,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import com.sandbox.client.item.ItemStack;
-
-import rendering.UIRenderer;
+import com.sandbox.client.rendering.UIRenderer;
 
 public class InventorySlot {
 	

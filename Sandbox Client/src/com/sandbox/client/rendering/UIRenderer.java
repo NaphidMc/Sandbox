@@ -1,4 +1,4 @@
-package rendering;
+package com.sandbox.client.rendering;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;

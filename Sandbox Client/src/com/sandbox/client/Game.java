@@ -20,11 +20,10 @@ import com.sandbox.client.map.Map;
 import com.sandbox.client.map.Tile;
 import com.sandbox.client.network.ClientListener;
 import com.sandbox.client.network.PlayerPacket;
+import com.sandbox.client.rendering.EntityRenderer;
+import com.sandbox.client.rendering.TileRenderer;
+import com.sandbox.client.rendering.UIRenderer;
 import com.sandbox.client.utils.Logger;
-
-import rendering.EntityRenderer;
-import rendering.TileRenderer;
-import rendering.UIRenderer;
 
 public class Game extends BasicGame {
 	
