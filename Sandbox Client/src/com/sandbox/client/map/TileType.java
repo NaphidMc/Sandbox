@@ -1,8 +1,10 @@
-package main;
+package com.sandbox.client.map;
 
 import java.io.Serializable;
 
-public class Block implements Serializable {
+import com.sandbox.client.utils.Logger;
+
+public class TileType implements Serializable {
 	
 	private static final long serialVersionUID = -4698775568353685790L;
 	
@@ -12,13 +14,13 @@ public class Block implements Serializable {
 	public boolean solid;
 	public float health;
 	
-	public Block(String name, int texture, int[][] itemDropIDs, boolean solid, float health) {
+	public TileType(String name, int texture, int[][] itemDropIDs, boolean solid, float health) {
 		
 		this.texture = texture;
 		Name = name;
 		
 		if(itemDropIDs[0].length != itemDropIDs[1].length){
-			System.out.println("Hey...we have a problem...not all block drop ids have a correspoding drop chance. \n There will be a crash in your near future :( ");    
+			Logger.logError("Not all block drop ids have a corresponding drop chance!");   
 		}
 		
 		this.itemDropIDs = new int[itemDropIDs.length][itemDropIDs[0].length];
@@ -37,8 +39,8 @@ public class Block implements Serializable {
 		if(obj == null)
 			return false;
 		
-		if(obj instanceof Block){
-			Block block = (Block)obj;
+		if(obj instanceof TileType){
+			TileType block = (TileType)obj;
 			if(this.Name.equals(block.Name) && this.texture == block.texture){
 				return true;
 			}

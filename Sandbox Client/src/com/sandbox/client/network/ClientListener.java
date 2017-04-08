@@ -1,12 +1,11 @@
-package main;
+package com.sandbox.client.network;
 
 import com.jmr.wrapper.common.Connection;
 import com.jmr.wrapper.common.listener.SocketListener;
-
-import packets.DisconnectNotice;
-import packets.MapChunkPacket;
-import packets.MapPacket;
-import packets.PlayerPacket;
+import com.sandbox.client.Game;
+import com.sandbox.client.map.Map;
+import com.sandbox.client.map.Tile;
+import com.sandbox.client.utils.Logger;
 
 // This class listens for connections, disconnections, and incoming packets
 public class ClientListener implements SocketListener {
@@ -14,7 +13,7 @@ public class ClientListener implements SocketListener {
 	// Called when connected to the server
 	@Override
 	public void connected(Connection conn) {
-		System.out.println("Connected to server...");
+		Logger.log("Connected to server");
 	}
 	
 	// Called when disconnected from the server

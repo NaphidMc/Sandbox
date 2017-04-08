@@ -1,4 +1,4 @@
-package main;
+package com.sandbox.client.item;
 
 public class ItemStack {
 	public Item item;

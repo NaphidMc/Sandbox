@@ -1,4 +1,4 @@
-package main;
+package com.sandbox.client.map;
 import java.util.ArrayList;
 
 public class MapHill {

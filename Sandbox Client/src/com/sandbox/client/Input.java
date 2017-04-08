@@ -1,16 +1,31 @@
-package main;
+package com.sandbox.client;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.sandbox.client.item.CraftingRecipe;
+import com.sandbox.client.item.ItemStack;
+import com.sandbox.client.map.Tile;
+
 public class Input {
+
+	//  Key booleans
+	public static boolean KEY_A_DOWN;
+	public static boolean KEY_D_DOWN;
+	public static boolean MOUSE_BUTTON1_DOWN;
 	
-	public void keyPressed(int key, char c){
+	// Current mouse coordinates (updated in Game.update())
+	public static int mouseX, mouseY;
+	
+	// Don't instantiate input--there can only be one
+	private Input() { }
+	
+	public static void keyPressed(int key, char c){
 		
 		switch(c){
 			case 'a':
-				Game.KEY_A_DOWN = true;
+				KEY_A_DOWN = true;
 				break;
 			case 'd':
-				Game.KEY_D_DOWN = true;
+				KEY_D_DOWN = true;
 				break;
 			case ' ':
 				Game.myPlayer.jump();
@@ -54,40 +69,41 @@ public class Input {
 				break;
 		} 
 		
-		if(key == 1){ // Esc
-			System.exit(0);
+		// Escape
+		if(key == 1){ 
+			Game.quit();
 		}
 		
 	}
 	
-	public void keyReleased(int key, char c){
+	public static void keyReleased(int key, char c){
 		if(c == 'a'){
-			Game.KEY_A_DOWN = false;
+			KEY_A_DOWN = false;
 		} else if(c == 'd'){
-			Game.KEY_D_DOWN = false;
+			KEY_D_DOWN = false;
 		}
 	}
 	
-	public void mouseClicked(int button, int x, int y, int clickCount){
+	public static void mouseClicked(int button, int x, int y, int clickCount){
 		
 	}
 	
-	public void mousePressed(int button, int x, int y){
+	public static void mousePressed(int button, int x, int y){
 		if(button == 0){
-			Game.MOUSE_BUTTON1_DOWN = true;
+			MOUSE_BUTTON1_DOWN = true;
 			
 			Tile t = null; // A temporary tile variable
 			
 			// Checks if the player has a block selected in the hotbar
-			if(Game.myPlayer.selectedItem != null && Game.myPlayer.selectedItem.block != null && (t = Game.currentMap.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null && t.block == Database.BLOCK_AIR && !Game.myPlayer.inventoryOpen){
+			if(Game.myPlayer.selectedItem != null && Game.myPlayer.selectedItem.block != null && (t = Game.currentMap.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null && t.type == Database.AIR && !Game.myPlayer.inventoryOpen){
 				Game.currentMap.fixGrassBlocks();
-				t.setBlock(Game.myPlayer.selectedItem.block); // Places the block
+				t.setTileType(Game.myPlayer.selectedItem.block); // Places the block
 				Game.myPlayer.removeItem(Game.myPlayer.selectedItem, 1); // Removes 1 of the blocks from the inventory
 			}
 			
 			// If the player is not holding a block or mining tool, the method specialTileInteraction in game checks if 
 			// anything can be done with the tool in hand (Example: Grass Seeds)
-			else if(Game.myPlayer.selectedItem != null && Game.myPlayer.selectedItem.MiningPower == 0 && Game.myPlayer.selectedItem.block == null && (t = Game.currentMap.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null){
+			else if(Game.myPlayer.selectedItem != null && Game.myPlayer.selectedItem.miningPower == 0 && Game.myPlayer.selectedItem.block == null && (t = Game.currentMap.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null){
 				Game.currentMap.specialTileInteraction(t.x, t.y);
 			}
 			
@@ -207,7 +223,14 @@ public class Input {
 		
 	}
 	
-	public void mouseButtonHeld(int button, int x, int y){
+	public static void mouseReleased(int button, int x, int y) {
+		// Left mouse button
+		if(button == 0) {
+			MOUSE_BUTTON1_DOWN = false;
+		}
+	}
+	
+	public static void mouseButtonHeld(int button, int x, int y){
 		
 		if(Game.currentMap == null)
 			return;
@@ -217,21 +240,21 @@ public class Input {
 			Tile t = null;
 			if(((t = Game.currentMap.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null) && Game.myPlayer.selectedItem != null && !Game.myPlayer.inventoryOpen){
 					
-				if(t.block != Database.BLOCK_BEDROCK){
-					t.health -= Game.myPlayer.selectedItem.MiningPower;
+				if(t.type != Database.BEDROCK){
+					t.health -= Game.myPlayer.selectedItem.miningPower;
 					if(t.health <= 0){
 						
 						// Gives the player the block's drops
 						int rand = 0;
-						for(int i = 0; i < t.block.itemDropIDs[0].length; i++){
+						for(int i = 0; i < t.type.itemDropIDs[0].length; i++){
 							rand = ThreadLocalRandom.current().nextInt(1, 100); // Gets a random number
 							
-							if(rand < t.block.itemDropIDs[1][i]){ // Checks the drop chance to see if the player got it
-								Game.myPlayer.addItem(t.block.itemDropIDs[0][i], 1); // Adds the item
+							if(rand < t.type.itemDropIDs[1][i]){ // Checks the drop chance to see if the player got it
+								Game.myPlayer.addItem(t.type.itemDropIDs[0][i], 1); // Adds the item
 							}
 						}
 						
-						t.setBlock(Database.BLOCK_AIR); // Finally, removes the block
+						t.setTileType(Database.AIR); // Finally, removes the block
 					}
 				}
 			}

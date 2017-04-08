@@ -1,8 +1,8 @@
-package packets;
+package com.sandbox.client.network;
 
 import java.io.Serializable;
 
-import main.Player;
+import com.sandbox.client.Player;
 
 /**The player packet is the object that is sent to the server
  * and holds the player's position and other relevant variables. 

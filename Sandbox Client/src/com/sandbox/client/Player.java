@@ -1,6 +1,11 @@
-package main;
+package com.sandbox.client;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+
+import com.sandbox.client.item.Item;
+import com.sandbox.client.item.ItemStack;
+import com.sandbox.client.map.Tile;
+import com.sandbox.client.utils.Logger;
 
 public class Player {
 	
@@ -35,8 +40,7 @@ public class Player {
 	public double respawnTimer;
 	
 	public Player(int startPositionX, int startPositionY) {
-		System.out.println("Creating new player at (" + startPositionX + ", " + startPositionY + ")");
-		
+		Logger.log("Creating new player at: " + "(" + startPositionX + "," + startPositionY + ")");
 		x = startPositionX;
 		y = startPositionY;
 		
@@ -69,7 +73,12 @@ public class Player {
 	}
 	
 	public void die() {
-		respawnTimer=10;
+		respawnTimer = 10;
+	}
+	
+	public void respawn() {
+		teleportTo(400, 0);
+		health = maxHealth;
 	}
 	
 	// Moves the player and the camera to a location
@@ -95,8 +104,8 @@ public class Player {
 		selectedItem = hotbar.get(slot).itemStack.item;
 	}
 	
-	public void MoveRight(int delta) {
-		if(respawnTimer >= 0)
+	public void moveRight(int delta) {
+		if(respawnTimer > 0)
 			return;
 		
 		if(x + moveSpeed * delta/1000f < Game.currentMap.mapEndCoordinate - Tile.tileSize){
@@ -110,8 +119,8 @@ public class Player {
 		}
 	}
 	
-	public void MoveLeft(int delta){
-		if(respawnTimer >= 0)
+	public void moveLeft(int delta) {
+		if(respawnTimer > 0)
 			return;
 		
 		if(x - moveSpeed * delta/1000f > 0){
@@ -136,7 +145,7 @@ public class Player {
 		
 		for(int k = 0; k < Game.currentMap.chunks.length; k++){
 			for(int i = 0; i < Game.currentMap.chunks[k].tiles.length; i++) {
-				if(Game.currentMap.chunks[k].tiles[i].block.solid == false)
+				if(Game.currentMap.chunks[k].tiles[i].type.solid == false)
 					continue;
 				
 				double dist = Math.sqrt(Math.pow(Game.currentMap.chunks[k].tiles[i].x - playerRect.x, 2) + Math.pow(Game.currentMap.chunks[k].tiles[i].y - playerRect.y, 2));
@@ -145,8 +154,8 @@ public class Player {
 					continue;
 				
 				Rectangle tileRect = new Rectangle(Game.currentMap.chunks[k].tiles[i].x, Game.currentMap.chunks[k].tiles[i].y, Tile.tileSize, Tile.tileSize);
-				if(playerRect.intersects(tileRect) && !Game.currentMap.chunks[k].tiles[i].block.equals(Database.BLOCK_AIR) && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2     
-					|| tileRect.intersects(playerRect) && !Game.currentMap.chunks[k].tiles[i].block.equals(Database.BLOCK_AIR) && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
+				if(playerRect.intersects(tileRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2     
+					|| tileRect.intersects(playerRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
 					return true;
 				}
 			}
@@ -160,7 +169,7 @@ public class Player {
 		
 		for(int k = 0; k < Game.currentMap.chunks.length; k++){
 			for(int i = 0; i < Game.currentMap.chunks[k].tiles.length; i++) {
-				if(Game.currentMap.chunks[k].tiles[i].block.solid == false)
+				if(Game.currentMap.chunks[k].tiles[i].type.solid == false)
 					continue;
 				
 				double dist = Math.sqrt(Math.pow(Game.currentMap.chunks[k].tiles[i].x - playerRect.x, 2) + Math.pow(Game.currentMap.chunks[k].tiles[i].y - playerRect.y, 2));
@@ -169,8 +178,8 @@ public class Player {
 					continue;
 				
 				Rectangle tileRect = new Rectangle(Game.currentMap.chunks[k].tiles[i].x, Game.currentMap.chunks[k].tiles[i].y, Tile.tileSize, Tile.tileSize);
-				if(playerRect.intersects(tileRect) && !Game.currentMap.chunks[k].tiles[i].block.equals(Database.BLOCK_AIR) && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
-					|| tileRect.intersects(playerRect) && !Game.currentMap.chunks[k].tiles[i].block.equals(Database.BLOCK_AIR) && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
+				if(playerRect.intersects(tileRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
+					|| tileRect.intersects(playerRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
 					return true;
 				}
 				
@@ -185,7 +194,7 @@ public class Player {
 		
 		for(int k = 0; k < Game.currentMap.chunks.length; k++){
 			for(int i = 0; i < Game.currentMap.chunks[k].tiles.length; i++) {
-				if(Game.currentMap.chunks[k].tiles[i].block.solid == false)
+				if(Game.currentMap.chunks[k].tiles[i].type.solid == false)
 					continue;
 				
 				double dist = Math.sqrt(Math.pow(Game.currentMap.chunks[k].tiles[i].x - playerRect.x, 2) + Math.pow(Game.currentMap.chunks[k].tiles[i].y - playerRect.y, 2));
@@ -194,8 +203,8 @@ public class Player {
 					continue;
 				
 				Rectangle tileRect = new Rectangle(Game.currentMap.chunks[k].tiles[i].x, Game.currentMap.chunks[k].tiles[i].y, Tile.tileSize, Tile.tileSize);
-				if(playerRect.intersects(tileRect) && !Game.currentMap.chunks[k].tiles[i].block.equals(Database.BLOCK_AIR) && Math.abs(tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
-					|| tileRect.intersects(playerRect) && !Game.currentMap.chunks[k].tiles[i].block.equals(Database.BLOCK_AIR) && Math.abs(tileRect.x - playerRect.x) <= playerRect.width  && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
+				if(playerRect.intersects(tileRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && Math.abs(tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
+					|| tileRect.intersects(playerRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && Math.abs(tileRect.x - playerRect.x) <= playerRect.width  && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
 					return true;
 				}
 				
@@ -210,7 +219,7 @@ public class Player {
 		
 		for(int k = 0; k < Game.currentMap.chunks.length; k++){
 			for(int i = 0; i < Game.currentMap.chunks[k].tiles.length; i++) {
-				if(Game.currentMap.chunks[k].tiles[i].block.solid == false)
+				if(Game.currentMap.chunks[k].tiles[i].type.solid == false)
 					continue;
 				
 				double dist = Math.sqrt(Math.pow(Game.currentMap.chunks[k].tiles[i].x - playerRect.x, 2) + Math.pow(Game.currentMap.chunks[k].tiles[i].y - playerRect.y, 2));
@@ -219,8 +228,8 @@ public class Player {
 					continue;
 				
 				Rectangle tileRect = new Rectangle(Game.currentMap.chunks[k].tiles[i].x, Game.currentMap.chunks[k].tiles[i].y, Tile.tileSize, Tile.tileSize);
-				if(playerRect.intersects(tileRect) && !Game.currentMap.chunks[k].tiles[i].block.equals(Database.BLOCK_AIR) && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2
-					|| tileRect.intersects(playerRect) && !Game.currentMap.chunks[k].tiles[i].block.equals(Database.BLOCK_AIR) && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
+				if(playerRect.intersects(tileRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2
+					|| tileRect.intersects(playerRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
 					return true;
 				}
 			}
@@ -293,11 +302,6 @@ public class Player {
 				}
 			}
 		}
-	}
-	
-	public void respawn() {
-		teleportTo(400, 0);
-		health = maxHealth;
 	}
 	
 	public void update(int delta) {

@@ -1,4 +1,4 @@
-package main;
+package com.sandbox.client.map;
 
 public class MapHillTile {
 	public int x, y;

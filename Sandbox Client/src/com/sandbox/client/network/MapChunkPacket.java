@@ -1,9 +1,9 @@
-package packets;
+package com.sandbox.client.network;
 
 import java.io.Serializable;
 
-import main.Map;
-import main.Tile;
+import com.sandbox.client.map.Map;
+import com.sandbox.client.map.Tile;
 
 // Holds part of a map
 public class MapChunkPacket implements Serializable {

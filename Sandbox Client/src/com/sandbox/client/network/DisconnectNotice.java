@@ -1,4 +1,4 @@
-package packets;
+package com.sandbox.client.network;
 
 import java.io.Serializable;
 

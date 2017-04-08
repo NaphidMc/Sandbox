@@ -1,8 +1,8 @@
-package packets;
+package com.sandbox.client.network;
 
 import java.io.Serializable;
 
-import main.Map;
+import com.sandbox.client.map.Map;
 
 // The map packet class just holds the map's height and width
 public class MapPacket implements Serializable {

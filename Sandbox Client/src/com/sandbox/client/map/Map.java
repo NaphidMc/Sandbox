@@ -1,9 +1,13 @@
-package main;
+package com.sandbox.client.map;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
+
+import com.sandbox.client.Database;
+import com.sandbox.client.Game;
+import com.sandbox.client.utils.Logger;
 
 public class Map {
 	
@@ -34,40 +38,40 @@ public class Map {
 			loadedChunks.add(chunks[i]);
 		}
 		
-		System.out.print("Generating tiles... ");
+		Logger.log("Generating map...");
 		start = new Date();
 		generateTiles(7, 13, 2, 5, 2, 4, 12, 1, 13, .5f); // This confusing mess does most of the generation
 		finish = new Date();
 		timeElapsed = finish.getTime() - start.getTime();
-		System.out.print("Done! (" + timeElapsed + "ms)\n");
+		Logger.log("Done! (" + timeElapsed + "ms)");
 		
-		System.out.print("Fixing grass blocks... ");
+		Logger.log("Fixing grass blocks... ");
 		start = new Date();
 		fixGrassBlocks(); // This function makes it so grass blocks can't have blocks on top of them
 		finish = new Date();
 		timeElapsed = finish.getTime() - start.getTime();
-		System.out.print("Done! (" + timeElapsed + "ms)\n");
+		Logger.log("Done! (" + timeElapsed + "ms)");
 		
-		System.out.print("Placing trees... ");
+		Logger.log("Placing trees... ");
 		start = new Date();
 		generateTrees(2f); // Generates the trees; the parameter is tree density
 		finish = new Date();
 		timeElapsed = finish.getTime() - start.getTime();
-		System.out.print("Done! (" + timeElapsed + "ms)\n");
+		Logger.log("Done! (" + timeElapsed + "ms)");
 		
-		System.out.print("Growing trees... ");
+		Logger.log("Growing trees... ");
 		start = new Date();
 		growTrees(); // Adds leaves and stems to the trees
 		finish = new Date();
 		timeElapsed = finish.getTime() - start.getTime();
-		System.out.print("Done! (" + timeElapsed + "ms)\n");
+		Logger.log("Done! (" + timeElapsed + "ms)");
 		
-		System.out.print("Calculating light levels... ");
+		Logger.log("Calculating light levels... ");
 		start = new Date();
 		calculateLightLevels();
 		finish = new Date();
 		timeElapsed = finish.getTime() - start.getTime();
-		System.out.print("Done! (" + timeElapsed + "ms)\n");
+		Logger.log("Done! (" + timeElapsed + "ms)");
 		
 		refreshLoadedChunks();
 		
@@ -75,7 +79,7 @@ public class Map {
 	}
 	
 	/**
-	 * Redetermines which chunks should be loaded
+	 * Reevaluates which chunks are loaded
 	 */
 	public void refreshLoadedChunks(){
 		
@@ -95,14 +99,14 @@ public class Map {
 	}
 	
 	/**
-	 * Returns the width in tiles of the map
+	 * Returns the width in tiles (NOT pixels) of the map
 	 */
 	public static int getWidth(){
 		return mapWidth;
 	}
 	
 	/**
-	 * Returns the height in tiles of the map
+	 * Returns the height in tiles (NOT pixels) of the map
 	 */
 	public static int getHeight(){
 		return mapHeight;
@@ -163,10 +167,10 @@ public class Map {
 						
 						if(mapHills[k].hillTiles.get(j).topTile){
 							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_GRASS);
-							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_GRASS));
+							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.GRASS));
 						} else{
 							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
-							chunks[(width/(chunkSize))].tiles[tileIndex] = ( new Tile(currentX, currentY, Database.BLOCK_DIRT));
+							chunks[(width/(chunkSize))].tiles[tileIndex] = ( new Tile(currentX, currentY, Database.DIRT));
 						}
 						
 						clampedWidth++;
@@ -187,12 +191,11 @@ public class Map {
 			
 			if(height < groundLevel){
 				//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_AIR);
-				//System.out.println(width);
-				chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_AIR));
+				chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.AIR));
 			} else if(height == groundLevel){
 				// Top grass layer
 				//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_GRASS);
-				chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_GRASS));
+				chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.GRASS));
 			} else{
 				if(height != mapHeight - 1){
 					// Most generation stuff goes here
@@ -202,17 +205,17 @@ public class Map {
 						// Dirt layer
 						
 						//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
-						chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_DIRT));
+						chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.DIRT));
 					} else if(height <= stoneDepth && height >= stoneDepth - stoneTransition) {    
 						// Stone transitional layer
 						
 						if(random <= 55){
 							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_STONE);
-							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_STONE));
+							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.STONE));
 						}
 						else{
 							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
-							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_DIRT));
+							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.DIRT));
 						}
 					} else if(height > stoneDepth){
 						// Stone layer
@@ -230,17 +233,17 @@ public class Map {
 						
 						if(random < ironChance){
 							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_IRONORE);
-							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_IRONORE));
+							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.IRONORE));
 							
 						}else{
 							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_STONE);
-							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_STONE));
+							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.STONE));
 						}
 					}
 				}
 				else{
 					//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_BEDROCK);
-					chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_BEDROCK));
+					chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BEDROCK));
 				}
 			}
 			
@@ -257,7 +260,7 @@ public class Map {
 			if(chunks[(width/(chunkSize))].tiles[tileIndex] == null)
 			{
 				//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
-				chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BLOCK_DIRT));
+				chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.DIRT));
 			}
 			
 		}
@@ -295,7 +298,7 @@ public class Map {
 					tileCache.put((loadedChunks.get(i).tiles[k].x - Tile.tileSize) + "," + loadedChunks.get(i).tiles[k].y, left);
 				}
 				
-				if(loadedChunks.get(i).tiles[k].block.equals(Database.BLOCK_AIR) || loadedChunks.get(i).tiles[k].block.equals(Database.BLOCK_WOOD) || loadedChunks.get(i).tiles[k].block.equals(Database.BLOCK_LEAVES)){
+				if(loadedChunks.get(i).tiles[k].type.equals(Database.AIR) || loadedChunks.get(i).tiles[k].type.equals(Database.WOOD) || loadedChunks.get(i).tiles[k].type.equals(Database.LEAVES)){
 					loadedChunks.get(i).tiles[k].lightLevel = 2.0f;
 				}
 			
@@ -324,11 +327,11 @@ public class Map {
 		
 		for(int i = 0; i < loadedChunks.size(); i++){
 			for(int k = 0; k < loadedChunks.get(i).tiles.length; k++){
-				if(loadedChunks.get(i).tiles[k].block == Database.BLOCK_GRASS) {
-					Block block = getTileAtCoordinates(loadedChunks.get(i).tiles[k].x, loadedChunks.get(i).tiles[k].y - Tile.tileSize).block;
+				if(loadedChunks.get(i).tiles[k].type == Database.GRASS) {
+					TileType block = getTileAtCoordinates(loadedChunks.get(i).tiles[k].x, loadedChunks.get(i).tiles[k].y - Tile.tileSize).type;
 					if(block != null){
-						if(block != Database.BLOCK_AIR && block.solid == true) {     
-							loadedChunks.get(i).tiles[k].setBlock(Database.BLOCK_DIRT);
+						if(block != Database.AIR && block.solid == true) {     
+							loadedChunks.get(i).tiles[k].setTileType(Database.DIRT);
 						}
 					}
 				}
@@ -346,12 +349,12 @@ public class Map {
 		
 		for(int k = 0; k < chunks.length; k++){
 			for(int i = 0; i < chunks[k].tiles.length; i++){
-				if(chunks[k].tiles[i].block == Database.BLOCK_GRASS){
+				if(chunks[k].tiles[i].type == Database.GRASS){
 					int random = ThreadLocalRandom.current().nextInt(1, 101);
 					
 					if(random < treeChance){
 						// Make a tree
-						getTileAtCoordinates(chunks[k].tiles[i].x, chunks[k].tiles[i].y - Tile.tileSize).setBlock(Database.BLOCK_SAPLING);
+						getTileAtCoordinates(chunks[k].tiles[i].x, chunks[k].tiles[i].y - Tile.tileSize).setTileType(Database.SAPLING);
 					} 
 				}
 			}
@@ -366,20 +369,20 @@ public class Map {
 		
 		for(int j = 0; j < chunks.length; j++){
 			TileLoop: for(int i = 0; i < chunks[j].tiles.length; i++){
-				if(chunks[j].tiles[i].block == Database.BLOCK_SAPLING){
+				if(chunks[j].tiles[i].type == Database.SAPLING){
 					int rand = ThreadLocalRandom.current().nextInt(1, 101);
 					if(rand <= treeGrowChance){
 						int stemHeight = ThreadLocalRandom.current().nextInt(1, 5);
 						
 						// Grow tree
-						chunks[j].tiles[i].setBlock(Database.BLOCK_WOOD);
+						chunks[j].tiles[i].setTileType(Database.WOOD);
 						
 						int maxStemHeight = 0;
 						for(int k = 1; k < stemHeight; k++){
 							Tile tile = getTileAtCoordinates(chunks[j].tiles[i].x, chunks[j].tiles[i].y - Tile.tileSize*k);
 							if(tile != null){
-								if(tile.block == Database.BLOCK_AIR){
-									tile.setBlock(Database.BLOCK_WOOD);
+								if(tile.type == Database.AIR){
+									tile.setTileType(Database.WOOD);
 								} else {
 									continue TileLoop;
 								}
@@ -393,29 +396,29 @@ public class Map {
 						
 						temp = getTileAtCoordinates(chunks[j].tiles[i].x - Tile.tileSize, chunks[j].tiles[i].y - maxStemHeight * Tile.tileSize);
 						if(temp != null){
-							if(temp.block == Database.BLOCK_AIR){
-								temp.setBlock(Database.BLOCK_LEAVES);
+							if(temp.type == Database.AIR){
+								temp.setTileType(Database.LEAVES);
 							}
 						}
 						
 						temp = getTileAtCoordinates(chunks[j].tiles[i].x, chunks[j].tiles[i].y - maxStemHeight * Tile.tileSize);
 						if(temp != null){
-							if(temp.block == Database.BLOCK_AIR){
-								temp.setBlock(Database.BLOCK_LEAVES);
+							if(temp.type == Database.AIR){
+								temp.setTileType(Database.LEAVES);
 							}
 						}
 						
 						temp = getTileAtCoordinates(chunks[j].tiles[i].x + Tile.tileSize, chunks[j].tiles[i].y - maxStemHeight * Tile.tileSize);
 						if(temp != null){
-							if(temp.block == Database.BLOCK_AIR){
-								temp.setBlock(Database.BLOCK_LEAVES);
+							if(temp.type == Database.AIR){
+								temp.setTileType(Database.LEAVES);
 							}
 						}
 						
 						temp = getTileAtCoordinates(chunks[j].tiles[i].x, chunks[j].tiles[i].y - maxStemHeight * Tile.tileSize - Tile.tileSize);
 						if(temp != null){
-							if(temp.block == Database.BLOCK_AIR){
-								temp.setBlock(Database.BLOCK_LEAVES);
+							if(temp.type == Database.AIR){
+								temp.setTileType(Database.LEAVES);
 							}
 						}
 					}
@@ -433,10 +436,10 @@ public class Map {
 		if(tile != null){
 			// All special actions that are done with grass blocks
 			if(Game.myPlayer.selectedItem == Database.ITEM_GRASS_SEEDS){
-				if(tile.block == Database.BLOCK_DIRT){
+				if(tile.type == Database.DIRT){
 					// Makes sure the tile above is air
-					if(getTileAtCoordinates(x, y - Tile.tileSize).block == Database.BLOCK_AIR){
-						tile.setBlock(Database.BLOCK_GRASS);
+					if(getTileAtCoordinates(x, y - Tile.tileSize).type == Database.AIR){
+						tile.setTileType(Database.GRASS);
 						Game.myPlayer.removeItem(Database.ITEM_GRASS_SEEDS, 1);
 					}
 				}
@@ -456,26 +459,26 @@ public class Map {
 		
 		Tile tile = getTileAtCoordinates(x, y); // Gets the tile at mouse position
 		
-		if(tile != null && tile.block != Database.BLOCK_BEDROCK){
+		if(tile != null && tile.type != Database.BEDROCK){
 			
 			// Takes away from the tile's health
-			tile.health -= Game.myPlayer.selectedItem.MiningPower;
+			tile.health -= Game.myPlayer.selectedItem.miningPower;
 			
 			if(tile.health <= 0){
 				
 				// Gives the player block drops
-				if(tile.block.itemDropIDs[0][0] != -1){
-					for(int i = 0; i < tile.block.itemDropIDs[0].length; i++){
+				if(tile.type.itemDropIDs[0][0] != -1){
+					for(int i = 0; i < tile.type.itemDropIDs[0].length; i++){
 						
 						int rand = ThreadLocalRandom.current().nextInt(1, 100);
-						if(rand < tile.block.itemDropIDs[1][i]){
-							Game.myPlayer.addItem(tile.block.itemDropIDs[0][i], 1);
+						if(rand < tile.type.itemDropIDs[1][i]){
+							Game.myPlayer.addItem(tile.type.itemDropIDs[0][i], 1);
 						}
 						
 					}
 				}
 				
-				tile.block = Database.BLOCK_AIR;
+				tile.type = Database.AIR;
 			}
 		}
 	}
@@ -484,8 +487,8 @@ public class Map {
 	public void placeBlockAtCoordinates(int x, int y){
 		Tile tile = getTileAtCoordinates(x, y);
 		if(tile != null){
-			if(tile.block == Database.BLOCK_AIR){
-				tile.setBlock(Game.myPlayer.selectedItem.block);
+			if(tile.type == Database.AIR){
+				tile.setTileType(Game.myPlayer.selectedItem.block);
 				Game.myPlayer.removeItem(Game.myPlayer.selectedItem, 1);
 				fixGrassBlocks();
 			} 

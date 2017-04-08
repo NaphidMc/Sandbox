@@ -1,4 +1,4 @@
-package main;
+package com.sandbox.client;
 
 import java.awt.Rectangle;
 
