@@ -136,8 +136,8 @@ public class UIRenderer {
 			}
 			
 			// Draws the item that the player picked up with the mouse
-			if(Game.myPlayer.pickedUpItem != null){
-				Game.spritesheet.renderInUse(Input.mouseX, Input.mouseY, Game.myPlayer.pickedUpItem.item.icon%Game.SPRITESHEET_WIDTH, Game.myPlayer.pickedUpItem.item.icon/Game.SPRITESHEET_WIDTH);
+			if(Game.myPlayer.cursorItem != null){
+				Game.spritesheet.renderInUse(Input.mouseX, Input.mouseY, Game.myPlayer.cursorItem.item.icon%Game.SPRITESHEET_WIDTH, Game.myPlayer.cursorItem.item.icon/Game.SPRITESHEET_WIDTH);
 			}
 
 		}
@@ -160,8 +160,8 @@ public class UIRenderer {
 			}
 			
 			// Draws the quantity string for picked up items
-			if(Game.myPlayer.pickedUpItem != null){
-				g.drawString("" + Game.myPlayer.pickedUpItem.quantity, Input.mouseX, Input.mouseY);
+			if(Game.myPlayer.cursorItem != null){
+				g.drawString("" + Game.myPlayer.cursorItem.quantity, Input.mouseX, Input.mouseY);
 			}
 			
 			// Loops through and draws quantity strings for the crafting table

@@ -59,11 +59,11 @@ public class Input {
 				break;
 			case 'i':
 			case 'I':
-				if(Game.myPlayer.pickedUpItem == null){
+				if(Game.myPlayer.cursorItem == null){
 					Game.myPlayer.inventoryOpen = !Game.myPlayer.inventoryOpen;
 					
-					if(Game.myPlayer.pickedUpItem != null && Game.myPlayer.pickedUpItemOriginSlot != null){
-						Game.myPlayer.pickedUpItemOriginSlot.itemStack = Game.myPlayer.pickedUpItem;
+					if(Game.myPlayer.cursorItem != null && Game.myPlayer.pickedUpItemOriginSlot != null){
+						Game.myPlayer.pickedUpItemOriginSlot.itemStack = Game.myPlayer.cursorItem;
 					}
 				}
 				break;
@@ -117,8 +117,8 @@ public class Input {
 				if(slot != null && slot.itemStack != null){
 					
 					// If you dont have an item picked up, the current slot's itemstack is now picked up
-					if(Game.myPlayer.pickedUpItem == null && slot.itemStack.item != null){
-						Game.myPlayer.pickedUpItem = new ItemStack(slot.itemStack.item, slot.itemStack.quantity);
+					if(Game.myPlayer.cursorItem == null && slot.itemStack.item != null){
+						Game.myPlayer.cursorItem = new ItemStack(slot.itemStack.item, slot.itemStack.quantity);
 						slot.itemStack = new ItemStack(null, 0);
 						
 						// If you picked something up from the crafting table output slot, the recipe ingredients are taken
@@ -134,30 +134,30 @@ public class Input {
 							}
 						}
 					}
-					else if(Game.myPlayer.pickedUpItem != null && slot.isNotCraftingTableOutput){ // If you click on a slot with an item already picked up
+					else if(Game.myPlayer.cursorItem != null && slot.isNotCraftingTableOutput){ // If you click on a slot with an item already picked up
 						
 						// If you click on a slot with the same item, the quantities are just added
-						if(slot.itemStack.item == Game.myPlayer.pickedUpItem.item){
-							slot.itemStack.quantity += Game.myPlayer.pickedUpItem.quantity;
-							Game.myPlayer.pickedUpItem = null;
+						if(slot.itemStack.item == Game.myPlayer.cursorItem.item){
+							slot.itemStack.quantity += Game.myPlayer.cursorItem.quantity;
+							Game.myPlayer.cursorItem = null;
 						} 
 						
 						// If you click on an empty slot, the itemstack picked up goes there
 						else if(slot.itemStack.item == null){ 
-							slot.itemStack = new ItemStack(Game.myPlayer.pickedUpItem.item, Game.myPlayer.pickedUpItem.quantity);
-							Game.myPlayer.pickedUpItem = null;
+							slot.itemStack = new ItemStack(Game.myPlayer.cursorItem.item, Game.myPlayer.cursorItem.quantity);
+							Game.myPlayer.cursorItem = null;
 						}
 						
 						// if you click on a slot with a different item, the stack you're holding is swapped with the one your mouse is over
-						else if(slot.itemStack.item != null && slot.itemStack.item != Game.myPlayer.pickedUpItem.item){
-							ItemStack tempItemStack = new ItemStack(Game.myPlayer.pickedUpItem.item, Game.myPlayer.pickedUpItem.quantity);
-							Game.myPlayer.pickedUpItem = slot.itemStack;
+						else if(slot.itemStack.item != null && slot.itemStack.item != Game.myPlayer.cursorItem.item){
+							ItemStack tempItemStack = new ItemStack(Game.myPlayer.cursorItem.item, Game.myPlayer.cursorItem.quantity);
+							Game.myPlayer.cursorItem = slot.itemStack;
 							slot.itemStack = tempItemStack;
 						}
 						
-					} else if(Game.myPlayer.pickedUpItem != null && slot.isNotCraftingTableOutput == false){
-						if(Game.myPlayer.pickedUpItem.item == slot.itemStack.item){
-							Game.myPlayer.pickedUpItem.quantity += slot.itemStack.quantity;
+					} else if(Game.myPlayer.cursorItem != null && slot.isNotCraftingTableOutput == false){
+						if(Game.myPlayer.cursorItem.item == slot.itemStack.item){
+							Game.myPlayer.cursorItem.quantity += slot.itemStack.quantity;
 							
 							// If you picked something up from the crafting table output slot, the recipe ingredients are taken
 							if(slot.isNotCraftingTableOutput == false){
@@ -190,27 +190,27 @@ public class Input {
 				if(slot != null && slot.itemStack != null && slot.isNotCraftingTableOutput){
 					
 					// If you are holding an item
-					if(Game.myPlayer.pickedUpItem != null){
+					if(Game.myPlayer.cursorItem != null){
 						
 						// If there is an item in the slot your over, if its the same item the quantity is increased by 1
 						if(slot.itemStack.item != null){
-							if(slot.itemStack.item == Game.myPlayer.pickedUpItem.item){
+							if(slot.itemStack.item == Game.myPlayer.cursorItem.item){
 								slot.itemStack.quantity++;
-								Game.myPlayer.pickedUpItem.quantity--;
+								Game.myPlayer.cursorItem.quantity--;
 								
-								if(Game.myPlayer.pickedUpItem.quantity <= 0){
-									Game.myPlayer.pickedUpItem = null;
+								if(Game.myPlayer.cursorItem.quantity <= 0){
+									Game.myPlayer.cursorItem = null;
 								}
 								
 							}
 						}
 						// If you right click over an empty slot, it adds one to the slot of your held item
 						else if(slot.itemStack.item == null){
-							slot.itemStack = new ItemStack(Game.myPlayer.pickedUpItem.item, 1);
-							Game.myPlayer.pickedUpItem.quantity--;
+							slot.itemStack = new ItemStack(Game.myPlayer.cursorItem.item, 1);
+							Game.myPlayer.cursorItem.quantity--;
 							
-							if(Game.myPlayer.pickedUpItem.quantity <= 0){
-								Game.myPlayer.pickedUpItem = null;
+							if(Game.myPlayer.cursorItem.quantity <= 0){
+								Game.myPlayer.cursorItem = null;
 							}
 						}
 						

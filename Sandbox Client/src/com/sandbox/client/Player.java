@@ -9,36 +9,48 @@ import com.sandbox.client.utils.Logger;
 
 public class Player {
 	
-	public int ID = -1;
+	public int ID = -1; // Unique ID used for multiplayer
 	// jumpVelocity at 45.0f allows for a two block-high jump
 	public float x, y, velocityX, velocityY, moveSpeed = 350f, jumpVelocity = 45.0f;  
+	
+	// Variables for the player's hitbox
 	private int collisionRectOffsetX = Tile.tileSize * 0, collisionRectOffsetY = 10;
 	public int width, height;
-	public int miningDistance = 4 * Tile.tileSize;
-	
 	public Rectangle collisionRect;
 	
+	// How far away the player can mine (in pixels)
+	public int miningDistance = 4 * Tile.tileSize;
+	
+	// Hotbar
 	public ArrayList<InventorySlot> hotbar = new ArrayList<InventorySlot>();
 	public int selectedHotbarSlot = 0;
 	public static int numberOfHotbarSlots = 9;
 	public Item selectedItem;
 	
+	// Inventory
 	public ArrayList<InventorySlot> inventory = new ArrayList<InventorySlot>();
 	public int inventoryRows = 5;
 	public int inventoryColumns = 8;
 	public boolean inventoryOpen = false;
-	public ItemStack pickedUpItem = null;
-	public InventorySlot pickedUpItemOriginSlot = null;
+	public ItemStack cursorItem = null;					// Holds the item the player has picked up in his/her inventory
+	public InventorySlot pickedUpItemOriginSlot = null; // The slot where cursorItem originally came from
 
+	// Crafting table
 	public ArrayList<InventorySlot> craftingTable = new ArrayList<InventorySlot>();
-	public InventorySlot craftingTableOutput = new InventorySlot();
+	// The output of the crafting table (Stuff appears when a valid recipe is inputted)
+	public InventorySlot craftingTableOutput = new InventorySlot();	
 	
-	// Player stats
-	private float health;
-	private float maxHealth = 100;
-	private float healthRegen = 5; 
-	public double respawnTimer;
+	// Other stats
+	private float health;			// Player's current health
+	private float maxHealth = 100;  // Player's maximum health
+	private float healthRegen = 5;  // The rate at which the player regenerates health every second
+	public double respawnTimer;     // The time until the player respawns (it's > 0 if the player is dead and <= 0 if the player is alive)
 	
+	/**
+	 * Player constructor
+	 * @param startPositionX - Start position for the player (In pixels; world coordinates)
+	 * @param startPositionY - Start position for the player (In pixels; world coordinates)
+	 */
 	public Player(int startPositionX, int startPositionY) {
 		Logger.log("Creating new player at: " + "(" + startPositionX + "," + startPositionY + ")");
 		x = startPositionX;
@@ -49,7 +61,7 @@ public class Player {
 		
 		collisionRect = new Rectangle((int)x + collisionRectOffsetX, (int)y + collisionRectOffsetY, width, height);
 		
-		// Sets up crafting table
+		// Sets up the crafting table by adding slots to it
 		for(int i = 0; i < 9; i++){
 			craftingTable.add(new InventorySlot());
 		}
@@ -59,30 +71,36 @@ public class Player {
 		
 	}
 	
+	/**
+	 * The setter for health. Also makes sure that health never goes above max health and
+	 * when health is at or below zero the player dies
+	 * @param amount - The amount to add; Can be negative
+	 */
 	public void addHealth(float amount){
 		health += amount;
 		if(health <= 0){
-			health = 0;
+			die();
 		} else if(health > maxHealth){
 			health = maxHealth;
 		}
-		
-		if(health==0){
-			die();
-		}
 	}
 	
+	/**
+	 * Sets the respawn timer indicating the player is dead
+	 */
 	public void die() {
 		respawnTimer = 10;
 	}
 	
+	/**
+	 * Resets max health and places the player at a spawn point
+	 */
 	public void respawn() {
 		teleportTo(400, 0);
 		health = maxHealth;
 	}
 	
 	// Moves the player and the camera to a location
-	//TODO: Fix camera being able to see outside map bounds
 	public void teleportTo(int x, int y) {
 		this.x = x;
 		this.y = y;
@@ -91,55 +109,81 @@ public class Player {
 		Game.cameraOffsetY = this.y - 300;
 	}
 	
+	/**
+	 * Getter for health
+	 * @return Player's health
+	 */
 	public float getHealth(){
 		return health;
 	}
 	
+	/**
+	 * Getter for max health
+	 * @return Player's max health
+	 */
 	public float getMaxHealth(){
 		return maxHealth;
 	}
 	
+	/**
+	 * Sets the currently selected hotbar slot
+	 * @param slot - The index of the slot to select. Range 0 to 8
+	 */
 	public void setSelectedHotbarSlot(int slot){
 		selectedHotbarSlot = slot;
 		selectedItem = hotbar.get(slot).itemStack.item;
 	}
 	
-	public void moveRight(int delta) {
+	/**
+	 * Moves the player right
+	 * @param deltaT - Milliseconds since last frame (Obtained from update in Game.java)
+	 */
+	public void moveRight(int deltaT) {
 		if(respawnTimer > 0)
 			return;
 		
-		if(x + moveSpeed * delta/1000f < Game.currentMap.mapEndCoordinate - Tile.tileSize){
+		if(x + moveSpeed * deltaT/1000f < Game.currentMap.mapEndCoordinate - Tile.tileSize){
 			if(!tileRightToPlayer()){
-				x += moveSpeed * delta/1000f;
+				x += moveSpeed * deltaT/1000f;
 				
 				if(-Game.cameraOffsetX + 800 < Game.currentMap.mapEndCoordinate && x >= 400) {
-					Game.cameraOffsetX -= moveSpeed * delta/1000f;
+					Game.cameraOffsetX -= moveSpeed * deltaT/1000f;
 				}
 			}
 		}
 	}
 	
-	public void moveLeft(int delta) {
+	/**
+	 * Moves the player left
+	 * @param deltaT - Milliseconds since last frame (Obtained from update in Game.java)
+	 */
+	public void moveLeft(int deltaT) {
 		if(respawnTimer > 0)
 			return;
 		
-		if(x - moveSpeed * delta/1000f > 0){
+		if(x - moveSpeed * deltaT/1000f > 0){
 			if(!tileLeftToPlayer()){
-				x -= moveSpeed * delta/1000f;
+				x -= moveSpeed * deltaT/1000f;
 				
 				if(-Game.cameraOffsetX > 0 && Game.currentMap.mapEndCoordinate - x >= 400){
-					Game.cameraOffsetX += moveSpeed * delta/1000f;
+					Game.cameraOffsetX += moveSpeed * deltaT/1000f;
 				}
 			}
 		}
 	}
 	
-	public void jump(){
+	/*
+	 * Increases the Player's velocity to make him/her jump
+	 */
+	public void jump() {
 		if(tileUnderPlayer() && respawnTimer <= 0){
 			velocityY += jumpVelocity;
 		}
 	}
 	
+	/**
+	 * @return True if the player is colliding with a tile below him/her
+	 */
 	public boolean tileUnderPlayer(){
 		Rectangle playerRect = collisionRect;
 		
@@ -164,7 +208,10 @@ public class Player {
 		return false;
 	}
 	
-	public boolean tileRightToPlayer(){
+	/**
+	 * @return True if the player is colliding with a tile to the right of him/her
+	 */
+	public boolean tileRightToPlayer() {
 		Rectangle playerRect = collisionRect;
 		
 		for(int k = 0; k < Game.currentMap.chunks.length; k++){
@@ -189,6 +236,9 @@ public class Player {
 		return false;
 	}
 	
+	/**
+	 * @return True if the player is colliding with a tile to the left of him/her
+	 */
 	public boolean tileLeftToPlayer(){
 		Rectangle playerRect = collisionRect;
 		
@@ -214,7 +264,10 @@ public class Player {
 		return false;
 	}
 	
-	public boolean tileAbovePlayer(){
+	/**
+	 * @return True if the player is colliding with something above him/her
+	 */
+	public boolean tileAbovePlayer() {
 		Rectangle playerRect = collisionRect;
 		
 		for(int k = 0; k < Game.currentMap.chunks.length; k++){
@@ -238,37 +291,76 @@ public class Player {
 		return false;
 	}
 	
+	/**
+	 * Adds an item to the Player's inventory. First attempts to place it in the hotbar
+	 * and then the inventory.
+	 * @param item The item to add
+	 * @param quantity How much of it to add
+	 */
 	public void addItem(Item item, int quantity){
 		// Tries to add it to the hotbar first
-		
 		// Attempts to add to existing stack
-		for(int i = 0; i < hotbar.size(); i++){
+		for(int i = 0; i < hotbar.size(); i++) {
 			if(hotbar.get(i).itemStack == null || hotbar.get(i).itemStack.item == null)
 				continue;
 			
-			if(hotbar.get(i).itemStack.item.ID == item.ID){
+			if(hotbar.get(i).itemStack.item.ID == item.ID) {
 				hotbar.get(i).itemStack.quantity += quantity;
 				return;
 			}
 		}
 		
 		// Otherwise, it adds a new stack to the hotbar
-		for(int i = 0; i < hotbar.size(); i++){
-			if(hotbar.get(i).itemStack.item == null){
+		for(int i = 0; i < hotbar.size(); i++) {
+			if(hotbar.get(i).itemStack == null || hotbar.get(i).itemStack.item == null){
 				// Hotbar slot is empty! add new itemstack
 				hotbar.get(i).itemStack = new ItemStack(item, quantity);
 				return;
 			}
 		}
+		
+		// Otherwise, the item is added to the Player's inventory
+		
+		// Attempts to find a stack to add to 
+		for(int i = 0; i < inventory.size(); i++) {
+			if(inventory.get(i).itemStack == null || hotbar.get(i).itemStack.item == null) {
+				continue;
+			}
+			
+			if(hotbar.get(i).itemStack.item.ID == item.ID) {
+				inventory.get(i).itemStack.quantity += quantity;
+				return;
+			}
+		}
+		
+		// Adds a new stack if there is space
+		for(int i = 0; i < inventory.size(); i++) {
+			if(inventory.get(i).itemStack == null || inventory.get(i).itemStack.item == null) {
+				// Slot is empty, add new itemstack
+				inventory.get(i).itemStack = new ItemStack(item, quantity);
+				return;
+			}
+		}
 	}
 	
+	/**
+	 * Adds an item to the player's inventory
+	 * @param id The ID of the item to add (Set in Database.java)
+	 * @param quantity The amount to add
+	 */
 	public void addItem(int id, int quantity){
 		addItem(Item.getItemByID(id), quantity); 
 	}
 	
+	/**
+	 * Removes an item from the Player's inventory or hotbar
+	 * @param item The item to remove
+	 * @param quantity How much of it to remove
+	 */
 	public void removeItem(Item item, int quantity){
 		
-		// First tries to remove from inventory and then hotbar
+		// First tries to remove from the inventory and then the hotbar
+		// Idk why more games don't do it like this
 		for(int i = 0; i < inventory.size(); i++){
 			if(inventory.get(i).itemStack.item == null)
 				continue;

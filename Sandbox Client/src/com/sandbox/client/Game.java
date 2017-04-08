@@ -27,10 +27,10 @@ import com.sandbox.client.utils.Logger;
 
 public class Game extends BasicGame {
 	
-	public static float cameraOffsetX, cameraOffsetY;	// Basically the position of the camera, sort of
+	public static float cameraOffsetX, cameraOffsetY;	// The amount all tiles and such are offset by (in pixels)
 	
-	public static SpriteSheet spritesheet;
-	public static int SPRITESHEET_WIDTH;
+	public static SpriteSheet spritesheet; // The spritesheet object (set in init)
+	public static int SPRITESHEET_WIDTH;   // How many sprites there are in each row in the spritesheet
 	
 	// Public static object instances:
 	public static Game current;				// Current instance of Game
@@ -55,9 +55,9 @@ public class Game extends BasicGame {
 	public boolean mapLoaded = false; 	// Set to true in ClientListener when the last map packet is received
 	
 	// Day & Night Cycle variables
-	int msCycle = 480000; // Day and Night cycle are 8 minutes each
+	int dayLength = 480000; // Day and night cycle are 8 minutes each
 	int currentTimeUntilNextCycle = 480000;
-	Color currentColor;
+	Color currentSkyColor;
 	Color dayColor;
 	Color nightColor;
 	
@@ -96,7 +96,7 @@ public class Game extends BasicGame {
 		currentGameState = GameState.Game;
 		currentMap = new Map(64, 24); // Generates a new map
 		currentMap.mapEndCoordinate = Tile.tileSize * Map.getWidth();
-		currentMap.mapBottonCoordinate = Tile.tileSize* Map.getHeight();
+		currentMap.mapBottonCoordinate = Tile.tileSize * Map.getHeight();
 	}
 	
 	/**
@@ -107,20 +107,21 @@ public class Game extends BasicGame {
 	@Override
 	public void render(GameContainer gc, Graphics g) throws SlickException {
 		
-		// If the map isn't done loading and your not in the main menu
+		// If the map isn't done loading and your not in the main menu draw a black screen
 		if(!mapLoaded && currentGameState != GameState.MainMenu){ 
 			g.setColor(Color.black);
 			g.fillRect(0, 0, 800, 600);
 			return;
 		}
 		
-		if(currentGameState == GameState.MainMenu){
+		// If the main menu is open, render that insead
+		if(currentGameState == GameState.MainMenu) {
 			mainMenu.render(gc, g);
 			return;
 		}
 		
-		// Draws the sky with an appropriate color
-		g.setColor(currentColor);
+		// Draws the sky
+		g.setColor(currentSkyColor);
 		g.fillRect(0, 0, appgc.getWidth(), appgc.getHeight());
 		
 		TileRenderer.renderTiles(g);
@@ -168,7 +169,7 @@ public class Game extends BasicGame {
 		myPlayer.selectedItem = myPlayer.hotbar.get(0).itemStack.item; 	// By default the player selects the first hotbar slot
 		
 		// Sets up player inventory and adds starting items
-		for(int i = 0; i <= myPlayer.inventoryRows*myPlayer.inventoryColumns; i++){
+		for(int i = 0; i <= myPlayer.inventoryRows * myPlayer.inventoryColumns; i++){
 			myPlayer.inventory.add(new InventorySlot());
 		}
 		myPlayer.inventory.get(0).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
@@ -176,7 +177,7 @@ public class Game extends BasicGame {
 		// Night and day Colors setup
 		dayColor = new Color(100, 149, 237);
 		nightColor = new Color(0, 51, 102);
-		currentColor = dayColor;
+		currentSkyColor = dayColor;
 	}
 	
 	@Override
@@ -192,7 +193,7 @@ public class Game extends BasicGame {
 		
 		// Makes sure that the player doesn't have an item picked up by their cursor when the inventory is closed
 		if(!Game.myPlayer.inventoryOpen){
-			Game.myPlayer.pickedUpItem = null;
+			Game.myPlayer.cursorItem = null;
 		}
 		
 		// Updates players
@@ -215,12 +216,12 @@ public class Game extends BasicGame {
 		currentTimeUntilNextCycle -= delta;
 		if(currentTimeUntilNextCycle < 0){
 			
-			currentTimeUntilNextCycle=msCycle;
+			currentTimeUntilNextCycle=dayLength;
 			
-			if(currentColor == dayColor){
-				currentColor = nightColor;
-			} else if(currentColor == nightColor){
-				currentColor = dayColor;
+			if(currentSkyColor == dayColor){
+				currentSkyColor = nightColor;
+			} else if(currentSkyColor == nightColor){
+				currentSkyColor = dayColor;
 			}
 		}
 		
