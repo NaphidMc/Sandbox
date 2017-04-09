@@ -1,13 +1,14 @@
 package com.sandbox.client;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.sandbox.client.Game.GameState;
 import com.sandbox.client.item.CraftingRecipe;
 import com.sandbox.client.item.ItemStack;
 import com.sandbox.client.map.Tile;
 
 public class Input {
 
-	//  Key booleans
+	// Key booleans
 	public static boolean KEY_A_DOWN;
 	public static boolean KEY_D_DOWN;
 	public static boolean MOUSE_BUTTON1_DOWN;
@@ -19,6 +20,16 @@ public class Input {
 	private Input() { }
 	
 	public static void keyPressed(int key, char c){
+		
+		// Escape
+		if(key == 1){ 
+			Game.quit();
+		}
+		
+		// Many keyboard actions use the map, so it is best to not submit them when
+		// the map is not loaded
+		if(!Game.mapLoaded)
+			return;
 		
 		switch(c){
 			case 'a':
@@ -69,11 +80,6 @@ public class Input {
 				break;
 		} 
 		
-		// Escape
-		if(key == 1){ 
-			Game.quit();
-		}
-		
 	}
 	
 	public static void keyReleased(int key, char c){
@@ -88,7 +94,19 @@ public class Input {
 		
 	}
 	
-	public static void mousePressed(int button, int x, int y){
+	public static void mousePressed(int button, int x, int y) {
+		
+		// If the main menu is opened, mouse events are sent straight to the MainMenu Class
+		if(Game.currentGameState == GameState.MainMenu){
+			MainMenu.mousePressed(button, x, y);
+			return;
+		}
+		
+		// Mouse input is only submitted once the map is loaded
+		if(!Game.mapLoaded)
+			return;
+		
+		// Left click
 		if(button == 0){
 			MOUSE_BUTTON1_DOWN = true;
 			

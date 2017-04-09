@@ -3,6 +3,7 @@ package com.sandbox.client.map;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.sandbox.client.Database;
@@ -18,6 +19,9 @@ public class Map {
 	public float playerXAtChunkReload; 	// The player's x position when refreshLoadedChunks was last called
 	public int mapEndCoordinate; 		// X - Coordinate of the right edge of the map
 	public int mapBottonCoordinate; 	// Y - Coordinate of the bottom edge of the map
+	// Holds all the parallaxes for the map and their layers
+	// FORMAT: <Layer, Parallax>
+	public TreeMap<Integer, Parallax> parallaxes = new TreeMap<Integer, Parallax>();
 	
 	public Map() { }
 	
@@ -75,7 +79,18 @@ public class Map {
 		
 		refreshLoadedChunks();
 		
-		Game.current.mapLoaded = true;
+		addParallaxes();
+		
+		Game.mapLoaded = true;
+	}
+	
+	/**
+	 * Adds parallaxes to the map
+	 */
+	public void addParallaxes() {
+		parallaxes.put(new Integer(0), new Parallax(0, 0, 35d, 5d));
+		parallaxes.put(new Integer(1), new Parallax(0, 1, 55d, 15d));
+		parallaxes.put(new Integer(2), new Parallax(0, 2, 80d, 25d));
 	}
 	
 	/**
@@ -85,15 +100,13 @@ public class Map {
 		
 		playerXAtChunkReload = Game.myPlayer.x;
 		
-		int count = 0;
 		loadedChunks.clear();
 		
 		for(int i = 0; i < chunks.length; i++){
 			float chunkPos = (i) * chunkSize * Tile.tileSize + chunkSize/2 * Tile.tileSize;
     
-			if(Math.abs(chunkPos - Game.myPlayer.x) < 1000){
+			if(Math.abs(chunkPos - Game.myPlayer.x) < 1250){
 				loadedChunks.add(chunks[i]);  
-				count++;
 			}
 		}
 	}
@@ -302,16 +315,16 @@ public class Map {
 					loadedChunks.get(i).tiles[k].lightLevel = 2.0f;
 				}
 			
-			if(above != null){
+			if(above != null) {
 				above.lightLevel += loadedChunks.get(i).tiles[k].lightLevel/4f;
 			}
-			if(below != null){
+			if(below != null) {
 				below.lightLevel += loadedChunks.get(i).tiles[k].lightLevel/4f;
 			}
-			if(right != null){
+			if(right != null) {
 				right.lightLevel += loadedChunks.get(i).tiles[k].lightLevel/4f;
 			}
-			if(left != null){
+			if(left != null) {
 				left.lightLevel += loadedChunks.get(i).tiles[k].lightLevel/4f;
 			}
 				

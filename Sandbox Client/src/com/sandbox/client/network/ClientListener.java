@@ -33,7 +33,7 @@ public class ClientListener implements SocketListener {
 		if(obj instanceof PlayerPacket){
 			PlayerPacket pp = (PlayerPacket)obj;
 			if(pp.id != Game.myPlayer.ID){
-				Game.current.players.put(pp.id, pp);
+				Game.players.put(pp.id, pp);
 			}
 		}
 		
@@ -50,8 +50,8 @@ public class ClientListener implements SocketListener {
 		if(obj instanceof DisconnectNotice){
 			DisconnectNotice dn = (DisconnectNotice)obj;
 			
-			Game.current.playerIDS.remove(new Integer(dn.id));
-			Game.current.players.remove(dn.id);
+			Game.playerIDS.remove(new Integer(dn.id));
+			Game.players.remove(dn.id);
 		}
 		
 		if(obj instanceof MapChunkPacket){
@@ -64,8 +64,8 @@ public class ClientListener implements SocketListener {
 						if(Game.currentMap.chunks[k].tiles.length > mcp.startIndex + i){
 							Game.currentMap.chunks[k].tiles[mcp.startIndex + i] = mcp.tiles[i];
 							
-							if(mcp.startIndex + i == Game.currentMap.chunks[k].tiles.length - 1 && !Game.current.mapLoaded){
-								Game.current.mapLoaded = true;
+							if(mcp.startIndex + i == Game.currentMap.chunks[k].tiles.length - 1 && !Game.mapLoaded){
+								Game.mapLoaded = true;
 								Game.currentMap.calculateLightLevels();
 							}
 						}

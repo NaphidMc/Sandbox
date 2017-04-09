@@ -1,9 +1,11 @@
 package com.sandbox.client;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Map;
 
 import com.sandbox.client.item.Item;
 import com.sandbox.client.item.ItemStack;
+import com.sandbox.client.map.Parallax;
 import com.sandbox.client.map.Tile;
 import com.sandbox.client.utils.Logger;
 
@@ -68,6 +70,20 @@ public class Player {
 		craftingTableOutput.isNotCraftingTableOutput = false;
 		
 		health = maxHealth;
+		
+		// Adds the player's hotbar slots and adds starting items
+		for(int i = 0; i < Player.numberOfHotbarSlots; i++){
+			hotbar.add(new InventorySlot());
+		}
+		hotbar.get(0).itemStack = new ItemStack(Database.ITEM_PICKAXE, 1);
+		hotbar.get(1).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
+		selectedItem = hotbar.get(0).itemStack.item; 	// By default the player selects the first hotbar slot
+		
+		// Sets up player inventory and adds starting items
+		for(int i = 0; i <= inventoryRows * inventoryColumns; i++){
+			inventory.add(new InventorySlot());
+		}
+		inventory.get(0).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
 		
 	}
 	
@@ -148,6 +164,10 @@ public class Player {
 				
 				if(-Game.cameraOffsetX + 800 < Game.currentMap.mapEndCoordinate && x >= 400) {
 					Game.cameraOffsetX -= moveSpeed * deltaT/1000f;
+					// Updates parallax positions
+					for(Map.Entry<Integer, Parallax> entry : Game.currentMap.parallaxes.entrySet()) {
+						entry.getValue().x -= entry.getValue().speedX * deltaT/1000f; 
+					}
 				}
 			}
 		}
@@ -167,6 +187,10 @@ public class Player {
 				
 				if(-Game.cameraOffsetX > 0 && Game.currentMap.mapEndCoordinate - x >= 400){
 					Game.cameraOffsetX += moveSpeed * deltaT/1000f;
+					// Updates parallax positions
+					for(Map.Entry<Integer, Parallax> entry : Game.currentMap.parallaxes.entrySet()) {
+						entry.getValue().x += entry.getValue().speedX * deltaT/1000f; 
+					}
 				}
 			}
 		}
@@ -396,17 +420,17 @@ public class Player {
 		}
 	}
 	
-	public void update(int delta) {
+	public void update(int deltaT) {
 		
 		if(Game.currentMap == null)
 			return;
 		
 		// If the player is not waiting to respawn
 		if(respawnTimer <= 0)
-			addHealth(healthRegen * (delta/100000f));
+			addHealth(healthRegen * (deltaT/100000f));
 		
 		if(!tileUnderPlayer()){
-			velocityY -= 10 * delta/100f;
+			velocityY -= 10 * deltaT/100f;
 		}
 		else{
 			if(velocityY < 0){
@@ -422,14 +446,22 @@ public class Player {
 		}
 		
 		if(velocityX != 0 || velocityY != 0){
-			x -= velocityX * delta/100f;
-			y -= velocityY * delta/100f;
+			x -= velocityX * deltaT/100f;
+			y -= velocityY * deltaT/100f;
 			
 			if(Game.cameraOffsetY + 600 < Game.currentMap.mapBottonCoordinate && velocityY < 0){
-				Game.cameraOffsetY -= velocityY * delta/100f;
+				Game.cameraOffsetY -= velocityY * deltaT/100f;
+				// Updates parallax positions
+				for(Map.Entry<Integer, Parallax> entry : Game.currentMap.parallaxes.entrySet()) {
+					entry.getValue().y -= entry.getValue().speedY * deltaT/1000f; 
+				}
 			} 
 			else if(Game.currentMap.mapBottonCoordinate - y > 600/2 - 100 && velocityY > 0){
-				Game.cameraOffsetY -= velocityY * delta/100f;
+				Game.cameraOffsetY -= velocityY * deltaT/100f;
+				// Updates parallax positions
+				for(Map.Entry<Integer, Parallax> entry : Game.currentMap.parallaxes.entrySet()) {
+					entry.getValue().y += entry.getValue().speedY * deltaT/1000f; 
+				}
 			}
 		}
 		
@@ -438,7 +470,7 @@ public class Player {
 		
 		//respawn timer
 		if(health <= 0){
-			respawnTimer -= delta/1000d;
+			respawnTimer -= deltaT/1000d;
 			if(respawnTimer <= 0){
 				respawn();
 			}

@@ -1,7 +1,6 @@
 package com.sandbox.client;
 
 import java.awt.EventQueue;
-import java.io.File;
 
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.ScalableGame;

@@ -12,7 +12,7 @@ public class MapPacket implements Serializable {
 	public int mapWidth, mapHeight;
 	
 	public MapPacket(Map map){
-		mapHeight = map.getHeight();
-		mapWidth = map.getWidth();
+		mapHeight = Map.getHeight();
+		mapWidth = Map.getWidth();
 	}
 }

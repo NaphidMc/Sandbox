@@ -3,7 +3,6 @@ package com.sandbox.client.map;
 import java.io.Serializable;
 
 import com.sandbox.client.Game;
-import com.sandbox.client.network.MapChunkPacket;
 
 public class Tile implements Serializable {
 	

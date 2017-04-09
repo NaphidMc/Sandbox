@@ -124,7 +124,7 @@ public class UIRenderer {
 					}
 			}
 			
-			Game.myPlayer.craftingTableOutput.x = Game.myPlayer.craftingTable.get(4).x; 	// The output's x is the same as the middle slot's
+			Game.myPlayer.craftingTableOutput.x = Game.myPlayer.craftingTable.get(4).x; // The output's x is the same as the middle slot's
 			Game.myPlayer.craftingTableOutput.y = craftingUIPositionY + 3 * inventorySlotSize;
 			
 			// Draws the output square
@@ -144,12 +144,13 @@ public class UIRenderer {
 		
 		Game.spritesheet.endUse();
 		
-		if(Game.myPlayer.inventoryOpen){
+		if(Game.myPlayer.inventoryOpen) {
 			int currentInventorySlot = 0;	// Holds the index of the current inventory slot
+			g.setColor(Color.white);
 			for(int i = 0; i < Game.myPlayer.inventoryRows; i++){
 				for(int k = 0; k < Game.myPlayer.inventoryColumns; k++){
 					// displays the item's quantity in the inventory
-					g.drawString("" + Game.myPlayer.inventory.get(currentInventorySlot).itemStack.quantity, inventoryPositionX + inventorySlotSize * k, inventoryPositionY + inventorySlotSize * i);
+					g.drawString("" + Game.myPlayer.inventory.get(currentInventorySlot).itemStack.quantity, inventoryPositionX + inventorySlotSize * k + 55, inventoryPositionY + inventorySlotSize * i + 49);
 					currentInventorySlot++;
 				}
 			}
@@ -160,8 +161,8 @@ public class UIRenderer {
 			}
 			
 			// Draws the quantity string for picked up items
-			if(Game.myPlayer.cursorItem != null){
-				g.drawString("" + Game.myPlayer.cursorItem.quantity, Input.mouseX, Input.mouseY);
+			if(Game.myPlayer.cursorItem != null) {
+				g.drawString("" + Game.myPlayer.cursorItem.quantity, Input.mouseX + 55, Input.mouseY + 50);
 			}
 			
 			// Loops through and draws quantity strings for the crafting table

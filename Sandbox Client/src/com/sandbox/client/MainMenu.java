@@ -10,11 +10,11 @@ import org.newdawn.slick.SlickException;
 public class MainMenu {
 
 	// Below are the rectangles that are used as the buttons for the menu
-	public Rectangle singlePlayerButton;
-	public Rectangle multiPlayerButton;
-	public Rectangle quitButton;
+	private static Rectangle singlePlayerButton;
+	private static Rectangle multiPlayerButton;
+	private static Rectangle quitButton;
 	
-	boolean init;
+	private static boolean init;
 	
 	public MainMenu() {
 		
@@ -52,7 +52,7 @@ public class MainMenu {
 	
 	}
 	
-	public void mousePressed(int button, int x, int y){
+	public static void mousePressed(int button, int x, int y){
 		
 		if(!init)
 			return;
@@ -74,7 +74,7 @@ public class MainMenu {
 		
 	}
 	
-	public void launchGame(boolean multiplayer){
+	public static void launchGame(boolean multiplayer){
 		
 		if(multiplayer)
 			Game.current.startMultiplayer();
