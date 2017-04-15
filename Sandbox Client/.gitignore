@@ -25,6 +25,9 @@ local.properties
 # CDT-specific (C/C++ Development Tooling)
 .cproject
 
+# Log
+log.txt
+
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 
