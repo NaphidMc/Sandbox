@@ -27,10 +27,11 @@ import com.sandbox.client.utils.Logger;
 public class Game extends BasicGame {
 	
 	public static float cameraOffsetX, cameraOffsetY;	// The amount all tiles and such are offset by (in pixels)
+	public static final double GRAVITY = 650d;
 	
 	public static SpriteSheet spritesheet;   // The spritesheet object for tiles + items + etc... (set in init)
 	public static SpriteSheet parallaxsheet; // The spritesheet object for parallaxes
-	public static int SPRITESHEET_WIDTH;   // How many sprites there are in each row in the spritesheet
+	public static int SPRITESHEET_WIDTH;   	 // How many sprites there are in each row in the spritesheet
 	
 	// Public static object instances:
 	public static Game current;				// Current instance of Game
@@ -118,6 +119,7 @@ public class Game extends BasicGame {
 		TileRenderer.renderTiles(g);
 		EntityRenderer.renderPlayers(g);
 		UIRenderer.renderUI(g);
+		// g.fillRect(myPlayer.collisionRect.x + cameraOffsetX, myPlayer.collisionRect.y - cameraOffsetY, myPlayer.collisionRect.width, myPlayer.collisionRect.height);
 		
 		TextureImpl.bindNone(); // Fixes the FPS counter in the top left
 	}

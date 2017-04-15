@@ -1,5 +1,6 @@
 package com.sandbox.client.map;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -88,9 +89,9 @@ public class Map {
 	 * Adds parallaxes to the map
 	 */
 	public void addParallaxes() {
-		parallaxes.put(new Integer(0), new Parallax(0, 0, 35d, 5d));
-		parallaxes.put(new Integer(1), new Parallax(0, 1, 55d, 15d));
-		parallaxes.put(new Integer(2), new Parallax(0, 2, 80d, 25d));
+		parallaxes.put(new Integer(0), new Parallax(0, 0, .05, .02));
+		parallaxes.put(new Integer(1), new Parallax(0, 1, .15, .03));
+		parallaxes.put(new Integer(2), new Parallax(0, 2, .25, .04));
 	}
 	
 	/**
@@ -529,5 +530,34 @@ public class Map {
 		return null;
 	}
 
+	/**
+	 * Checks if there is a collision happening between the collision rectangle and map tiles
+	 * @return True if there is a collision, false otherwise
+	 */
+	public boolean collision(java.awt.Rectangle collisionRect) {
+		
+		for(int k = 0; k < chunks.length; k++) {
+			for(int i = 0; i < chunks[k].tiles.length; i++) {
+				Tile currentTile = chunks[k].tiles[i];
+				
+				// Skips all blocked that are not solid (Air, leaves, etc...)
+				if(currentTile.type.solid == false)
+					continue;
+				
+				Rectangle tileRect = new Rectangle(currentTile.x, currentTile.y, Tile.tileSize, Tile.tileSize);
+				
+				double dist = Math.sqrt(Math.pow(tileRect.x - collisionRect.x, 2) + Math.pow(tileRect.y - collisionRect.y, 2));
+				
+				if(dist > 200)
+					continue;
+				
+				if(collisionRect.intersects(tileRect) || tileRect.intersects(collisionRect)){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
 	
 }

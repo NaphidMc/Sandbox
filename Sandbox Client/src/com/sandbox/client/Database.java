@@ -47,7 +47,7 @@ public class Database {
 		// Blocks
 		GRASS = new TileType("Grass", 0, new int[][] { {1, 3, 3, 3}, {100, 50, 50, 50} }, true, 20);
 		DIRT = new TileType("Dirt", 3, new int[][] { {1}, {100} }, true, 20);
-		AIR = new TileType("Air", 2, new int[][] {{-1}, {-1} }, true, 0);
+		AIR = new TileType("Air", 2, new int[][] {{-1}, {-1} }, false, 0);
 		STONE = new TileType("Stone", 11, new int[][] { {4}, {100} }, true, 50);
 		IRONORE = new TileType("Iron Ore", 6, new int[][] { {7, 7, 7, 7}, {100, 50, 50, 50} }, true, 80);
 		BEDROCK = new TileType("Bedrock", 1, new int[][] {{-1},{-1}}, true, 0);
