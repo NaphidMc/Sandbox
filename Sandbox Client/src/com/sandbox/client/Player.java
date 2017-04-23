@@ -13,11 +13,10 @@ public class Player {
 	
 	public int ID = -1; // Unique ID used for multiplayer
 	// jumpVelocity at 45.0f allows for a two block-high jump
-	public float x, y, velocityX, moveSpeed = 500, jumpVelocity = -850;
-	double velocityY;  
+	public float x, y, velocityX, velocityY, moveSpeed = 350f, jumpVelocity = 50.0f;  
 	
 	// Variables for the player's hitbox
-	private int collisionRectOffsetX, collisionRectOffsetY;
+	private int collisionRectOffsetX = Tile.tileSize * 0, collisionRectOffsetY = 10;
 	public int width, height;
 	public Rectangle collisionRect;
 	
@@ -49,8 +48,6 @@ public class Player {
 	private float healthRegen = 5;  // The rate at which the player regenerates health every second
 	public double respawnTimer;     // The time until the player respawns (it's > 0 if the player is dead and <= 0 if the player is alive)
 	
-	public double deltaT = 0d;
-	
 	/**
 	 * Player constructor
 	 * @param startPositionX - Start position for the player (In pixels; world coordinates)
@@ -61,8 +58,8 @@ public class Player {
 		x = startPositionX;
 		y = startPositionY;
 		
-		width = (int) (Tile.tileSize * .8);
-		height = Tile.tileSize;
+		width = Tile.tileSize;
+		height = Tile.tileSize * 2;
 		
 		collisionRect = new Rectangle((int)x + collisionRectOffsetX, (int)y + collisionRectOffsetY, width, height);
 		
@@ -137,84 +134,6 @@ public class Player {
 	}
 	
 	/**
-	 * Moves the player, taking collisions into account
-	 * @param deltaX The change in x position
-	 * @param deltaY The change in y position
-	 */
-	public void translate(double deltaX, double deltaY) {
-		int steps = 3;
-		double stepX = deltaX/steps;
-		double stepY = deltaY/steps;
-		
-		boolean xpositive = deltaX > 0 ? true : false;
-		boolean ypositive = deltaY > 0 ? true : false;
-		
-		if(deltaX != 0) {
-			for(int i = 0; i < steps; i++) {
-				deltaX = (int) stepX;
-				if(deltaX == 0) {
-					deltaX += xpositive == true ? 1 : -1;
-				}
-				
-				collisionRect.translate((int) deltaX, 0);
-				
-				if(Game.currentMap.collision(collisionRect)) {
-					collisionRect.translate(-(int) deltaX, 0);
-				} else {
-					x += (int) deltaX;
-					if(deltaX < 0 && -deltaX + Game.cameraOffsetX < 0) {
-						if(Math.abs(x + Game.cameraOffsetX) < 400) {
-							Game.cameraOffsetX -= (int) deltaX;
-						
-							// Updates parallax positions
-							for(Map.Entry<Integer, Parallax> entry : Game.currentMap.parallaxes.entrySet()) {
-								entry.getValue().x -= entry.getValue().speedX * deltaX; 
-							}
-						}
-					} else if(deltaX > 0 && -Game.cameraOffsetX + 800 + deltaX < Game.currentMap.mapEndCoordinate) {
-						if(x - Game.cameraOffsetX >= 400) {
-							Game.cameraOffsetX -= (int) deltaX;
-							
-							// Updates parallax positions
-							for(Map.Entry<Integer, Parallax> entry : Game.currentMap.parallaxes.entrySet()) {
-								entry.getValue().x -= entry.getValue().speedX * deltaX; 
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		if(deltaY != 0) {
-			for(int i = 0; i < steps; i++) {
-				
-				deltaY = (int) stepY;
-				if(deltaY == 0) {
-					deltaY += ypositive ? 1 : -1;
-				}
-				
-				collisionRect.translate(0, (int) deltaY);
-				
-				if(Game.currentMap.collision(collisionRect)) {
-					collisionRect.translate(0, -(int) deltaY);
-					velocityY = 0;
-				} else {
-					y += deltaY;
-					
-					if(Game.currentMap.mapBottonCoordinate - y > 600/2 - 100 && Game.cameraOffsetY + 600 < Game.currentMap.mapBottonCoordinate){
-						Game.cameraOffsetY += deltaY;
-					}
-					
-					// Updates parallax positions
-					for(Map.Entry<Integer, Parallax> entry : Game.currentMap.parallaxes.entrySet()) {
-						entry.getValue().y -= entry.getValue().speedY * deltaY; 
-					}
-				}
-			}
-		}
-	}
-	
-	/**
 	 * Getter for max health
 	 * @return Player's max health
 	 */
@@ -240,7 +159,17 @@ public class Player {
 			return;
 		
 		if(x + moveSpeed * deltaT/1000f < Game.currentMap.mapEndCoordinate - Tile.tileSize){
-			translate(moveSpeed * deltaT/1000f, 0);
+			if(!tileRightToPlayer()){
+				x += moveSpeed * deltaT/1000f;
+				
+				if(-Game.cameraOffsetX + 800 < Game.currentMap.mapEndCoordinate && x >= 400) {
+					Game.cameraOffsetX -= moveSpeed * deltaT/1000f;
+					// Updates parallax positions
+					for(Map.Entry<Integer, Parallax> entry : Game.currentMap.parallaxes.entrySet()) {
+						entry.getValue().x -= entry.getValue().speedX * deltaT/1000f; 
+					}
+				}
+			}
 		}
 	}
 	
@@ -253,7 +182,17 @@ public class Player {
 			return;
 		
 		if(x - moveSpeed * deltaT/1000f > 0){
-			translate(-moveSpeed * deltaT/1000f, 0);
+			if(!tileLeftToPlayer()){
+				x -= moveSpeed * deltaT/1000f;
+				
+				if(-Game.cameraOffsetX > 0 && Game.currentMap.mapEndCoordinate - x >= 400){
+					Game.cameraOffsetX += moveSpeed * deltaT/1000f;
+					// Updates parallax positions
+					for(Map.Entry<Integer, Parallax> entry : Game.currentMap.parallaxes.entrySet()) {
+						entry.getValue().x += entry.getValue().speedX * deltaT/1000f; 
+					}
+				}
+			}
 		}
 	}
 	
@@ -261,12 +200,119 @@ public class Player {
 	 * Increases the Player's velocity to make him/her jump
 	 */
 	public void jump() {
-		collisionRect.translate(0, 5);
-		if(Game.currentMap.collision(collisionRect)) {
+		if(tileUnderPlayer() && respawnTimer <= 0){
 			velocityY += jumpVelocity;
 		}
+	}
+	
+	/**
+	 * @return True if the player is colliding with a tile below him/her
+	 */
+	public boolean tileUnderPlayer(){
+		Rectangle playerRect = collisionRect;
 		
-		collisionRect.translate(0, -5);
+		for(int k = 0; k < Game.currentMap.chunks.length; k++){
+			for(int i = 0; i < Game.currentMap.chunks[k].tiles.length; i++) {
+				if(Game.currentMap.chunks[k].tiles[i].type.solid == false)
+					continue;
+				
+				double dist = Math.sqrt(Math.pow(Game.currentMap.chunks[k].tiles[i].x - playerRect.x, 2) + Math.pow(Game.currentMap.chunks[k].tiles[i].y - playerRect.y, 2));
+				
+				if(dist > 150)
+					continue;
+				
+				Rectangle tileRect = new Rectangle(Game.currentMap.chunks[k].tiles[i].x, Game.currentMap.chunks[k].tiles[i].y, Tile.tileSize, Tile.tileSize);
+				if(playerRect.intersects(tileRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2     
+					|| tileRect.intersects(playerRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && tileRect.getMaxY() < playerRect.getMaxY() && tileRect.getMinY() > playerRect.getMinY() && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @return True if the player is colliding with a tile to the right of him/her
+	 */
+	public boolean tileRightToPlayer() {
+		Rectangle playerRect = collisionRect;
+		
+		for(int k = 0; k < Game.currentMap.chunks.length; k++){
+			for(int i = 0; i < Game.currentMap.chunks[k].tiles.length; i++) {
+				if(Game.currentMap.chunks[k].tiles[i].type.solid == false)
+					continue;
+				
+				double dist = Math.sqrt(Math.pow(Game.currentMap.chunks[k].tiles[i].x - playerRect.x, 2) + Math.pow(Game.currentMap.chunks[k].tiles[i].y - playerRect.y, 2));
+				
+				if(dist > 150)
+					continue;
+				
+				Rectangle tileRect = new Rectangle(Game.currentMap.chunks[k].tiles[i].x, Game.currentMap.chunks[k].tiles[i].y, Tile.tileSize, Tile.tileSize);
+				if(playerRect.intersects(tileRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
+					|| tileRect.intersects(playerRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && (tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) >= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
+					return true;
+				}
+				
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @return True if the player is colliding with a tile to the left of him/her
+	 */
+	public boolean tileLeftToPlayer(){
+		Rectangle playerRect = collisionRect;
+		
+		for(int k = 0; k < Game.currentMap.chunks.length; k++){
+			for(int i = 0; i < Game.currentMap.chunks[k].tiles.length; i++) {
+				if(Game.currentMap.chunks[k].tiles[i].type.solid == false)
+					continue;
+				
+				double dist = Math.sqrt(Math.pow(Game.currentMap.chunks[k].tiles[i].x - playerRect.x, 2) + Math.pow(Game.currentMap.chunks[k].tiles[i].y - playerRect.y, 2));
+				
+				if(dist > 150)
+					continue;
+				
+				Rectangle tileRect = new Rectangle(Game.currentMap.chunks[k].tiles[i].x, Game.currentMap.chunks[k].tiles[i].y, Tile.tileSize, Tile.tileSize);
+				if(playerRect.intersects(tileRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && Math.abs(tileRect.x - playerRect.x) <= playerRect.width && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2         
+					|| tileRect.intersects(playerRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && Math.abs(tileRect.x - playerRect.x) <= playerRect.width  && (tileRect.x - playerRect.x) <= 0 && Math.abs(tileRect.y - playerRect.y) <= Tile.tileSize/2){
+					return true;
+				}
+				
+			}
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * @return True if the player is colliding with something above him/her
+	 */
+	public boolean tileAbovePlayer() {
+		Rectangle playerRect = collisionRect;
+		
+		for(int k = 0; k < Game.currentMap.chunks.length; k++){
+			for(int i = 0; i < Game.currentMap.chunks[k].tiles.length; i++) {
+				if(Game.currentMap.chunks[k].tiles[i].type.solid == false)
+					continue;
+				
+				double dist = Math.sqrt(Math.pow(Game.currentMap.chunks[k].tiles[i].x - playerRect.x, 2) + Math.pow(Game.currentMap.chunks[k].tiles[i].y - playerRect.y, 2));
+				
+				if(dist > 150)
+					continue;
+				
+				Rectangle tileRect = new Rectangle(Game.currentMap.chunks[k].tiles[i].x, Game.currentMap.chunks[k].tiles[i].y, Tile.tileSize, Tile.tileSize);
+				if(playerRect.intersects(tileRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2
+					|| tileRect.intersects(playerRect) && !Game.currentMap.chunks[k].tiles[i].type.equals(Database.AIR) && (tileRect.getMinY() - playerRect.getMinY()) <= 0 && Math.abs(playerRect.x - tileRect.x) <= Tile.tileSize/2){
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -375,9 +421,7 @@ public class Player {
 	}
 	
 	public void update(int deltaT) {
-		this.deltaT = deltaT;
 		
-		collisionRect = new Rectangle((int)x + collisionRectOffsetX, (int)y + collisionRectOffsetY, width, height);
 		if(Game.currentMap == null)
 			return;
 		
@@ -385,10 +429,46 @@ public class Player {
 		if(respawnTimer <= 0)
 			addHealth(healthRegen * (deltaT/100000f));
 		
-		velocityY = velocityY + Game.GRAVITY * deltaT/1000d;
-		translate(0, velocityY * deltaT/1000d + .5d * Game.GRAVITY * deltaT/500d);
+		if(!tileUnderPlayer()){
+			velocityY -= 10 * deltaT/100f;
+		}
+		else{
+			if(velocityY < 0){
+				if(velocityY < -65f){   // four block fall damage
+					addHealth(velocityY/4f);
+				}
+				velocityY = 0;
+			}
+		}
 		
-		// Respawn timer
+		if(velocityY > 0 && tileAbovePlayer()){
+			velocityY = 0;
+		}
+		
+		if(velocityX != 0 || velocityY != 0){
+			x -= velocityX * deltaT/100f;
+			y -= velocityY * deltaT/100f;
+			
+			if(Game.cameraOffsetY + 600 < Game.currentMap.mapBottonCoordinate && velocityY < 0){
+				Game.cameraOffsetY -= velocityY * deltaT/100f;
+				// Updates parallax positions
+				for(Map.Entry<Integer, Parallax> entry : Game.currentMap.parallaxes.entrySet()) {
+					entry.getValue().y -= entry.getValue().speedY * deltaT/1000f; 
+				}
+			} 
+			else if(Game.currentMap.mapBottonCoordinate - y > 600/2 - 100 && velocityY > 0){
+				Game.cameraOffsetY -= velocityY * deltaT/100f;
+				// Updates parallax positions
+				for(Map.Entry<Integer, Parallax> entry : Game.currentMap.parallaxes.entrySet()) {
+					entry.getValue().y += entry.getValue().speedY * deltaT/1000f; 
+				}
+			}
+		}
+		
+		collisionRect = new Rectangle((int)x + collisionRectOffsetX, (int)y + collisionRectOffsetY, width, height);
+	
+		
+		//respawn timer
 		if(health <= 0){
 			respawnTimer -= deltaT/1000d;
 			if(respawnTimer <= 0){
