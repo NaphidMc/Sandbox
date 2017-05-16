@@ -24,7 +24,7 @@ public class Item {
 		this.block = block;
 	}
 	
-	public static Item getItemByID(int id){
+	public static Item getItemByID(int id) {
 		for(int i = 0; i < Database.items.size(); i++){
 			if(Database.items.get(i).ID == id){
 				return Database.items.get(i);

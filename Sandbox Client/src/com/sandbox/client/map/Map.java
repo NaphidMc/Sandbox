@@ -24,6 +24,85 @@ public class Map {
 	// FORMAT: <Layer, Parallax>
 	public TreeMap<Integer, Parallax> parallaxes = new TreeMap<Integer, Parallax>();
 	
+	// Map generator assistant class
+	public class MapHillTile {
+		public int x, y;
+		public boolean topTile;
+		
+		public MapHillTile(int x, int y, boolean topTile){
+			this.x = x;
+			this.y = y;
+			this.topTile = topTile;
+		}
+	}
+	
+	// Map Generator Assistant class
+	public class MapHill {
+		
+		public int height;
+		public int width;
+		public int peakPositionX;
+		public int groundLevel;
+		public ArrayList<MapHillTile> hillTiles = new ArrayList<MapHillTile>();
+		
+		public MapHill(int height, int width, int peakPositionX, int groundLevel){
+			this.height = height;
+			this.width = width;
+			this.groundLevel = groundLevel;
+			this.peakPositionX = peakPositionX;
+			generateHillTiles();
+		}
+		
+		public void generateHillTiles(){
+			int startX = peakPositionX - width;
+			int endX = peakPositionX + width;
+			int step = (height)/(peakPositionX - startX);
+			
+			int currentHeight = 0;
+			boolean ascending = true;
+			for(int i = 0; i <= endX - startX; i++){
+				
+				if(i == 0){
+					hillTiles.add(new MapHillTile(startX, groundLevel - 1, true));
+				}
+				else if(i == ((endX - startX) - 1)){
+					hillTiles.add(new MapHillTile(endX, groundLevel - 1, true));
+				}
+				else{
+					for(int k = 0; k < currentHeight; k++) {
+						if(k == currentHeight - 1){
+							hillTiles.add(new MapHillTile(startX + i, groundLevel - k - 1, true));
+						}
+						else{
+							hillTiles.add(new MapHillTile(startX + i, groundLevel - k - 1, false));
+						}
+						
+						if(k == height - 1){
+							ascending = false;
+						}
+					}
+				}
+				
+				if(ascending){
+					
+					if(peakPositionX - i - startX != 0)
+						step = (height - currentHeight)/((peakPositionX - i) - startX);
+					else if(peakPositionX - i - startX == 0){
+						step = 1;
+					}
+				} else {
+					step = (currentHeight - groundLevel)/(endX - (startX - i) + 1);
+					
+					if(step >= 0) {
+						step = -1;
+					}
+				}
+				currentHeight += step;
+
+			}
+		}
+	}
+	
 	public Map() { }
 	
 	public Map(int mapWidth, int mapHeight){
@@ -338,12 +417,11 @@ public class Map {
 	 * and if they do, the grass block is changed to dirt
 	 */
 	public void fixGrassBlocks() {
-		
 		for(int i = 0; i < loadedChunks.size(); i++){
 			for(int k = 0; k < loadedChunks.get(i).tiles.length; k++){
 				if(loadedChunks.get(i).tiles[k].type == Database.GRASS) {
-					TileType block = getTileAtCoordinates(loadedChunks.get(i).tiles[k].x, loadedChunks.get(i).tiles[k].y - Tile.tileSize).type;
-					if(block != null){
+					TileType block = getTileAtCoordinates(loadedChunks.get(i).tiles[k].x, (int) (loadedChunks.get(i).tiles[k].y - Tile.tileSize)).type;
+					if(block != null) {
 						if(block != Database.AIR && block.solid == true) {     
 							loadedChunks.get(i).tiles[k].setTileType(Database.DIRT);
 						}
@@ -494,18 +572,6 @@ public class Map {
 				
 				tile.type = Database.AIR;
 			}
-		}
-	}
-	
-	// Called when the player clicks on a block with a block selected in the Game.myPlayer.Hotbar
-	public void placeBlockAtCoordinates(int x, int y){
-		Tile tile = getTileAtCoordinates(x, y);
-		if(tile != null){
-			if(tile.type == Database.AIR){
-				tile.setTileType(Game.myPlayer.selectedItem.block);
-				Game.myPlayer.removeItem(Game.myPlayer.selectedItem, 1);
-				fixGrassBlocks();
-			} 
 		}
 	}
 	

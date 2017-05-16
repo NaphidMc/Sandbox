@@ -40,7 +40,7 @@ public class TileType implements Serializable {
 			return false;
 		
 		if(obj instanceof TileType){
-			TileType block = (TileType)obj;
+			TileType block = (TileType) obj;
 			if(this.Name.equals(block.Name) && this.texture == block.texture){
 				return true;
 			}

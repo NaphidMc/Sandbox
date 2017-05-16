@@ -3,6 +3,7 @@ package com.sandbox.client.rendering;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 
+import com.sandbox.client.Database;
 import com.sandbox.client.Game;
 import com.sandbox.client.Input;
 import com.sandbox.client.network.PlayerPacket;
@@ -23,8 +24,14 @@ public class UIRenderer {
 	private static int itemIconSize = inventorySlotSize * 3/4;
 	
 	public static void renderUI(Graphics g) {
-		renderInventory(g);
+		if(Game.myPlayer.inventoryOpen) {
+			// Draws a semi-transparent gray overlay to indicate the inventory is open
+			g.setColor(new Color(0, 0, 0, .5f));
+			g.fillRect(0, 0, 800, 600);
+		}
+		
 		renderHotbar(g);
+		renderInventory(g);
 		renderHealthBar(g);
 		renderTextualInfo(g);
 	}
@@ -78,17 +85,13 @@ public class UIRenderer {
 		if(Game.myPlayer.inventoryOpen == false)
 			return;
 		
-		// Draws a semi-transparent gray overlay to indicate the inventory is open
-		g.setColor(new Color(0, 0, 0, .35f));
-		g.fillRect(0, 0, 800, 600);
-		
 		Game.spritesheet.startUse();
 		if(Game.myPlayer.inventoryOpen){
 			
 			int currentInventorySlot = 0;	// The current slot index
 			for(int i = 0; i < Game.myPlayer.inventoryRows; i++){
 				for(int k = 0; k < Game.myPlayer.inventoryColumns; k++){
-					Game.spritesheet.renderInUse(inventoryPositionX + inventorySlotSize * k, inventoryPositionY + inventorySlotSize * i, 3, 3);
+					Game.spritesheet.renderInUse(inventoryPositionX + inventorySlotSize * k, inventoryPositionY + inventorySlotSize * i, 15, 0);
 					
 					Game.myPlayer.inventory.get(currentInventorySlot).x = inventoryPositionX + inventorySlotSize * k;
 					Game.myPlayer.inventory.get(currentInventorySlot).y = inventoryPositionY + inventorySlotSize * i;
@@ -110,7 +113,7 @@ public class UIRenderer {
 					Game.myPlayer.craftingTable.get(i).x = craftingUIPositionX + x * inventorySlotSize;
 					Game.myPlayer.craftingTable.get(i).y = craftingUIPositionY + y * inventorySlotSize;
 					
-					Game.spritesheet.renderInUse(Game.myPlayer.craftingTable.get(i).x, Game.myPlayer.craftingTable.get(i).y, 3, 3);
+					Game.spritesheet.renderInUse(Game.myPlayer.craftingTable.get(i).x, Game.myPlayer.craftingTable.get(i).y, 15, 0);
 					
 					// Draws the items in the crafting table
 					if(Game.myPlayer.craftingTable.get(i).itemStack.item != null){
@@ -128,18 +131,12 @@ public class UIRenderer {
 			Game.myPlayer.craftingTableOutput.y = craftingUIPositionY + 3 * inventorySlotSize;
 			
 			// Draws the output square
-			Game.spritesheet.renderInUse(Game.myPlayer.craftingTable.get(4).x, craftingUIPositionY + 3 * inventorySlotSize, 3, 3);
+			Game.spritesheet.renderInUse(Game.myPlayer.craftingTable.get(4).x, craftingUIPositionY + 3 * inventorySlotSize, 15, 0);
 			
 			// Draws the output item
 			if(Game.myPlayer.craftingTableOutput.itemStack.item != null){
 				Game.spritesheet.renderInUse(Game.myPlayer.craftingTable.get(4).x, craftingUIPositionY + 3 * inventorySlotSize, Game.myPlayer.craftingTableOutput.itemStack.item.icon%Game.SPRITESHEET_WIDTH, Game.myPlayer.craftingTableOutput.itemStack.item.icon/Game.SPRITESHEET_WIDTH);
 			}
-			
-			// Draws the item that the player picked up with the mouse
-			if(Game.myPlayer.cursorItem != null){
-				Game.spritesheet.renderInUse(Input.mouseX, Input.mouseY, Game.myPlayer.cursorItem.item.icon%Game.SPRITESHEET_WIDTH, Game.myPlayer.cursorItem.item.icon/Game.SPRITESHEET_WIDTH);
-			}
-
 		}
 		
 		Game.spritesheet.endUse();
@@ -160,16 +157,25 @@ public class UIRenderer {
 				g.drawString("" + Game.myPlayer.craftingTableOutput.itemStack.quantity, craftingUIPositionX + 4 * inventorySlotSize, craftingUIPositionY + inventorySlotSize);
 			}
 			
-			// Draws the quantity string for picked up items
-			if(Game.myPlayer.cursorItem != null) {
-				g.drawString("" + Game.myPlayer.cursorItem.quantity, Input.mouseX + 55, Input.mouseY + 50);
-			}
 			
 			// Loops through and draws quantity strings for the crafting table
 			for(int i = 0; i < 9; i++){
 				if(Game.myPlayer.craftingTable.get(i).itemStack.item != null)
 					g.drawString("" + Game.myPlayer.craftingTable.get(i).itemStack.quantity, Game.myPlayer.craftingTable.get(i).x, Game.myPlayer.craftingTable.get(i).y);
 			}
+		}
+		
+		// Player's mouse item
+		Game.spritesheet.startUse();
+		// Draws the item that the player picked up with the mouse
+		if(Game.myPlayer.cursorItem != null){
+			Game.spritesheet.renderInUse(Input.mouseX, Input.mouseY, Game.myPlayer.cursorItem.item.icon%Game.SPRITESHEET_WIDTH, Game.myPlayer.cursorItem.item.icon/Game.SPRITESHEET_WIDTH);
+		}
+		Game.spritesheet.endUse();
+		
+		// Draws the quantity string for picked up items
+		if(Game.myPlayer.cursorItem != null) {
+			g.drawString("" + Game.myPlayer.cursorItem.quantity, Input.mouseX + 55, Input.mouseY + 50);
 		}
 	}
 	

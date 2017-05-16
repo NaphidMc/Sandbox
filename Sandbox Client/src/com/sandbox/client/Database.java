@@ -42,7 +42,7 @@ public class Database {
 	public static CraftingRecipe RECIPE_GRASS_5;
 	public static CraftingRecipe RECIPE_GRASS_6;
 	
-	public static void populate(){
+	public static void populate() {
 		
 		// Blocks
 		GRASS = new TileType("Grass", 0, new int[][] { {1, 3, 3, 3}, {100, 50, 50, 50} }, true, 20);
