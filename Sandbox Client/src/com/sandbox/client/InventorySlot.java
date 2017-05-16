@@ -19,7 +19,7 @@ public class InventorySlot {
 		inventorySlots.add(this);
 	}
 	
-	public static InventorySlot getInventorySlotAtPosition(int x, int y){
+	public static InventorySlot getInventorySlotAtPosition(int x, int y) {
 		
 		for(int i = 0; i < inventorySlots.size(); i++){
 			Rectangle rect = new Rectangle(inventorySlots.get(i).x, inventorySlots.get(i).y, UIRenderer.inventorySlotSize, UIRenderer.inventorySlotSize);

@@ -1,7 +1,7 @@
 package com.sandbox.client.map;
 
-import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TreeMap;
@@ -124,7 +124,7 @@ public class Map {
 		
 		Logger.log("Generating map...");
 		start = new Date();
-		generateTiles(7, 13, 2, 5, 2, 4, 12, 1, 13, .5f); // This confusing mess does most of the generation
+		generateTiles(7, 13, 2, 5, 2, 4, 12, 1, 13, .4f, 10, .70f); // This confusing mess does most of the generation
 		finish = new Date();
 		timeElapsed = finish.getTime() - start.getTime();
 		Logger.log("Done! (" + timeElapsed + "ms)");
@@ -226,7 +226,7 @@ public class Map {
 	 * @param ironDepth - How deep you have to go to see iron
 	 * @param ironFrequencyMultiplier - The frequency of iron deposits
 	 */
-	public void generateTiles(int groundLevel, int hills, int minHillHeight, int maxHillHeight, int minHillWidth, int maxHillWidth, int stoneDepth, int stoneTransition, int ironDepth, float ironFrequencyMultiplier){
+	public void generateTiles(int groundLevel, int hills, int minHillHeight, int maxHillHeight, int minHillWidth, int maxHillWidth, int stoneDepth, int stoneTransition, int ironDepth, float ironFrequencyMultiplier, int coalDepth, float coalFrequencyMultiplier){
 		
 		int height = 0;
 		int width = 0;
@@ -289,8 +289,8 @@ public class Map {
 				// Top grass layer
 				//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_GRASS);
 				chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.GRASS));
-			} else{
-				if(height != mapHeight - 1){
+			} else {
+				if(height != mapHeight - 1) {
 					// Most generation stuff goes here
 					int random = ThreadLocalRandom.current().nextInt(1, 101);
 					
@@ -310,33 +310,53 @@ public class Map {
 							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
 							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.DIRT));
 						}
-					} else if(height > stoneDepth){
+					} else if(height > stoneDepth) {
 						// Stone layer
 						
-						random = ThreadLocalRandom.current().nextInt(0, 101);
+						ArrayList<Integer> chances = new ArrayList<Integer>();
 						
+						// Iron
 						float ironChance = 0.0f;
 						if(height > ironDepth){
-							ironChance = (height - ironDepth)*ironFrequencyMultiplier*10;
+							ironChance = (height - ironDepth) * ironFrequencyMultiplier * 10;
 							
 							if(ironChance > 10){
 								ironChance = 10;
 							}
 						}
+						random = ThreadLocalRandom.current().nextInt(0, (int) (ironChance + 1));
+						chances.add(new Integer(random));
 						
-						if(random < ironChance){
-							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_IRONORE);
-							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.IRONORE));
+						// Coal
+						float coalChance = 0.0f;
+						if(height > coalDepth) {
+							coalChance = (height - coalDepth) * coalFrequencyMultiplier * 10;
 							
-						}else{
-							//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_STONE);
-							chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.STONE));
+							if(coalChance > 10) {
+								coalChance = 10;
+							}
+						}
+						random = ThreadLocalRandom.current().nextInt(0, (int) (coalChance + 1));
+						chances.add(new Integer(random));
+						
+						// Stone
+						float stoneChance = (ironChance + coalChance)/2;
+						random = ThreadLocalRandom.current().nextInt(0, (int) (stoneChance + 1));
+						chances.add(new Integer(random));
+						
+						int highestNumber = Collections.max(chances);
+						
+						if(highestNumber == ironChance) {
+							chunks[(width/(chunkSize))].tiles[tileIndex] = new Tile(currentX, currentY, Database.IRONORE);
+						} else if(highestNumber == coalChance) {
+							chunks[(width/(chunkSize))].tiles[tileIndex] = new Tile(currentX, currentY, Database.COALORE);
+						} else {
+							chunks[(width/(chunkSize))].tiles[tileIndex] = new Tile(currentX, currentY, Database.STONE);
 						}
 					}
 				}
-				else{
-					//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_BEDROCK);
-					chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.BEDROCK));
+				else {
+					chunks[(width/(chunkSize))].tiles[tileIndex] = new Tile(currentX, currentY, Database.BEDROCK);
 				}
 			}
 			
@@ -350,8 +370,7 @@ public class Map {
 				width = 0;
 			}
 			
-			if(chunks[(width/(chunkSize))].tiles[tileIndex] == null)
-			{
+			if(chunks[(width/(chunkSize))].tiles[tileIndex] == null) {
 				//tiles[i] = new Tile(currentX, currentY, Database.BLOCK_DIRT);
 				chunks[(width/(chunkSize))].tiles[tileIndex] = (new Tile(currentX, currentY, Database.DIRT));
 			}

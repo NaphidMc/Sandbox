@@ -322,13 +322,16 @@ public class Player {
 	 * @param quantity How much of it to add
 	 */
 	public void addItem(Item item, int quantity){
+		if(item == null) 
+			return;
+		
 		// Tries to add it to the hotbar first
 		// Attempts to add to existing stack
 		for(int i = 0; i < hotbar.size(); i++) {
 			if(hotbar.get(i).itemStack == null || hotbar.get(i).itemStack.item == null)
 				continue;
 			
-			if(hotbar.get(i).itemStack.item.ID == item.ID) {
+			if(hotbar.get(i).itemStack.item.id == item.id) {
 				hotbar.get(i).itemStack.quantity += quantity;
 				return;
 			}
@@ -351,7 +354,7 @@ public class Player {
 				continue;
 			}
 			
-			if(hotbar.get(i).itemStack.item.ID == item.ID) {
+			if(hotbar.get(i).itemStack.item.id == item.id) {
 				inventory.get(i).itemStack.quantity += quantity;
 				return;
 			}
@@ -389,7 +392,7 @@ public class Player {
 			if(inventory.get(i).itemStack.item == null)
 				continue;
 			
-			if(inventory.get(i).itemStack.item.ID == item.ID){
+			if(inventory.get(i).itemStack.item.id == item.id){
 				if(inventory.get(i).itemStack.quantity - quantity > 0){
 					inventory.get(i).itemStack.quantity--;
 					return;
@@ -406,7 +409,7 @@ public class Player {
 			if(hotbar.get(i).itemStack == null || hotbar.get(i).itemStack.item == null)
 				continue;
 			
-			if(hotbar.get(i).itemStack.item.ID == item.ID){
+			if(hotbar.get(i).itemStack.item.id == item.id){
 				if(hotbar.get(i).itemStack.quantity - quantity > 0){
 					hotbar.get(i).itemStack.quantity -= quantity;
 					return;
@@ -469,9 +472,9 @@ public class Player {
 	
 		
 		//respawn timer
-		if(health <= 0){
+		if(health <= 0) {
 			respawnTimer -= deltaT/1000d;
-			if(respawnTimer <= 0){
+			if(respawnTimer <= 0) {
 				respawn();
 			}
 		}

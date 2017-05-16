@@ -22,6 +22,7 @@ public class Database {
 	public static TileType WOOD;
 	public static TileType LEAVES;
 	public static TileType TEST;
+	public static TileType COALORE;
 	
 	// Items
 	public static Item ITEM_PICKAXE;
@@ -33,6 +34,7 @@ public class Database {
 	public static Item ITEM_WOODLOG;
 	public static Item ITEM_IRONCHUNK;
 	public static Item ITEM_SAPLING;
+	public static Item ITEM_COAL;
 	
 	// Recipes
 	public static CraftingRecipe RECIPE_GRASS_1;
@@ -54,17 +56,19 @@ public class Database {
 		SAPLING = new TileType("Sapling", 13, new int[][] {{8}, {100}}, false, 5);
 		WOOD = new TileType("Wood", 14, new int[][] { {6}, {100}}, false, 30);
 		LEAVES = new TileType("Leaves", 7, new int[][] { {8, 8}, {75, 50}}, false, 5);
+		COALORE = new TileType("Coal", 18, new int[][] { {9, 9}, {100, 50}}, true, 50);
 		
 		// Items
 		ITEM_PICKAXE = new Item(0, "Pickaxe", 12, 2.0f, null);
 		ITEM_DIRT = new Item(1, "Dirt", 3, 0.0f, DIRT);
 		ITEM_GRASS = new Item(2, "Grass", 0, 0.0f, GRASS);
 		ITEM_GRASS_SEEDS = new Item(3, "Grass Seeds", 4, 0.0f, null);
-		ITEM_STONE = new Item(4, "Stone", 11, 0.0f, STONE);
+		ITEM_STONE = new Item(4, "Stone", 17, 0.0f, STONE);
 		ITEM_IRONORE = new Item(5, "Iron ore", 6, 0.0f, IRONORE);
 		ITEM_WOODLOG = new Item(6, "Wood Log", 10, 0.0f, null);
 		ITEM_IRONCHUNK = new Item(7, "Iron Ore", 8, 0.0f, null);
 		ITEM_SAPLING = new Item(8, "Sapling", 13, 0.0f, SAPLING);
+		ITEM_COAL = new Item(9, "Coal", 16, 0.0f, null);
 		
 		// Recipes
 		RECIPE_GRASS_1 = new CraftingRecipe(new Item[] { ITEM_GRASS_SEEDS, null, null,
@@ -86,7 +90,6 @@ public class Database {
 				 null, null, ITEM_GRASS_SEEDS,
 				 null, null, ITEM_DIRT }, new ItemStack(ITEM_GRASS, 1));
 		
-		
 		items.add(ITEM_PICKAXE);
 		items.add(ITEM_DIRT);
 		items.add(ITEM_GRASS);
@@ -96,6 +99,7 @@ public class Database {
 		items.add(ITEM_WOODLOG);
 		items.add(ITEM_IRONCHUNK);
 		items.add(ITEM_SAPLING);
+		items.add(ITEM_COAL);
 		
 		craftingRecipes.add(RECIPE_GRASS_1);
 		craftingRecipes.add(RECIPE_GRASS_2);

@@ -18,7 +18,7 @@ public class CraftingRecipe {
 		}
 	}
 	
-	public static ItemStack checkCraftingTable(){
+	public static ItemStack checkCraftingTable() {
 		Item[] craftingTableItems = new Item[Game.myPlayer.craftingTable.size()];
 		
 		for(int i = 0; i < Game.myPlayer.craftingTable.size(); i++){
@@ -37,7 +37,7 @@ public class CraftingRecipe {
 						continue A;
 					}
 					
-					if(craftingTableItems[k].ID != Database.craftingRecipes.get(i).input[k].ID){
+					if(craftingTableItems[k].id != Database.craftingRecipes.get(i).input[k].id){
 						continue A;
 					}
 				}
