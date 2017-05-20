@@ -27,26 +27,21 @@ import com.sandbox.client.utils.Logger;
 
 public class Game extends BasicGame {
 
-	public static float cameraOffsetX, cameraOffsetY; // The amount all tiles
-														// and such are offset
-														// by (in pixels)
+	public static float cameraOffsetX, cameraOffsetY; // The amount all tiles and such are offset by (in pixels)
 	public static final double GRAVITY = 650d;
 
-	public static SpriteSheet spritesheet; // The spritesheet object for tiles +
-											// items + etc... (set in init)
-	public static SpriteSheet parallaxsheet; // The spritesheet object for
-												// parallaxes
-	public static int SPRITESHEET_WIDTH; // How many sprites there are in each
-											// row in the spritesheet
+	public static Image image_logo; 	   		// Game logo for the main menu
+	public static SpriteSheet spritesheet; 		// The spritesheet object for tiles + items + etc... (set in init)
+	public static SpriteSheet parallaxsheet;	// The spritesheet object for parallaxes
+	public static int SPRITESHEET_WIDTH; 		// How many sprites there are in each row in the spritesheet
 
 	// Public static object instances:
-	public static Game current; // Current instance of Game
-	public static Map currentMap; // The current Map being displayed
-	public static Client client; // The client in use; null in single player
-	public static Player myPlayer; // The player that is controlled
-	public static AppGameContainer appgc; // The appGameContainer that holds
-											// Game
-	public static Input input; // An instance of the input class; Set in init
+	public static Game current; 			// Current instance of Game
+	public static Map currentMap; 			// The current Map being displayed
+	public static Client client; 			// The client in use; null in single player
+	public static Player myPlayer; 			// The player that is controlled
+	public static AppGameContainer appgc; 	// The appGameContainer that holds Game
+	public static Input input; 				// An instance of the input class; Set in init
 	public static MainMenu mainMenu = new MainMenu();
 
 	// A list of all players and IDS
@@ -60,9 +55,7 @@ public class Game extends BasicGame {
 
 	public static GameState currentGameState = GameState.MainMenu;
 
-	public static boolean mapLoaded = false; // Set to true in ClientListener
-												// when the last map packet is
-												// received
+	public static boolean mapLoaded = false; // Set to true in ClientListener when the last map packet is received
 
 	// Day & Night Cycle variables
 	int dayLength = 480000; // Day and night cycle are 8 minutes each
@@ -73,8 +66,7 @@ public class Game extends BasicGame {
 
 	public Game(String name) {
 		super(name);
-		current = this; // The current static instance of Game used by other
-						// classes
+		current = this; // The current static instance of Game used by other classes
 	}
 
 	/**
@@ -92,18 +84,9 @@ public class Game extends BasicGame {
 		}
 
 		if (client.isConnected()) {
-			client.getServerConnection().sendTcp(new PlayerPacket(myPlayer)); // The
-																				// client
-																				// sends
-																				// the
-																				// server
-																				// the
-																				// player
+			client.getServerConnection().sendTcp(new PlayerPacket(myPlayer)); 
 		} else {
-			System.err.println("Could not send initial player packet!!"); // This
-																			// should
-																			// not
-																			// happen
+			System.err.println("Could not send initial player packet!!"); 
 			System.exit(0);
 		}
 	}
@@ -122,10 +105,8 @@ public class Game extends BasicGame {
 	/**
 	 * Renders tiles and entities (players)
 	 * 
-	 * @param gc
-	 *            - The GameContainer object
-	 * @param g
-	 *            - The current Graphics object
+	 * @param gc- The GameContainer object
+	 * @param g - The current Graphics object
 	 */
 	@Override
 	public void render(GameContainer gc, Graphics g) throws SlickException {
@@ -160,7 +141,7 @@ public class Game extends BasicGame {
 		// Configures tile size: divide 800 by a lower number for more tiles and
 		// vise versa for less
 		Tile.tileSize = 800 / 12;
-
+		
 		// Loads the sprite sheet
 		try {
 			Image src = new Image("resources/spritesheet.png");
@@ -172,6 +153,13 @@ public class Game extends BasicGame {
 
 			Image src2 = new Image("resources/parallaxes.png");
 			parallaxsheet = new SpriteSheet(src2, 1600, 400);
+			
+			
+			try {
+				image_logo = new Image("resources/indie_adventure logo.png");
+			} catch (SlickException e) {
+				System.err.println("Could not load logo for main menu!!" + "\n" + e.getMessage());
+			}
 		} catch (SlickException e) {
 			System.err.println("FAILED TO LOAD SPRITES");
 			System.exit(0);
@@ -197,14 +185,14 @@ public class Game extends BasicGame {
 	@Override
 	public void update(GameContainer container, int delta) throws SlickException {
 
+		// Updates mouse coords
+		Input.mouseX = container.getInput().getMouseX();
+		Input.mouseY = container.getInput().getMouseY();
+		
 		// The game is not updated if the map is loading or the main menu is
 		// open
 		if (currentGameState == GameState.MainMenu || !mapLoaded)
 			return;
-
-		// Updates mouse coords
-		Input.mouseX = container.getInput().getMouseX();
-		Input.mouseY = container.getInput().getMouseY();
 
 		// Makes sure that the player doesn't have an item picked up by their
 		// cursor when the inventory is closed
@@ -213,8 +201,7 @@ public class Game extends BasicGame {
 		}
 
 		// Updates players
-		if (delta <= 100) // If delta is too high, the player will go through
-							// blocks
+		if (delta <= 100) // If delta is too high, the player will go through blocks
 			myPlayer.update(delta);
 
 		// **Input** \\
@@ -243,13 +230,7 @@ public class Game extends BasicGame {
 		}
 
 		if (myPlayer.ID != -1 && client.getServerConnection().getSocket().isClosed() == false)
-			client.getServerConnection().sendTcp(new PlayerPacket(myPlayer)); // The
-																				// client
-																				// sends
-																				// the
-																				// server
-																				// the
-																				// player
+			client.getServerConnection().sendTcp(new PlayerPacket(myPlayer)); 
 
 		// If the player has moved a significant amount, the game redetermines
 		// which chunks to load

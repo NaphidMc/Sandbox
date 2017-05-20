@@ -353,7 +353,7 @@ public class Map {
 						} else {
 							chunks[(width/(chunkSize))].tiles[tileIndex] = new Tile(currentX, currentY, Database.STONE);
 						}
-					}
+					} 
 				}
 				else {
 					chunks[(width/(chunkSize))].tiles[tileIndex] = new Tile(currentX, currentY, Database.BEDROCK);

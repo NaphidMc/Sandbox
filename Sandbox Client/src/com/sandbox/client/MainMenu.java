@@ -5,13 +5,15 @@ import java.awt.Rectangle;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+
+import com.sandbox.client.map.Tile;
 
 public class MainMenu {
 
 	// Below are the rectangles that are used as the buttons for the menu
 	private static Rectangle singlePlayerButton;
-	private static Rectangle multiPlayerButton;
 	private static Rectangle quitButton;
 	
 	private static boolean init;
@@ -19,9 +21,8 @@ public class MainMenu {
 	public MainMenu() {
 		
 		// Sets up the menu button rectangles
-		singlePlayerButton = new Rectangle(200, 100, 150, 60);
-		multiPlayerButton = new Rectangle(200, 200, 150, 60);
-		quitButton = new Rectangle(200, 300, 150, 60);
+		singlePlayerButton = new Rectangle(200, 225, 325, 55);
+		quitButton = new Rectangle(200, 300, 325, 55);
 		
 		init = true;
 	}
@@ -32,24 +33,35 @@ public class MainMenu {
 		g.setColor(Color.lightGray);
 		g.fillRect(0, 0, 800, 600);
 		
+		// Background tile blocks
+		Game.spritesheet.startUse();
+		for(int i = 0; i < 67; i++) {
+			for(int k = 0; k < 50; k++) {
+				Game.spritesheet.renderInUse(i * Tile.tileSize, k * Tile.tileSize, 8, 1);
+			}
+		}
+		Game.spritesheet.endUse();
+		
 		// Single-Player button
-		g.setColor(Color.darkGray);
-		g.fillRect(singlePlayerButton.x, singlePlayerButton.y, (float)singlePlayerButton.getWidth(), (float)singlePlayerButton.getHeight());
-		g.setColor(Color.white);
-		g.drawString("Singleplayer", singlePlayerButton.x + .5f * (float) singlePlayerButton.getHeight(), (float) singlePlayerButton.y + 25); 
+		// Button changes on mouse over
+		if(singlePlayerButton.contains(Input.mouseX, Input.mouseY)) {
+				Game.spritesheet.getSubImage(7, 1).draw(singlePlayerButton.x + 15, singlePlayerButton.y, 325, 275);
+				Game.spritesheet.getSubImage(5, 1).draw(singlePlayerButton.x + 15, singlePlayerButton.y, 325, 275);
+		} else {
+			Game.spritesheet.getSubImage(5, 1).draw(singlePlayerButton.x, singlePlayerButton.y, 325, 275);
+		}
 		
-		// Multi-Player button
-		g.setColor(Color.darkGray);
-		g.fillRect(multiPlayerButton.x, multiPlayerButton.y, (float)multiPlayerButton.getWidth(), (float)multiPlayerButton.getHeight());
-		g.setColor(Color.white);
-		g.drawString("Multiplayer", multiPlayerButton.x + .5f * (float) multiPlayerButton.getHeight(), (float) multiPlayerButton.y + 25); 
+		// Quit button
+		// Button changes on mouse over
+		if(quitButton.contains(Input.mouseX, Input.mouseY)) {
+				Game.spritesheet.getSubImage(7, 1).draw(quitButton.x + 15, quitButton.y, 325, 275);
+				Game.spritesheet.getSubImage(6, 1).draw(quitButton.x + 15, quitButton.y, 325, 275);
+		} else {
+			Game.spritesheet.getSubImage(6, 1).draw(quitButton.x, quitButton.y, 325, 275);
+		}
 		
-		// Quit Button
-		g.setColor(Color.darkGray);
-		g.fillRect(quitButton.x, quitButton.y, (float)quitButton.getWidth(), (float)quitButton.getHeight());
-		g.setColor(Color.white);
-		g.drawString("Quit", quitButton.x + .5f * (float) quitButton.getHeight(), (float) quitButton.y + 25); 
-	
+		// Logo
+		Game.image_logo.draw(160, 45, 450, 275);
 	}
 	
 	public static void mousePressed(int button, int x, int y){
@@ -63,11 +75,7 @@ public class MainMenu {
 			// Checks if your mouse was inside the button's bounds when you clicked
 			if(singlePlayerButton.contains(x, y)){
 				launchGame(false);
-			} 
-			else if(multiPlayerButton.contains(x, y)){
-				launchGame(true);
-			} 
-			else if(quitButton.contains(x, y)){
+			} else if(quitButton.contains(x, y)){
 				System.exit(0); // Quit button
 			}
 		}
