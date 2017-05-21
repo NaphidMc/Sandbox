@@ -16,7 +16,7 @@ public class EntityRenderer {
 		}
 		
 		//  Draws your player
-		Game.spritesheet.renderInUse((int)Game.myPlayer.x + (int)Game.cameraOffsetX, (int)Game.myPlayer.y - (int)Game.cameraOffsetY, 9, 0);
+		Game.spritesheet.renderInUse((int)Game.myPlayer.x + (int)Game.cameraOffsetX, (int)Game.myPlayer.y - (int)Game.cameraOffsetY, Game.myPlayer.textureX, Game.myPlayer.textureY);
 		
 		Game.spritesheet.endUse();
 		

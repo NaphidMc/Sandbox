@@ -63,7 +63,11 @@ public class Game extends BasicGame {
 	Color currentSkyColor;
 	Color dayColor;
 	Color nightColor;
-
+	
+	// Tree growth
+	public static final int treeTickLength = 30 * 1000; // Milliseconds in between sapling checks
+	public int currentTreeTick = treeTickLength;
+	
 	public Game(String name) {
 		super(name);
 		current = this; // The current static instance of Game used by other classes
@@ -97,7 +101,7 @@ public class Game extends BasicGame {
 	public void startSinglePlayer() {
 
 		currentGameState = GameState.Game;
-		currentMap = new Map(64, 24); // Generates a new map
+		currentMap = new Map(128, 24); // Generates a new map
 		currentMap.mapEndCoordinate = Tile.tileSize * Map.getWidth();
 		currentMap.mapBottonCoordinate = Tile.tileSize * Map.getHeight();
 	}
@@ -116,7 +120,7 @@ public class Game extends BasicGame {
 			mainMenu.render(gc, g);
 			return;
 		}
-
+		
 		EnvironmentRenderer.renderSky(g, currentSkyColor);
 		TileRenderer.renderTiles(g);
 		EntityRenderer.renderPlayers(g);
@@ -137,7 +141,7 @@ public class Game extends BasicGame {
 
 		Logger.initializeLogger();
 		Database.populate();
-
+		
 		// Configures tile size: divide 800 by a lower number for more tiles and
 		// vise versa for less
 		Tile.tileSize = 800 / 12;
@@ -203,6 +207,13 @@ public class Game extends BasicGame {
 		// Updates players
 		if (delta <= 100) // If delta is too high, the player will go through blocks
 			myPlayer.update(delta);
+		
+		// Updates sapling growth
+		currentTreeTick -= delta;
+		if(currentTreeTick <= 0) {
+			currentTreeTick = treeTickLength;
+			currentMap.growTrees();
+		}
 
 		// **Input** \\
 		if (Input.KEY_A_DOWN) {

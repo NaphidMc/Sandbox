@@ -16,6 +16,8 @@ public class CraftingRecipe {
 		for(int i = 0; i < input.length; i++){
 			this.input[i] = input[i];
 		}
+		
+		Database.craftingRecipes.add(this);
 	}
 	
 	public static ItemStack checkCraftingTable() {
@@ -23,21 +25,13 @@ public class CraftingRecipe {
 		
 		for(int i = 0; i < Game.myPlayer.craftingTable.size(); i++){
 			craftingTableItems[i] = Game.myPlayer.craftingTable.get(i).itemStack.item;
-			
 		}
 
 		A : for(int i = 0; i < Database.craftingRecipes.size(); i++){
-			
-				for(int k = 0; k < 9; k++){
-					if(craftingTableItems[k] == null && Database.craftingRecipes.get(i).input[k] == null){
+				for(int k = 0; k < 9; k++) {
+					if(craftingTableItems[k] ==  Database.craftingRecipes.get(i).input[k]){
 						continue;
-					} else if(craftingTableItems[k] == null && Database.craftingRecipes.get(i).input[k] != null){
-						continue A;
-					} else if(craftingTableItems[k] != null && Database.craftingRecipes.get(i).input[k] == null){
-						continue A;
-					}
-					
-					if(craftingTableItems[k].id != Database.craftingRecipes.get(i).input[k].id){
+					} else {
 						continue A;
 					}
 				}

@@ -21,6 +21,8 @@ public class Item {
 		this.icon = icon;
 		
 		this.block = block;
+		
+		Database.items.add(this);
 	}
 	
 	public static Item getItemByID(int id) {

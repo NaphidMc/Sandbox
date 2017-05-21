@@ -29,7 +29,7 @@ public class Map {
 		public int x, y;
 		public boolean topTile;
 		
-		public MapHillTile(int x, int y, boolean topTile){
+		public MapHillTile(int x, int y, boolean topTile) {
 			this.x = x;
 			this.y = y;
 			this.topTile = topTile;
@@ -53,7 +53,7 @@ public class Map {
 			generateHillTiles();
 		}
 		
-		public void generateHillTiles(){
+		public void generateHillTiles() {
 			int startX = peakPositionX - width;
 			int endX = peakPositionX + width;
 			int step = (height)/(peakPositionX - startX);
@@ -124,7 +124,7 @@ public class Map {
 		
 		Logger.log("Generating map...");
 		start = new Date();
-		generateTiles(7, 13, 2, 5, 2, 4, 12, 1, 13, .4f, 10, .70f); // This confusing mess does most of the generation
+		generateTiles(7, 20, 2, 5, 2, 4, 12, 1, 13, .06f, 10, .05f, 13, .05f); // This confusing mess configures the map
 		finish = new Date();
 		timeElapsed = finish.getTime() - start.getTime();
 		Logger.log("Done! (" + timeElapsed + "ms)");
@@ -176,7 +176,7 @@ public class Map {
 	/**
 	 * Reevaluates which chunks are loaded
 	 */
-	public void refreshLoadedChunks(){
+	public void refreshLoadedChunks() {
 		
 		playerXAtChunkReload = Game.myPlayer.x;
 		
@@ -194,22 +194,22 @@ public class Map {
 	/**
 	 * Returns the width in tiles (NOT pixels) of the map
 	 */
-	public static int getWidth(){
+	public static int getWidth() {
 		return mapWidth;
 	}
 	
 	/**
 	 * Returns the height in tiles (NOT pixels) of the map
 	 */
-	public static int getHeight(){
+	public static int getHeight() {
 		return mapHeight;
 	}
 	
-	public void setWidth(int value){
+	public void setWidth(int value) {
 		Map.mapWidth = value;
 	}
 	
-	public void setHeight(int value){
+	public void setHeight(int value) {
 		Map.mapHeight = value;
 	}
 	
@@ -225,8 +225,10 @@ public class Map {
 	 * @param stoneTransition - How deep until the stone/dirt layer appears
 	 * @param ironDepth - How deep you have to go to see iron
 	 * @param ironFrequencyMultiplier - The frequency of iron deposits
+	 * @param coalDepth - How deep you have to go to see coal
+	 * @param coalFrequencyMultiplier - The frequency of iron deposits
 	 */
-	public void generateTiles(int groundLevel, int hills, int minHillHeight, int maxHillHeight, int minHillWidth, int maxHillWidth, int stoneDepth, int stoneTransition, int ironDepth, float ironFrequencyMultiplier, int coalDepth, float coalFrequencyMultiplier){
+	public void generateTiles(int groundLevel, int hills, int minHillHeight, int maxHillHeight, int minHillWidth, int maxHillWidth, int stoneDepth, int stoneTransition, int ironDepth, float ironFrequencyMultiplier, int coalDepth, float coalFrequencyMultiplier, int goldDepth, float goldFrequencyMultiplier){
 		
 		int height = 0;
 		int width = 0;
@@ -317,39 +319,56 @@ public class Map {
 						
 						// Iron
 						float ironChance = 0.0f;
+						int ironRandom = 0;
 						if(height > ironDepth){
 							ironChance = (height - ironDepth) * ironFrequencyMultiplier * 10;
 							
-							if(ironChance > 10){
+							if(ironChance > 50){
 								ironChance = 10;
 							}
 						}
-						random = ThreadLocalRandom.current().nextInt(0, (int) (ironChance + 1));
-						chances.add(new Integer(random));
+						ironRandom = ThreadLocalRandom.current().nextInt(0, (int) (ironChance + 1));
+						chances.add(new Integer(ironRandom));
 						
 						// Coal
 						float coalChance = 0.0f;
+						int coalRandom = 0;
 						if(height > coalDepth) {
 							coalChance = (height - coalDepth) * coalFrequencyMultiplier * 10;
 							
-							if(coalChance > 10) {
-								coalChance = 10;
+							if(coalChance > 100) {
+								coalChance = 100;
 							}
 						}
-						random = ThreadLocalRandom.current().nextInt(0, (int) (coalChance + 1));
-						chances.add(new Integer(random));
+						coalRandom = ThreadLocalRandom.current().nextInt(0, (int) (coalChance + 1));
+						chances.add(new Integer(coalRandom));
+						
+						// Gold
+						float goldChance = 0.0f;
+						int goldRandom = 0;
+						if(height > goldDepth) {
+							goldChance = (height - goldDepth) * goldFrequencyMultiplier * 10;
+							
+							if(goldChance > 100) {
+								goldChance = 100;
+							}
+						}
+						goldRandom = ThreadLocalRandom.current().nextInt(0, (int) (goldChance + 1));
+						chances.add(new Integer(goldRandom));
 						
 						// Stone
-						float stoneChance = (ironChance + coalChance)/2;
+						float stoneChance = (ironChance + coalChance + goldChance) * 5;
 						random = ThreadLocalRandom.current().nextInt(0, (int) (stoneChance + 1));
 						chances.add(new Integer(random));
 						
 						int highestNumber = Collections.max(chances);
 						
-						if(highestNumber == ironChance) {
+						if(highestNumber == ironRandom) {
 							chunks[(width/(chunkSize))].tiles[tileIndex] = new Tile(currentX, currentY, Database.IRONORE);
-						} else if(highestNumber == coalChance) {
+						} else if(highestNumber == coalRandom) {
 							chunks[(width/(chunkSize))].tiles[tileIndex] = new Tile(currentX, currentY, Database.COALORE);
+						} else if(highestNumber == goldRandom) {
+							chunks[(width/(chunkSize))].tiles[tileIndex] = new Tile(currentX, currentY, Database.GOLDORE);
 						} else {
 							chunks[(width/(chunkSize))].tiles[tileIndex] = new Tile(currentX, currentY, Database.STONE);
 						}

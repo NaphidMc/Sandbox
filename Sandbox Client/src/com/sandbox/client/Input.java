@@ -23,7 +23,18 @@ public class Input {
 		
 		// Escape
 		if(key == 1){ 
-			Game.quit();
+			// Escape with inventory open closes the inventory
+			if(Game.myPlayer.inventoryOpen) {
+				if(Game.myPlayer.cursorItem == null) { 
+					Game.myPlayer.inventoryOpen = !Game.myPlayer.inventoryOpen;
+					
+					if(Game.myPlayer.cursorItem != null && Game.myPlayer.pickedUpItemOriginSlot != null){
+						Game.myPlayer.pickedUpItemOriginSlot.itemStack = Game.myPlayer.cursorItem;
+					}
+				}
+			} else {
+				Game.quit();
+			}
 		}
 		
 		// Many keyboard actions use the map, so it is best to not submit them when
@@ -83,9 +94,9 @@ public class Input {
 	}
 	
 	public static void keyReleased(int key, char c){
-		if(c == 'a'){
+		if(c == 'a') {
 			KEY_A_DOWN = false;
-		} else if(c == 'd'){
+		} else if(c == 'd') {
 			KEY_D_DOWN = false;
 		}
 	}
@@ -114,9 +125,25 @@ public class Input {
 			
 			// Checks if the player has a block selected in the hotbar
 			if(Game.myPlayer.selectedItem != null && Game.myPlayer.selectedItem.block != null && (t = Game.currentMap.getTileAtCoordinates(x - (int)Game.cameraOffsetX, y + (int)Game.cameraOffsetY)) != null && t.type == Database.AIR && !Game.myPlayer.inventoryOpen){
-				t.setTileType(Game.myPlayer.selectedItem.block); // Places the block
-				Game.currentMap.fixGrassBlocks();
-				Game.myPlayer.removeItem(Game.myPlayer.selectedItem, 1); // Removes 1 of the blocks from the inventory
+				boolean canPlace = true;
+				
+				// Tile under the tile the mouse is on
+				Tile tileUnderneath = Game.currentMap.getTileAtCoordinates(t.x, t.y + Tile.tileSize);
+				
+				// **SPECIAL CASES (Such as saplings)**
+				// Saplings have to be placed on a block (not in the air or on other saplings or on wood)
+				if(Game.myPlayer.selectedItem.block == Database.SAPLING) {
+					if(tileUnderneath != null && (tileUnderneath.type == Database.AIR || tileUnderneath.type == Database.WOOD 
+					|| tileUnderneath.type == Database.LEAVES || tileUnderneath.type == Database.SAPLING)) {
+						canPlace = false;
+					}
+				}
+					
+				if(canPlace) {
+					t.setTileType(Game.myPlayer.selectedItem.block); // Places the block
+					Game.currentMap.fixGrassBlocks();
+					Game.myPlayer.removeItem(Game.myPlayer.selectedItem, 1); // Removes 1 of the blocks from the inventory			
+				}
 			}
 			
 			// If the player is not holding a block or mining tool, the method specialTileInteraction in game checks if 

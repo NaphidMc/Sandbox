@@ -13,10 +13,10 @@ public class Player {
 	
 	public int ID = -1; // Unique ID used for multiplayer
 	// jumpVelocity at 45.0f allows for a two block-high jump
-	public float x, y, velocityX, velocityY, moveSpeed = 350f, jumpVelocity = 50.0f;  
+	public float x, y, velocityX, velocityY, moveSpeed = 350f, jumpVelocity = 55.0f;  
 	
 	// Variables for the player's hitbox
-	private int collisionRectOffsetX = Tile.tileSize * 0, collisionRectOffsetY = 10;
+	private int collisionRectOffsetX = -15, collisionRectOffsetY = 10;
 	public int width, height;
 	public Rectangle collisionRect;
 	
@@ -48,6 +48,21 @@ public class Player {
 	private float healthRegen = 5;  // The rate at which the player regenerates health every second
 	public double respawnTimer;     // The time until the player respawns (it's > 0 if the player is dead and <= 0 if the player is alive)
 	
+	// Animation variables:
+	public int textureX, textureY;
+	private enum animationStates {
+		idle, running, jumping
+	}
+	private animationStates animationState = animationStates.idle;
+	private int[][] idleFrames = {
+			{9, 0},
+	};
+	private int[][] frameSet;
+	private int frame = 0;
+	private double idleAnimationTimer = .15d;
+	private double currentAnimationTimer;
+	
+	
 	/**
 	 * Player constructor
 	 * @param startPositionX - Start position for the player (In pixels; world coordinates)
@@ -58,8 +73,8 @@ public class Player {
 		x = startPositionX;
 		y = startPositionY;
 		
-		width = Tile.tileSize;
-		height = Tile.tileSize * 2;
+		width = 60;
+		height = 110;
 		
 		collisionRect = new Rectangle((int)x + collisionRectOffsetX, (int)y + collisionRectOffsetY, width, height);
 		
@@ -75,7 +90,7 @@ public class Player {
 		for(int i = 0; i < Player.numberOfHotbarSlots; i++){
 			hotbar.add(new InventorySlot());
 		}
-		hotbar.get(0).itemStack = new ItemStack(Database.ITEM_PICKAXE, 1);
+		hotbar.get(0).itemStack = new ItemStack(Database.ITEM_MULTITOOL, 1);
 		hotbar.get(1).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
 		selectedItem = hotbar.get(0).itemStack.item; 	// By default the player selects the first hotbar slot
 		
@@ -84,6 +99,8 @@ public class Player {
 			inventory.add(new InventorySlot());
 		}
 		inventory.get(0).itemStack = new ItemStack(Database.ITEM_DIRT, 1);
+		
+		setAnimationState(animationStates.idle);	
 		
 	}
 	
@@ -350,11 +367,11 @@ public class Player {
 		
 		// Attempts to find a stack to add to 
 		for(int i = 0; i < inventory.size(); i++) {
-			if(inventory.get(i).itemStack == null || hotbar.get(i).itemStack.item == null) {
+			if(inventory.get(i).itemStack == null) {
 				continue;
 			}
 			
-			if(hotbar.get(i).itemStack.item.id == item.id) {
+			if(inventory.get(i).itemStack.item != null && inventory.get(i).itemStack.item.id == item.id) {
 				inventory.get(i).itemStack.quantity += quantity;
 				return;
 			}
@@ -437,7 +454,7 @@ public class Player {
 		}
 		else{
 			if(velocityY < 0){
-				if(velocityY < -65f){   // four block fall damage
+				if(velocityY < -75f){   // four block fall damage
 					addHealth(velocityY/4f);
 				}
 				velocityY = 0;
@@ -477,6 +494,44 @@ public class Player {
 			if(respawnTimer <= 0) {
 				respawn();
 			}
+		}
+		
+		updateTexture(deltaT/1000d);
+	}
+	
+	public void setAnimationState(animationStates newState) {
+		animationState = newState;
+		frame = 0;
+		
+		if(newState == animationStates.idle) {
+			frameSet = idleFrames;
+		} else {
+			frameSet = idleFrames; // TODO: Setup other animation states
+		}
+		
+		textureX = frameSet[frame][0];
+		textureY = frameSet[frame][1];
+	}
+	
+	// Changes player texture depending on animation
+	public void updateTexture(double deltaT) {
+		currentAnimationTimer -= deltaT;
+		if(currentAnimationTimer <= 0) {
+			if(animationState == animationStates.idle) {
+				currentAnimationTimer = idleAnimationTimer;
+			}
+			// Default value
+			else {
+				currentAnimationTimer = .10d;
+			}
+			
+			frame++;
+			if(frame >= frameSet.length) {
+				frame = 0;
+			}
+			
+			textureX = frameSet[frame][0];
+			textureY = frameSet[frame][1];
 		}
 	}
 }
